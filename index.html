@@ -6,7 +6,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover"/>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
-    /* আগের সব CSS কোড এখানে থাকবে */
     :root {
       --tg-theme-bg-color: var(--tg-bg-color, #0d0d1a);
       --tg-theme-text-color: var(--tg-text-color, #ffffff);
@@ -22,6 +21,8 @@
       text-align: center;
       padding: 20px;
       margin: 0;
+      opacity: 0;
+      transition: opacity 0.4s;
     }
     .container { max-width: 500px; margin: 0 auto; }
     h1 { color: var(--tg-theme-button-color); }
@@ -32,18 +33,26 @@
     .tab-content.active { display: block; }
     input { padding: 12px; margin: 10px 0; width: 95%; border-radius: 8px; font-size: 16px; border: 1px solid var(--tg-theme-hint-color); background: var(--tg-theme-secondary-bg-color); color: var(--tg-theme-text-color); }
     #mrcoin { width: 24px; vertical-align: middle; margin-right: 5px; }
-    #error-log {
-        position: fixed; top: 0; left: 0; width: 100%; background: #ff4d4d; color: white;
-        padding: 10px; font-size: 12px; text-align: left; z-index: 9999; display: none;
-        white-space: pre-wrap; /* To show line breaks in error message */
+    #notification {
+        position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
+        background-color: rgba(0, 0, 0, 0.7); color: white; padding: 10px 20px;
+        border-radius: 20px; font-size: 14px; z-index: 1000;
+        opacity: 0; transition: opacity 0.3s, bottom 0.3s; pointer-events: none;
     }
+    #ad-container {
+        margin: 20px 0;
+    }
+    iframe#ad {
+      width: 100%; height: 90px; border: none;
+      border-radius: 8px; background: #fff;
+    }
+    #error-log { /* ... ডিবাগিং এর জন্য এটি রেখে দেওয়া হলো ... */ }
   </style>
 </head>
 <body>
-
-  <!-- Error Display Div -->
+  
   <div id="error-log"></div>
-
+  
   <div class="container">
     <h1>🪙 MrCoin Master</h1>
     <div class="tab-nav">
@@ -51,11 +60,13 @@
       <button class="tab-button" onclick="showTab('wallet')">💼 Wallet</button>
       <button class="tab-button" onclick="showTab('profile')">👤 Profile</button>
     </div>
+    
     <div id="task" class="tab-content active">
       <h3>Today's Task</h3>
       <p id="task-text">Loading...</p>
       <input type="text" id="answer" placeholder="Your answer here" />
     </div>
+    
     <div id="wallet" class="tab-content">
       <h3>My Wallet</h3>
       <p><img id="mrcoin" src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/Gold_coin_icon.png/128px-Gold_coin_icon.png"/> MrCoins: <b id="coins">0</b></p>
@@ -63,23 +74,33 @@
       <h4>Withdraw MrCoins</h4>
       <input type="number" id="amount" placeholder="Coins to Withdraw (min 100)" />
     </div>
+    
     <div id="profile" class="tab-content">
       <h3>My Profile</h3>
       <p>👤 Player: <b id="username">Loading...</b></p>
       <p>📈 Level: <b id="level">1</b> | ⭐ XP: <b id="xp">0</b></p>
       <p>🎯 Points: <b id="points">0</b></p>
     </div>
+    
+    <!-- Ads Container -->
+    <div id="ad-container">
+        <iframe id="ad" srcdoc="
+        <script async='async' data-cfasync='false' src='//pl27105920.profitableratecpm.com/9db5b9b75728e725b0490f241552e303/invoke.js'></script>
+        <div id='container-9db5b9b75728e725b0490f241552e303'></div>
+      "></iframe>
+    </div>
   </div>
+
   <div id="notification"></div>
 
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 
   <script>
-   try { // <--- Start of error catching block
+   try {
     const firebaseConfig = {
       // আপনার Firebase কনফিগারেশন এখানে পেস্ট করুন
-      apiKey: "AIzaSy...Your-API-Key...", // <--- এই জায়গাটি ভালোভাবে চেক করুন
+      apiKey: "AIzaSy...Your-API-Key...",
       authDomain: "mr-coin-mastar.firebaseapp.com",
       projectId: "mr-coin-mastar",
       storageBucket: "mr-coin-mastar.appspot.com",
@@ -91,7 +112,6 @@
     const db = firebase.database();
     const tg = window.Telegram.WebApp;
 
-    // --- (বাকি কোড আগের মতোই) ---
     let level = 1, xp = 0, points = 0, coins = 0;
     let currentTaskIndex = 0;
     let currentTab = 'task';
@@ -101,27 +121,26 @@
         { text: "What is 15 * 6?", answer: "90" },
         { text: "What is the capital of Japan?", answer: "tokyo" },
         { text: "Translate 'water' to Bengali.", answer: "জল" },
+        { text: "What is 121 / 11?", answer: "11" },
+        { text: "Which planet is known as the Red Planet?", answer: "mars" },
     ];
     
-    function configureMainButton() { /* ... আগের মতোই ... */ }
-    function showTab(tabName) { /* ... আগের মতোই ... */ }
-    function updateUI() { /* ... আগের মতোই ... */ }
-    function saveData() { /* ... আগের মতোই ... */ }
-    function loadFromFirebase() { /* ... আগের মতোই ... */ }
-    function displayTask() { /* ... আগের মতোই ... */ }
-    function submitAnswer() { /* ... আগের মতোই ... */ }
-    function requestWithdraw() { /* ... আগের মতোই ... */ }
+    function showNotification(message, isError = false) {
+        const el = document.getElementById('notification');
+        el.textContent = message;
+        el.style.backgroundColor = isError ? 'rgba(255, 50, 50, 0.8)' : 'rgba(50, 205, 50, 0.8)';
+        el.style.opacity = 1;
+        el.style.bottom = '80px';
+        setTimeout(() => { el.style.opacity = 0; el.style.bottom = '60px'; }, 2000);
+    }
 
-    // --- মূল ফাংশনগুলো এখানে আবার পেস্ট করছি ---
     function configureMainButton() {
         if (currentTab === 'task') {
-            tg.MainButton.setText("Submit Answer");
+            tg.MainButton.setText("Submit Answer").show();
             tg.MainButton.onClick(submitAnswer);
-            tg.MainButton.show();
         } else if (currentTab === 'wallet') {
-            tg.MainButton.setText("Request Withdraw");
+            tg.MainButton.setText("Request Withdraw").show();
             tg.MainButton.onClick(requestWithdraw);
-            tg.MainButton.show();
         } else {
             tg.MainButton.hide();
         }
@@ -129,8 +148,8 @@
     
     function showTab(tabName) {
         currentTab = tabName;
-        document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-        document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.tab-button').forEach(el => el.classList.remove('active'));
         
         document.getElementById(tabName).classList.add('active');
         document.querySelector(`.tab-button[onclick="showTab('${tabName}')"]`).classList.add('active');
@@ -138,7 +157,9 @@
     }
 
     function updateUI() {
-        document.getElementById("username").textContent = tg.initDataUnsafe.user?.first_name || 'Player';
+        if (userId) {
+          document.getElementById("username").textContent = tg.initDataUnsafe.user?.first_name || 'Player';
+        }
         document.getElementById("level").textContent = level;
         document.getElementById("xp").textContent = xp;
         document.getElementById("points").textContent = points;
@@ -151,8 +172,7 @@
     }
 
     function loadFromFirebase() {
-        db.ref(`players_tg/${userId}`).once("value")
-        .then(snapshot => {
+        db.ref(`players_tg/${userId}`).once("value").then(snapshot => {
             if (snapshot.exists()) {
                 const data = snapshot.val();
                 level = data.level || 1;
@@ -165,10 +185,9 @@
             }
             displayTask();
             updateUI();
-            tg.MainButton.show();
-        })
-        .catch(error => {
-            throw new Error("Firebase Read Failed: " + error.message);
+            document.body.style.opacity = 1;
+        }).catch(err => {
+            throw new Error("Firebase Read Error: " + err.message);
         });
     }
 
@@ -181,17 +200,72 @@
         }
         document.getElementById("task-text").textContent = tasks[currentTaskIndex].text;
         document.getElementById("answer").value = "";
+        document.getElementById("answer").style.display = 'block';
     }
 
-    function submitAnswer() { /* ... আগের মতোই ... */ }
-    function requestWithdraw() { /* ... আগের মতোই ... */ }
+    function submitAnswer() {
+        if(tg.MainButton.isLoading) return; // Prevent multiple clicks
+        const userAnswer = document.getElementById("answer").value.trim().toLowerCase();
+        if (currentTaskIndex >= tasks.length) return;
+        const task = tasks[currentTaskIndex];
+
+        if (userAnswer === task.answer) {
+            tg.MainButton.showProgress();
+            points += 10; xp += 5;
+            if (xp >= 100) { level++; xp %= 100; }
+            if (points >= 1000) { coins += Math.floor(points / 1000); points %= 1000; }
+            currentTaskIndex++;
+            
+            saveData();
+            updateUI();
+            displayTask();
+            
+            tg.HapticFeedback.notificationOccurred('success');
+            showNotification("Correct! You earned 10 points.");
+            tg.MainButton.hideProgress();
+        } else {
+            tg.HapticFeedback.notificationOccurred('error');
+            showNotification("Wrong Answer. Try again!", true);
+        }
+    }
+
+    function requestWithdraw() {
+        if(tg.MainButton.isLoading) return;
+        const amount = parseInt(document.getElementById("amount").value.trim());
+        if (isNaN(amount) || amount < 100) {
+            showNotification("Minimum 100 coins required.", true); return;
+        }
+        if (amount > coins) {
+            showNotification("Not enough balance.", true); return;
+        }
+
+        tg.MainButton.showProgress();
+        const requestData = {
+            telegramUsername: tg.initDataUnsafe.user?.username || 'N/A',
+            amount, status: 'pending', timestamp: new Date().toISOString()
+        };
+        
+        db.ref(`withdraw_requests/${userId}`).push(requestData).then(() => {
+            coins -= amount;
+            saveData();
+            updateUI();
+            document.getElementById("amount").value = "";
+            showNotification("Withdraw request submitted!");
+            tg.HapticFeedback.notificationOccurred('success');
+        }).catch(() => {
+            showNotification("Error: Could not submit request.", true);
+        }).finally(() => {
+            tg.MainButton.hideProgress();
+        });
+    }
 
     function initializeApp() {
         tg.ready();
         tg.expand();
+        tg.setHeaderColor(getComputedStyle(document.documentElement).getPropertyValue('--tg-theme-secondary-bg-color').trim());
         
         if (!tg.initDataUnsafe?.user) {
-            throw new Error("Cannot get user data. Please open in Telegram.");
+            throw new Error("This app can only be used inside Telegram.");
         }
 
         userId = String(tg.initDataUnsafe.user.id);
@@ -201,13 +275,15 @@
 
     initializeApp();
 
-   } catch (error) { // <--- End of error catching block
+   } catch (error) {
         const errorDiv = document.getElementById('error-log');
-        errorDiv.style.display = 'block';
-        errorDiv.textContent = 'An Error Occurred:\n' + error.stack;
-        // Hide main button if there's an error
-        window.Telegram.WebApp.MainButton.hide();
+        if (errorDiv) {
+            errorDiv.style.display = 'block';
+            errorDiv.textContent = 'An Error Occurred:\n' + error.message + '\n' + (error.stack || '');
+        }
+        // Safely try to hide the main button
+        try { window.Telegram.WebApp.MainButton.hide(); } catch (e) {}
    }
   </script>
 </body>
-  </html>
+</html>
