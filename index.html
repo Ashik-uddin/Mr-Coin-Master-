@@ -4,162 +4,203 @@
   <meta charset="UTF-8" />
   <title>MrCoin Master</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover"/>
+  <!-- Google Fonts for better typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
+    /* Upgraded UI Styles */
     :root {
-      --tg-theme-bg-color: var(--tg-bg-color, #0d0d1a);
-      --tg-theme-text-color: var(--tg-text-color, #ffffff);
-      --tg-theme-hint-color: var(--tg-hint-color, #aaa);
-      --tg-theme-button-color: var(--tg-button-color, #FFD700);
-      --tg-theme-button-text-color: var(--tg-button-text-color, #000);
-      --tg-theme-secondary-bg-color: var(--tg-secondary-bg-color, #14142b);
+      --tg-bg-color: #1c1c1e;
+      --tg-text-color: #ffffff;
+      --tg-secondary-bg-color: #2c2c2e;
+      --tg-button-color: #ffd700;
+      --tg-button-text-color: #000000;
+      --tg-hint-color: #999999;
+      font-family: 'Poppins', sans-serif;
     }
     body {
-      background: var(--tg-theme-bg-color);
-      color: var(--tg-theme-text-color);
-      font-family: 'Segoe UI', sans-serif;
-      text-align: center;
-      padding: 20px;
+      background: var(--tg-bg-color);
+      color: var(--tg-text-color);
       margin: 0;
-      opacity: 0;
-      transition: opacity 0.4s;
+      padding: 15px;
+      -webkit-font-smoothing: antialiased;
+      text-align: center;
     }
-    .container { max-width: 500px; margin: 0 auto; }
-    h1 { color: var(--tg-theme-button-color); }
-    .tab-nav { display: flex; justify-content: space-around; background: var(--tg-theme-secondary-bg-color); padding: 10px; border-radius: 12px; margin-bottom: 20px; }
-    .tab-button { background: none; border: none; color: var(--tg-theme-text-color); font-size: 16px; padding: 10px 15px; cursor: pointer; border-radius: 8px; font-weight: bold; }
-    .tab-button.active { background: var(--tg-theme-button-color); color: var(--tg-theme-button-text-color); }
-    .tab-content { display: none; background: var(--tg-theme-secondary-bg-color); padding: 20px; border-radius: 12px; }
-    .tab-content.active { display: block; }
-    input { padding: 12px; margin: 10px 0; width: 95%; border-radius: 8px; font-size: 16px; border: 1px solid var(--tg-theme-hint-color); background: var(--tg-theme-secondary-bg-color); color: var(--tg-theme-text-color); }
-    #mrcoin { width: 24px; vertical-align: middle; margin-right: 5px; }
-    #notification {
-        position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
-        background-color: rgba(0, 0, 0, 0.7); color: white; padding: 10px 20px;
-        border-radius: 20px; font-size: 14px; z-index: 1000;
-        opacity: 0; transition: opacity 0.3s, bottom 0.3s; pointer-events: none;
+    .main-container {
+      max-width: 600px;
+      margin: 0 auto;
     }
-    #ad-container {
-        margin: 20px 0;
+    .header {
+      margin-bottom: 25px;
     }
-    iframe#ad {
-      width: 100%; height: 90px; border: none;
-      border-radius: 8px; background: #fff;
+    .header h1 {
+      color: var(--tg-button-color);
+      font-size: 28px;
+      font-weight: 700;
+      margin: 0;
     }
-    #error-log { /* ... ডিবাগিং এর জন্য এটি রেখে দেওয়া হলো ... */ }
+    .header p {
+      color: var(--tg-hint-color);
+      margin: 5px 0 0;
+    }
+    .card {
+      background: var(--tg-secondary-bg-color);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 20px;
+      text-align: left;
+    }
+    .card h3 {
+      margin-top: 0;
+      font-weight: 600;
+      border-bottom: 1px solid var(--tg-hint-color);
+      padding-bottom: 10px;
+      margin-bottom: 15px;
+    }
+    .profile-grid, .wallet-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+    .info-box {
+      background: #3a3a3c;
+      padding: 15px;
+      border-radius: 12px;
+      text-align: center;
+    }
+    .info-box span {
+      display: block;
+      font-size: 14px;
+      color: var(--tg-hint-color);
+    }
+    .info-box b {
+      font-size: 20px;
+      font-weight: 600;
+    }
+    .task-container p {
+      font-size: 18px;
+      font-weight: 500;
+      min-height: 50px;
+    }
+    input[type="text"], input[type="number"] {
+      width: calc(100% - 24px);
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid #444;
+      background: #3a3a3c;
+      color: var(--tg-text-color);
+      font-size: 16px;
+      font-family: 'Poppins', sans-serif;
+    }
+    /* Advertisement Section */
+    .ad-container {
+      margin: 20px 0;
+      padding: 10px;
+      background: var(--tg-secondary-bg-color);
+      border-radius: 12px;
+    }
+    .ad-container span {
+        font-size: 12px;
+        color: var(--tg-hint-color);
+    }
   </style>
 </head>
 <body>
-  
-  <div id="error-log"></div>
-  
-  <div class="container">
-    <h1>🪙 MrCoin Master</h1>
-    <div class="tab-nav">
-      <button class="tab-button active" onclick="showTab('task')">🧠 Task</button>
-      <button class="tab-button" onclick="showTab('wallet')">💼 Wallet</button>
-      <button class="tab-button" onclick="showTab('profile')">👤 Profile</button>
+
+  <div class="main-container">
+    <div class="header">
+      <p>Welcome, <b id="username">Player</b></p>
+      <h1>MrCoin Master</h1>
+    </div>
+
+    <!-- Profile Card -->
+    <div class="card">
+      <h3>👤 Profile</h3>
+      <div class="profile-grid">
+        <div class="info-box"><span>Level</span> <b id="level">1</b></div>
+        <div class="info-box"><span>XP</span> <b id="xp">0</b></div>
+      </div>
     </div>
     
-    <div id="task" class="tab-content active">
-      <h3>Today's Task</h3>
-      <p id="task-text">Loading...</p>
-      <input type="text" id="answer" placeholder="Your answer here" />
+    <!-- Wallet Card -->
+    <div class="card">
+      <h3>💼 Wallet</h3>
+      <div class="wallet-grid">
+        <div class="info-box"><span>Points</span> <b id="points">0</b></div>
+        <div class="info-box"><span>💰 MrCoins</span> <b id="coins">0</b></div>
+      </div>
+      <h4 style="margin-top: 25px; margin-bottom: 10px;">Withdraw</h4>
+      <input type="number" id="amount" placeholder="Withdraw Coins (min 100)" onfocus="configureWithdrawButton()">
     </div>
-    
-    <div id="wallet" class="tab-content">
-      <h3>My Wallet</h3>
-      <p><img id="mrcoin" src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/Gold_coin_icon.png/128px-Gold_coin_icon.png"/> MrCoins: <b id="coins">0</b></p>
-      <hr>
-      <h4>Withdraw MrCoins</h4>
-      <input type="number" id="amount" placeholder="Coins to Withdraw (min 100)" />
+
+    <!-- Task Card -->
+    <div class="card task-container">
+      <h3>🧠 Task</h3>
+      <p id="task-text">Loading Task...</p>
+      <input type="text" id="answer" placeholder="Type your answer here" onfocus="configureTaskButton()">
     </div>
-    
-    <div id="profile" class="tab-content">
-      <h3>My Profile</h3>
-      <p>👤 Player: <b id="username">Loading...</b></p>
-      <p>📈 Level: <b id="level">1</b> | ⭐ XP: <b id="xp">0</b></p>
-      <p>🎯 Points: <b id="points">0</b></p>
-    </div>
-    
-    <!-- Ads Container -->
-    <div id="ad-container">
-        <iframe id="ad" srcdoc="
-        <script async='async' data-cfasync='false' src='//pl27105920.profitableratecpm.com/9db5b9b75728e725b0490f241552e303/invoke.js'></script>
-        <div id='container-9db5b9b75728e725b0490f241552e303'></div>
-      "></iframe>
+
+    <!-- Advertisement Card -->
+    <div class="ad-container">
+        <span>Advertisement</span>
+        <!-- আপনার profitableratecpm বা propellerads ব্যানার কোড এখানে পেস্ট করুন -->
+        <div id="container-9db5b9b75728e725b0490f241552e303"></div>
     </div>
   </div>
-
-  <div id="notification"></div>
-
+  
+  <!-- PropellerAds Onclick Ad Code: এই কোডটি বডির শেষে থাকবে -->
+  <script>(function(s,u,z,p){s.src=u,s.setAttribute('data-zone',z),p.appendChild(s);})(document.createElement('script'),'https://inklinkor.com/tag.min.js',document.body,'7818788')</script>
+  
+  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 
   <script>
-   try {
     const firebaseConfig = {
-      // আপনার Firebase কনফিগারেশন এখানে পেস্ট করুন
-      apiKey: "AIzaSy...Your-API-Key...",
-      authDomain: "mr-coin-mastar.firebaseapp.com",
-      projectId: "mr-coin-mastar",
-      storageBucket: "mr-coin-mastar.appspot.com",
-      messagingSenderId: "275029670605",
-      appId: "1:275029670605:web:e42bb40e9b26314367c784"
+        // আপনার Firebase কনফিগারেশন এখানে পেস্ট করুন
+        apiKey: "AIzaSy...Your-API-Key...",
+        authDomain: "mr-coin-mastar.firebaseapp.com",
+        projectId: "mr-coin-mastar",
+        storageBucket: "mr-coin-mastar.appspot.com",
+        messagingSenderId: "275029670605",
+        appId: "1:275029670605:web:e42bb40e9b26314367c784"
     };
 
-    firebase.initializeApp(firebaseConfig);
+    try {
+        firebase.initializeApp(firebaseConfig);
+    } catch(e) { console.error("Firebase initialization failed:", e); }
+    
     const db = firebase.database();
     const tg = window.Telegram.WebApp;
 
     let level = 1, xp = 0, points = 0, coins = 0;
     let currentTaskIndex = 0;
-    let currentTab = 'task';
     let userId = null;
 
     const tasks = [
-        { text: "What is 15 * 6?", answer: "90" },
-        { text: "What is the capital of Japan?", answer: "tokyo" },
-        { text: "Translate 'water' to Bengali.", answer: "জল" },
-        { text: "What is 121 / 11?", answer: "11" },
-        { text: "Which planet is known as the Red Planet?", answer: "mars" },
+        { text: "What is 15 multiplied by 6?", answer: "90" },
+        { text: "Which country's capital is Tokyo?", answer: "japan" },
+        { text: "Translate 'sky' to Bengali.", answer: "আকাশ" },
+        { text: "What comes next in the series: 2, 4, 8, 16, ?", answer: "32" },
+        { text: "How many sides does a hexagon have?", answer: "6" },
     ];
     
-    function showNotification(message, isError = false) {
-        const el = document.getElementById('notification');
-        el.textContent = message;
-        el.style.backgroundColor = isError ? 'rgba(255, 50, 50, 0.8)' : 'rgba(50, 205, 50, 0.8)';
-        el.style.opacity = 1;
-        el.style.bottom = '80px';
-        setTimeout(() => { el.style.opacity = 0; el.style.bottom = '60px'; }, 2000);
+    function configureTaskButton() {
+        tg.MainButton.setText("Submit Answer");
+        tg.MainButton.onClick(submitAnswer);
+        tg.MainButton.show();
     }
 
-    function configureMainButton() {
-        if (currentTab === 'task') {
-            tg.MainButton.setText("Submit Answer").show();
-            tg.MainButton.onClick(submitAnswer);
-        } else if (currentTab === 'wallet') {
-            tg.MainButton.setText("Request Withdraw").show();
-            tg.MainButton.onClick(requestWithdraw);
-        } else {
-            tg.MainButton.hide();
-        }
-    }
-    
-    function showTab(tabName) {
-        currentTab = tabName;
-        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-        document.querySelectorAll('.tab-button').forEach(el => el.classList.remove('active'));
-        
-        document.getElementById(tabName).classList.add('active');
-        document.querySelector(`.tab-button[onclick="showTab('${tabName}')"]`).classList.add('active');
-        configureMainButton();
+    function configureWithdrawButton() {
+        tg.MainButton.setText("Request Withdraw");
+        tg.MainButton.onClick(requestWithdraw);
+        tg.MainButton.show();
     }
 
     function updateUI() {
-        if (userId) {
-          document.getElementById("username").textContent = tg.initDataUnsafe.user?.first_name || 'Player';
-        }
+        document.getElementById("username").textContent = tg.initDataUnsafe.user?.first_name || 'Player';
         document.getElementById("level").textContent = level;
         document.getElementById("xp").textContent = xp;
         document.getElementById("points").textContent = points;
@@ -181,65 +222,69 @@
                 coins = data.coins || 0;
                 currentTaskIndex = data.currentTaskIndex || 0;
             } else {
-                saveData();
+                saveData(); // Save initial data for new user
             }
             displayTask();
             updateUI();
-            document.body.style.opacity = 1;
-        }).catch(err => {
-            throw new Error("Firebase Read Error: " + err.message);
-        });
+            configureTaskButton(); // Set initial button state
+        }).catch(e => console.error("Firebase read error:", e));
     }
 
     function displayTask() {
+        const taskText = document.getElementById("task-text");
+        const answerInput = document.getElementById("answer");
         if (currentTaskIndex >= tasks.length) {
-            document.getElementById("task-text").textContent = "🎉 All tasks complete!";
-            document.getElementById("answer").style.display = 'none';
-            if(currentTab === 'task') tg.MainButton.hide();
-            return;
+            taskText.textContent = "🎉 You have completed all tasks!";
+            answerInput.style.display = 'none';
+            tg.MainButton.hide();
+        } else {
+            taskText.textContent = tasks[currentTaskIndex].text;
+            answerInput.value = "";
+            answerInput.style.display = 'block';
         }
-        document.getElementById("task-text").textContent = tasks[currentTaskIndex].text;
-        document.getElementById("answer").value = "";
-        document.getElementById("answer").style.display = 'block';
     }
 
     function submitAnswer() {
-        if(tg.MainButton.isLoading) return; // Prevent multiple clicks
+        if (tg.MainButton.isLoading) return; // Prevent multiple clicks
         const userAnswer = document.getElementById("answer").value.trim().toLowerCase();
         if (currentTaskIndex >= tasks.length) return;
         const task = tasks[currentTaskIndex];
 
-        if (userAnswer === task.answer) {
-            tg.MainButton.showProgress();
-            points += 10; xp += 5;
-            if (xp >= 100) { level++; xp %= 100; }
-            if (points >= 1000) { coins += Math.floor(points / 1000); points %= 1000; }
-            currentTaskIndex++;
-            
-            saveData();
-            updateUI();
-            displayTask();
-            
-            tg.HapticFeedback.notificationOccurred('success');
-            showNotification("Correct! You earned 10 points.");
-            tg.MainButton.hideProgress();
-        } else {
-            tg.HapticFeedback.notificationOccurred('error');
-            showNotification("Wrong Answer. Try again!", true);
-        }
+        tg.MainButton.showProgress();
+
+        setTimeout(() => { // Simulate processing time
+            if (userAnswer === task.answer) {
+                points += 10; xp += 5;
+                if (xp >= 100 * level) { level++; xp = 0; }
+                if (points >= 1000) { coins += Math.floor(points / 1000); points %= 1000; }
+                currentTaskIndex++;
+                
+                saveData();
+                updateUI();
+                displayTask();
+                
+                tg.HapticFeedback.notificationOccurred('success');
+                tg.MainButton.hideProgress();
+            } else {
+                tg.HapticFeedback.notificationOccurred('error');
+                tg.MainButton.hideProgress();
+                alert("Wrong Answer. Try again!");
+            }
+        }, 500);
     }
 
     function requestWithdraw() {
-        if(tg.MainButton.isLoading) return;
+        if (tg.MainButton.isLoading) return;
         const amount = parseInt(document.getElementById("amount").value.trim());
         if (isNaN(amount) || amount < 100) {
-            showNotification("Minimum 100 coins required.", true); return;
+            alert("Minimum 100 coins required."); return;
         }
         if (amount > coins) {
-            showNotification("Not enough balance.", true); return;
+            alert("Not enough balance."); return;
         }
 
         tg.MainButton.showProgress();
+
         const requestData = {
             telegramUsername: tg.initDataUnsafe.user?.username || 'N/A',
             amount, status: 'pending', timestamp: new Date().toISOString()
@@ -250,40 +295,40 @@
             saveData();
             updateUI();
             document.getElementById("amount").value = "";
-            showNotification("Withdraw request submitted!");
             tg.HapticFeedback.notificationOccurred('success');
-        }).catch(() => {
-            showNotification("Error: Could not submit request.", true);
-        }).finally(() => {
             tg.MainButton.hideProgress();
+            alert("Withdraw request submitted!");
+        }).catch(() => {
+            tg.MainButton.hideProgress();
+            alert("Error: Could not submit request.");
         });
     }
 
     function initializeApp() {
         tg.ready();
         tg.expand();
-        tg.setHeaderColor(getComputedStyle(document.documentElement).getPropertyValue('--tg-theme-secondary-bg-color').trim());
+        // Set header color to match the card background
+        tg.setHeaderColor(getComputedStyle(document.documentElement).getPropertyValue('--tg-secondary-bg-color').trim());
         
         if (!tg.initDataUnsafe?.user) {
-            throw new Error("This app can only be used inside Telegram.");
+            document.body.innerHTML = "<h1>Please open this game inside Telegram.</h1>";
+            return;
         }
-
         userId = String(tg.initDataUnsafe.user.id);
-        configureMainButton();
         loadFromFirebase();
     }
 
     initializeApp();
 
-   } catch (error) {
-        const errorDiv = document.getElementById('error-log');
-        if (errorDiv) {
-            errorDiv.style.display = 'block';
-            errorDiv.textContent = 'An Error Occurred:\n' + error.message + '\n' + (error.stack || '');
-        }
-        // Safely try to hide the main button
-        try { window.Telegram.WebApp.MainButton.hide(); } catch (e) {}
-   }
+    // Your profitableratecpm ad script
+    (function() {
+      var s = document.createElement('script');
+      s.async = true;
+      s.dataset.cfasync = false;
+      s.src = '//pl27105920.profitableratecpm.com/9db5b9b75728e725b0490f241552e303/invoke.js';
+      var H = document.getElementsByTagName('script')[0];
+      H.parentNode.insertBefore(s, H);
+    })();
   </script>
 </body>
-</html>
+  </html>
