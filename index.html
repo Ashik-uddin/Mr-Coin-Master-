@@ -3,225 +3,295 @@
 <head>
   <meta charset="UTF-8" />
   <title>MrCoin Master</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
-  <!-- Telegram WebApp Script (এটি খুব জরুরি) -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover"/>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
-    /* আপনার আগের CSS কোড এখানে থাকবে */
+    /* Use Telegram's Theme Parameters for colors */
+    :root {
+      --tg-theme-bg-color: var(--tg-bg-color, #0d0d1a);
+      --tg-theme-text-color: var(--tg-text-color, #ffffff);
+      --tg-theme-hint-color: var(--tg-hint-color, #aaa);
+      --tg-theme-button-color: var(--tg-button-color, #FFD700);
+      --tg-theme-button-text-color: var(--tg-button-text-color, #000);
+      --tg-theme-secondary-bg-color: var(--tg-secondary-bg-color, #14142b);
+    }
     body {
-      background: #0d0d1a;
-      color: #ffffff;
+      background: var(--tg-theme-bg-color);
+      color: var(--tg-theme-text-color);
       font-family: 'Segoe UI', sans-serif;
       text-align: center;
       padding: 20px;
+      margin: 0;
+      opacity: 0; /* Initially hidden for smooth loading */
+      transition: opacity 0.5s;
+    }
+    .container {
+      max-width: 500px;
+      margin: 0 auto;
     }
     h1 {
-      color: #FFD700;
-      margin-bottom: 10px;
+      color: var(--tg-theme-button-color);
     }
-    #profile, #wallet, #task, #withdraw {
-      background: #14142b;
-      padding: 15px;
-      margin: 15px auto;
-      border-radius: 12px;
-      max-width: 500px;
-      box-shadow: 0 0 15px #FFD70033;
-    }
-    input, select, button {
+    .tab-nav {
+      display: flex;
+      justify-content: space-around;
+      background: var(--tg-theme-secondary-bg-color);
       padding: 10px;
-      margin: 8px 0;
-      width: 90%;
-      border-radius: 8px;
-      font-size: 16px;
-      border: none;
+      border-radius: 12px;
+      margin-bottom: 20px;
     }
-    input, select {
-      background: #1a1a2e;
-      color: #FFD700;
-      border: 1px solid #FFD70066;
+    .tab-button {
+      background: none; border: none;
+      color: var(--tg-theme-text-color);
+      font-size: 16px; padding: 10px 15px; cursor: pointer;
+      border-radius: 8px; font-weight: bold;
     }
-    button {
-      background: #FFD700;
-      color: #000;
-      font-weight: bold;
-      cursor: pointer;
+    .tab-button.active {
+      background: var(--tg-theme-button-color);
+      color: var(--tg-theme-button-text-color);
     }
-    button:hover {
-      background: #ffcc00;
+    .tab-content {
+      display: none;
+      background: var(--tg-theme-secondary-bg-color);
+      padding: 20px;
+      border-radius: 12px;
     }
-    #mrcoin {
-      width: 24px;
-      vertical-align: middle;
-      margin-right: 5px;
+    .tab-content.active {
+      display: block;
     }
-    iframe#ad {
-      width: 100%;
-      height: 90px;
-      border: none;
-      margin: 20px 0;
-      border-radius: 8px;
-      background: #fff;
+    input {
+      padding: 12px; margin: 10px 0; width: 95%; border-radius: 8px; font-size: 16px;
+      border: 1px solid var(--tg-theme-hint-color);
+      background: var(--tg-theme-secondary-bg-color);
+      color: var(--tg-theme-text-color);
+    }
+    #mrcoin { width: 24px; vertical-align: middle; margin-right: 5px; }
+    #notification {
+        position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
+        background-color: rgba(0, 0, 0, 0.7); color: white; padding: 10px 20px;
+        border-radius: 20px; font-size: 14px; z-index: 1000;
+        opacity: 0; transition: opacity 0.3s, bottom 0.3s;
     }
   </style>
 </head>
 <body>
 
-  <h1>🪙 MrCoin Master</h1>
+  <div class="container">
+    <h1>🪙 MrCoin Master</h1>
 
-  <div id="game-container">
-    <div id="profile">
-      <!-- ব্যবহারকারীর নাম টেলিগ্রাম থেকে আসবে -->
+    <div class="tab-nav">
+      <button class="tab-button active" onclick="showTab('task')">🧠 Task</button>
+      <button class="tab-button" onclick="showTab('wallet')">💼 Wallet</button>
+      <button class="tab-button" onclick="showTab('profile')">👤 Profile</button>
+    </div>
+
+    <!-- Task Tab -->
+    <div id="task" class="tab-content active">
+      <h3>Today's Task</h3>
+      <p id="task-text">Loading...</p>
+      <input type="text" id="answer" placeholder="Your answer here" />
+    </div>
+
+    <!-- Wallet Tab -->
+    <div id="wallet" class="tab-content">
+      <h3>My Wallet</h3>
+      <p><img id="mrcoin" src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/Gold_coin_icon.png/128px-Gold_coin_icon.png"/> MrCoins: <b id="coins">0</b></p>
+      <hr>
+      <h4>Withdraw MrCoins</h4>
+      <input type="number" id="amount" placeholder="Coins to Withdraw (min 100)" />
+      <!-- The button is now Telegram's Main Button -->
+    </div>
+    
+    <!-- Profile Tab -->
+    <div id="profile" class="tab-content">
+      <h3>My Profile</h3>
       <p>👤 Player: <b id="username">Loading...</b></p>
       <p>📈 Level: <b id="level">1</b> | ⭐ XP: <b id="xp">0</b></p>
-    </div>
-
-    <div id="wallet">
       <p>🎯 Points: <b id="points">0</b></p>
-      <p><img id="mrcoin" src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/Gold_coin_icon.png/128px-Gold_coin_icon.png"/> MrCoins: <b id="coins">0</b></p>
-    </div>
-
-    <div id="task">
-      <h3>🧠 Task</h3>
-      <p id="task-text">Loading task...</p>
-      <input type="text" id="answer" placeholder="Your answer" />
-      <br/>
-      <button onclick="submitAnswer()">Submit Answer</button>
-    </div>
-
-    <iframe id="ad" srcdoc="
-      <script async='async' data-cfasync='false' src='//pl27105920.profitableratecpm.com/9db5b9b75728e725b0490f241552e303/invoke.js'></script>
-      <div id='container-9db5b9b75728e725b0490f241552e303'></div>
-    "></iframe>
-
-    <div id="withdraw">
-      <h3>💸 Withdraw MrCoins</h3>
-      <input type="text" id="name" placeholder="Your Name" />
-      <input type="number" id="amount" placeholder="MrCoins to Withdraw (min 10)" />
-      <select id="method">
-        <option value="bKash">bKash</option>
-        <option value="Nagad">Nagad</option>
-      </select>
-      <input type="text" id="number" placeholder="Your Payment Number" />
-      <button onclick="submitWithdraw()">Request Withdraw</button>
-      <div id="message"></div>
     </div>
   </div>
 
-  <!-- Firebase SDKs -->
+  <div id="notification"></div>
+
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 
   <script>
     const firebaseConfig = {
-      // আপনার Firebase কনফিগারেশন এখানে থাকবে
-      apiKey: "AIzaSyBdUOmQQlRfpNkHpDdMpiAOrsAehqKEdt4",
+      // আপনার Firebase কনফিগারেশন এখানে পেস্ট করুন
+      apiKey: "AIzaSy...Your-API-Key...",
       authDomain: "mr-coin-mastar.firebaseapp.com",
       projectId: "mr-coin-mastar",
-      storageBucket: "mr-coin-mastar.firebasestorage.app",
+      storageBucket: "mr-coin-mastar.appspot.com",
       messagingSenderId: "275029670605",
-      appId: "1:275029670605:android:e42bb40e9b26314367c784"
+      appId: "1:275029670605:web:e42bb40e9b26314367c784"
     };
 
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
-
-    // --- টেলিগ্রাম ইন্টিগ্রেশন ---
-    const tg = window.Telegram.WebApp;
-    tg.ready(); // টেলিগ্রামকে জানানো হচ্ছে যে অ্যাপটি রেডি
-
-    // টেলিগ্রাম ব্যবহারকারীর তথ্য নেওয়া হচ্ছে
-    const tgUser = tg.initDataUnsafe?.user;
-    // ব্যবহারকারীর ইউনিক আইডি দিয়ে ডেটাবেস ম্যানেজ করা হবে, এটি সবচেয়ে নিরাপদ
-    const userId = tgUser ? String(tgUser.id) : "guest_user"; 
     
-    // UI-তে ব্যবহারকারীর নাম দেখানো হচ্ছে
-    document.getElementById("username").textContent = tgUser?.first_name || "Guest";
+    const tg = window.Telegram.WebApp;
 
-    // গেমের ভ্যারিয়েবল
     let level = 1, xp = 0, points = 0, coins = 0;
+    let currentTaskIndex = 0;
+    let currentTab = 'task';
+    let userId = null;
 
     const tasks = [
-      { text: "What is 2 + 2?", answer: "4" },
-      { text: "Type 'hello'", answer: "hello" },
-      ...Array.from({ length: 500 }, (_, i) => ({
-        text: `Task #${i+6}: Type '${i+6}'`, answer: `${i+6}`
-      }))
+        { text: "What is 15 * 6?", answer: "90" },
+        { text: "What is the capital of Japan?", answer: "tokyo" },
+        { text: "Translate 'water' to Bengali.", answer: "জল" },
+        { text: "What is 121 / 11?", answer: "11" },
+        { text: "Which planet is known as the Red Planet?", answer: "mars" },
+        { text: "Type the fourth word in this sentence.", answer: "fourth" },
     ];
+
+    function showNotification(message, isError = false) {
+        const notification = document.getElementById('notification');
+        notification.textContent = message;
+        notification.style.backgroundColor = isError ? 'rgba(255, 50, 50, 0.8)' : 'rgba(50, 205, 50, 0.8)';
+        notification.style.opacity = 1;
+        notification.style.bottom = '80px';
+        setTimeout(() => {
+            notification.style.opacity = 0;
+            notification.style.bottom = '60px';
+        }, 2000);
+    }
+
+    function configureMainButton() {
+        if (currentTab === 'task') {
+            tg.MainButton.setText("Submit Answer");
+            tg.MainButton.onClick(submitAnswer);
+            tg.MainButton.show();
+        } else if (currentTab === 'wallet') {
+            tg.MainButton.setText("Request Withdraw");
+            tg.MainButton.onClick(requestWithdraw);
+            tg.MainButton.show();
+        } else {
+            tg.MainButton.hide();
+        }
+    }
     
-    // --- গেমের ফাংশন (আগের মতোই) ---
+    function showTab(tabName) {
+        currentTab = tabName;
+        document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+        document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+        
+        document.getElementById(tabName).classList.add('active');
+        document.querySelector(`.tab-button[onclick="showTab('${tabName}')"]`).classList.add('active');
+        configureMainButton();
+    }
+
     function updateUI() {
-      document.getElementById("level").textContent = level;
-      document.getElementById("xp").textContent = xp;
-      document.getElementById("points").textContent = points;
-      document.getElementById("coins").textContent = coins;
+        document.getElementById("username").textContent = tg.initDataUnsafe.user?.first_name || 'Player';
+        document.getElementById("level").textContent = level;
+        document.getElementById("xp").textContent = xp;
+        document.getElementById("points").textContent = points;
+        document.getElementById("coins").textContent = coins;
     }
-
-    function loadTask() {
-      const task = tasks[level - 1] || { text: "🎉 All tasks complete!", answer: "" };
-      document.getElementById("task-text").textContent = task.text;
-      document.getElementById("answer").value = "";
-    }
-
-    function saveToFirebase() {
-      // ডেটাবেসে টেলিগ্রাম ইউজার আইডি দিয়ে সেভ করা হচ্ছে
-      db.ref("players_tg/" + userId).set({
-        level, xp, points, coins,
-        username: tgUser?.username || "N/A",
-        firstName: tgUser?.first_name || "Guest"
-      });
+    
+    function saveData() {
+        if (!userId) return;
+        db.ref(`players_tg/${userId}`).set({ level, xp, points, coins, currentTaskIndex });
     }
 
     function loadFromFirebase() {
-      db.ref("players_tg/" + userId).once("value").then(snapshot => {
-        if (snapshot.exists()) {
-          const data = snapshot.val();
-          level = data.level || 1;
-          xp = data.xp || 0;
-          points = data.points || 0;
-          coins = data.coins || 0;
-        } else {
-            // নতুন ব্যবহারকারী হলে তার জন্য ডেটা তৈরি করা হচ্ছে
-            saveToFirebase();
+        db.ref(`players_tg/${userId}`).once("value").then(snapshot => {
+            if (snapshot.exists()) {
+                const data = snapshot.val();
+                level = data.level || 1;
+                xp = data.xp || 0;
+                points = data.points || 0;
+                coins = data.coins || 0;
+                currentTaskIndex = data.currentTaskIndex || 0;
+            } else {
+                saveData(); // Save initial data for new user
+            }
+            displayTask();
+            updateUI();
+            document.body.style.opacity = 1; // Show body after loading
+            tg.MainButton.show();
+        });
+    }
+
+    function displayTask() {
+        if (currentTaskIndex >= tasks.length) {
+            document.getElementById("task-text").textContent = "🎉 All tasks complete!";
+            document.getElementById("answer").style.display = 'none';
+            if(currentTab === 'task') tg.MainButton.hide();
+            return;
         }
-        updateUI();
-        loadTask();
-      });
+        document.getElementById("task-text").textContent = tasks[currentTaskIndex].text;
+        document.getElementById("answer").value = "";
     }
 
     function submitAnswer() {
-      const input = document.getElementById("answer").value.trim();
-      const task = tasks[level - 1];
-      if (!task) return;
+        const userAnswer = document.getElementById("answer").value.trim().toLowerCase();
+        if (currentTaskIndex >= tasks.length) return;
+        const task = tasks[currentTaskIndex];
 
-      if (task.answer === "" || input.toLowerCase() === task.answer.toLowerCase()) {
-        level++; xp += 5; points += 5;
-        if (points >= 1000) {
-          coins += Math.floor(points / 1000);
-          points %= 1000;
+        if (userAnswer === task.answer) {
+            points += 10; xp += 5;
+            if (xp >= 100) { level++; xp %= 100; }
+            if (points >= 1000) { coins += Math.floor(points / 1000); points %= 1000; }
+            currentTaskIndex++;
+            
+            saveData();
+            updateUI();
+            displayTask();
+            
+            tg.HapticFeedback.notificationOccurred('success');
+            showNotification("Correct! You earned 10 points.");
+        } else {
+            tg.HapticFeedback.notificationOccurred('error');
+            showNotification("Wrong Answer. Try again!", true);
         }
-        updateUI();
-        saveToFirebase();
-        loadTask();
-        tg.HapticFeedback.notificationOccurred('success'); // সঠিক উত্তরে ভাইব্রেশন
-      } else {
-        alert("❌ Wrong answer. Try again.");
-        tg.HapticFeedback.notificationOccurred('error'); // ভুল উত্তরে ভাইব্রেশন
-      }
     }
 
-    function submitWithdraw() {
-        // এই ফাংশনটি আগের মতোই থাকবে, শুধু আমরা ব্যবহারকারীর টেলিগ্রাম তথ্য যোগ করব
-        // ...
+    function requestWithdraw() {
+        const amount = parseInt(document.getElementById("amount").value.trim());
+        if (isNaN(amount) || amount < 100) {
+            showNotification("Minimum 100 coins required.", true); return;
+        }
+        if (amount > coins) {
+            showNotification("Not enough balance.", true); return;
+        }
+
+        const requestData = {
+            telegramUsername: tg.initDataUnsafe.user?.username || 'N/A',
+            amount, status: 'pending', timestamp: new Date().toISOString()
+        };
+        
+        db.ref(`withdraw_requests/${userId}`).push(requestData).then(() => {
+            coins -= amount;
+            saveData();
+            updateUI();
+            document.getElementById("amount").value = "";
+            showNotification("Withdraw request submitted!");
+            tg.HapticFeedback.notificationOccurred('success');
+        }).catch(() => {
+            showNotification("Error: Could not submit request.", true);
+        });
     }
 
-    // --- অ্যাপ চালু করার মূল অংশ ---
-    if (!tgUser) {
-        // যদি অ্যাপটি টেলিগ্রামের বাইরে খোলা হয়
-        document.body.innerHTML = "<h1>এই গেমটি শুধু টেলিগ্রামের ভেতরেই খেলা যাবে।</h1>";
-    } else {
-        // যদি টেলিগ্রামের ভেতরে খোলা হয়, তাহলে ডেটা লোড হবে
+    // --- Initial App Load ---
+    function initializeApp() {
+        tg.ready();
+        tg.expand();
+        tg.setHeaderColor(getComputedStyle(document.documentElement).getPropertyValue('--tg-theme-secondary-bg-color').trim());
+        
+        if (!tg.initDataUnsafe?.user) {
+            document.body.innerHTML = "<h1>Please open this game inside Telegram.</h1>";
+            document.body.style.opacity = 1;
+            return;
+        }
+
+        userId = String(tg.initDataUnsafe.user.id);
+        configureMainButton();
         loadFromFirebase();
     }
+
+    initializeApp();
   </script>
 </body>
-</html>
+           </html>
