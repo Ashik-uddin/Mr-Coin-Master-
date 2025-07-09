@@ -286,4 +286,292 @@
     })();
   </script>
 </body>
-</html>
+</html><!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>MrCoin Master</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover"/>
+  <!-- Google Fonts for better typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    /* আপনার আগের CSS কোড এখানে থাকবে */
+    :root {
+      --tg-bg-color: #1c1c1e;
+      --tg-text-color: #ffffff;
+      --tg-secondary-bg-color: #2c2c2e;
+      --tg-button-color: #ffd700;
+      --tg-button-text-color: #000000;
+      --tg-hint-color: #999999;
+      font-family: 'Poppins', sans-serif;
+    }
+    body {
+      background: var(--tg-bg-color);
+      color: var(--tg-text-color);
+      margin: 0;
+      padding: 15px;
+      -webkit-font-smoothing: antialiased;
+      text-align: center;
+    }
+    .main-container { max-width: 600px; margin: 0 auto; }
+    .header { margin-bottom: 25px; }
+    .header h1 { color: var(--tg-button-color); font-size: 28px; font-weight: 700; margin: 0; }
+    .header p { color: var(--tg-hint-color); margin: 5px 0 0; }
+    .card { background: var(--tg-secondary-bg-color); border-radius: 16px; padding: 20px; margin-bottom: 20px; text-align: left; }
+    .card h3 { margin-top: 0; font-weight: 600; border-bottom: 1px solid var(--tg-hint-color); padding-bottom: 10px; margin-bottom: 15px; }
+    .profile-grid, .wallet-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+    .info-box { background: #3a3a3c; padding: 15px; border-radius: 12px; text-align: center; }
+    .info-box span { display: block; font-size: 14px; color: var(--tg-hint-color); }
+    .info-box b { font-size: 20px; font-weight: 600; }
+    .task-container p { font-size: 18px; font-weight: 500; min-height: 50px; }
+    input[type="text"], input[type="number"] { width: calc(100% - 24px); padding: 12px; border-radius: 10px; border: 1px solid #444; background: #3a3a3c; color: var(--tg-text-color); font-size: 16px; font-family: 'Poppins', sans-serif; }
+    .ad-container { margin: 20px 0; padding: 10px; background: var(--tg-secondary-bg-color); border-radius: 12px; }
+    .ad-container span { font-size: 12px; color: var(--tg-hint-color); }
+  </style>
+</head>
+<body>
+
+  <div class="main-container">
+    <div class="header">
+      <p>Welcome, <b id="username">Player</b></p>
+      <h1>MrCoin Master</h1>
+    </div>
+
+    <!-- Profile & Wallet Cards (no changes) -->
+    <div class="card">
+      <h3>👤 Profile</h3>
+      <div class="profile-grid">
+        <div class="info-box"><span>Level</span> <b id="level">1</b></div>
+        <div class="info-box"><span>XP</span> <b id="xp">0</b></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>💼 Wallet</h3>
+      <div class="wallet-grid">
+        <div class="info-box"><span>Points</span> <b id="points">0</b></div>
+        <div class="info-box"><span>💰 MrCoins</span> <b id="coins">0</b></div>
+      </div>
+      <h4 style="margin-top: 25px; margin-bottom: 10px;">Withdraw</h4>
+      <input type="number" id="amount" placeholder="Withdraw Coins (min 100)" onfocus="configureWithdrawButton()">
+    </div>
+
+    <!-- Task Card -->
+    <div class="card task-container">
+      <h3>🧠 Dynamic Task</h3>
+      <p id="task-text">Loading Task...</p>
+      <input type="text" id="answer" placeholder="Type your answer here" onfocus="configureTaskButton()">
+    </div>
+    
+    <!-- Advertisement Card (no changes) -->
+    <div class="ad-container">
+        <span>Advertisement</span>
+        <div id="container-9db5b9b75728e725b0490f241552e303"></div>
+    </div>
+  </div>
+  
+  <script>(function(s,u,z,p){s.src=u,s.setAttribute('data-zone',z),p.appendChild(s);})(document.createElement('script'),'https://inklinkor.com/tag.min.js',document.body,'7818788')</script>
+  
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+        // আপনার Firebase কনফিগারেশন এখানে পেস্ট করুন
+        apiKey: "AIzaSy...Your-API-Key...",
+        authDomain: "mr-coin-mastar.firebaseapp.com",
+        projectId: "mr-coin-mastar",
+        storageBucket: "mr-coin-mastar.appspot.com",
+        messagingSenderId: "275029670605",
+        appId: "1:275029670605:web:e42bb40e9b26314367c784"
+    };
+
+    try {
+        firebase.initializeApp(firebaseConfig);
+    } catch(e) { console.error("Firebase initialization failed:", e); }
+    
+    const db = firebase.database();
+    const tg = window.Telegram.WebApp;
+
+    let level = 1, xp = 0, points = 0, coins = 0;
+    let userId = null;
+    let currentTask = {}; // To store the current task object
+
+    // --- Dynamic Task Generator ---
+    function generateTask() {
+        const taskTypes = ['math', 'gk', 'logic', 'translation'];
+        const randomType = taskTypes[Math.floor(Math.random() * taskTypes.length)];
+        
+        let task = {};
+
+        if (randomType === 'math') {
+            const operators = ['+', '-', '*'];
+            const operator = operators[Math.floor(Math.random() * operators.length)];
+            let num1 = Math.floor(Math.random() * 20) + 1;
+            let num2 = Math.floor(Math.random() * (operator === '*' ? 10 : 20)) + 1;
+
+            if (operator === '-' && num1 < num2) {
+                [num1, num2] = [num2, num1]; // Swap to avoid negative answers
+            }
+            
+            task.text = `What is ${num1} ${operator} ${num2}?`;
+            task.answer = String(eval(`${num1} ${operator} ${num2}`));
+        } 
+        else if (randomType === 'gk') {
+            const questions = [
+                { q: "Which is the largest planet in our solar system?", a: "jupiter" },
+                { q: "What is the capital of France?", a: "paris" },
+                { q: "How many colors are in a rainbow?", a: "7" },
+                { q: "Which animal is known as the 'King of the Jungle'?", a: "lion" },
+            ];
+            const selected = questions[Math.floor(Math.random() * questions.length)];
+            task.text = selected.q;
+            task.answer = selected.a;
+        }
+        else if (randomType === 'logic') {
+            const patterns = [
+                { q: "Which number comes next: 2, 4, 6, 8, __?", a: "10" },
+                { q: "If A=1, B=2, C=3, what is D?", a: "4" },
+                { q: "Complete the sequence: Z, Y, X, __?", a: "w" },
+            ];
+            const selected = patterns[Math.floor(Math.random() * patterns.length)];
+            task.text = selected.q;
+            task.answer = selected.a;
+        }
+        else if (randomType === 'translation') {
+            const words = [
+                { en: "Sun", bn: "সূর্য" },
+                { en: "Book", bn: "বই" },
+                { en: "Tree", bn: "গাছ" },
+                { en: "Moon", bn: "চাঁদ" },
+            ];
+            const selected = words[Math.floor(Math.random() * words.length)];
+            task.text = `Translate '${selected.en}' to Bengali.`;
+            task.answer = selected.bn;
+        }
+        return task;
+    }
+
+    function displayTask() {
+        currentTask = generateTask();
+        document.getElementById("task-text").textContent = currentTask.text;
+        document.getElementById("answer").value = "";
+    }
+
+    function submitAnswer() {
+        if (tg.MainButton.isLoading) return;
+        const userAnswer = document.getElementById("answer").value.trim().toLowerCase();
+        
+        tg.MainButton.showProgress();
+
+        setTimeout(() => { // Simulate processing time
+            if (userAnswer === currentTask.answer.toLowerCase()) {
+                points += 10;
+                xp += 5;
+                if (xp >= 100 * level) {
+                    level++;
+                    xp = 0;
+                }
+                if (points >= 1000) {
+                    coins += Math.floor(points / 1000);
+                    points %= 1000;
+                }
+                
+                saveData();
+                updateUI();
+                displayTask(); // Generate and display a new task
+                
+                tg.HapticFeedback.notificationOccurred('success');
+            } else {
+                tg.HapticFeedback.notificationOccurred('error');
+                alert("Wrong Answer. A new task has been loaded.");
+                displayTask(); // Load a new task even if the answer is wrong
+            }
+            tg.MainButton.hideProgress();
+        }, 500);
+    }
+
+    // --- Other functions (no changes needed) ---
+    function configureTaskButton() {
+        tg.MainButton.setText("Submit Answer");
+        tg.MainButton.onClick(submitAnswer);
+        tg.MainButton.show();
+    }
+    function configureWithdrawButton() {
+        tg.MainButton.setText("Request Withdraw");
+        tg.MainButton.onClick(requestWithdraw);
+        tg.MainButton.show();
+    }
+    function updateUI() {
+        document.getElementById("username").textContent = tg.initDataUnsafe.user?.first_name || 'Player';
+        document.getElementById("level").textContent = level;
+        document.getElementById("xp").textContent = xp;
+        document.getElementById("points").textContent = points;
+        document.getElementById("coins").textContent = coins;
+    }
+    function saveData() {
+        if (!userId) return;
+        // We no longer save currentTaskIndex, as tasks are dynamic
+        db.ref(`players_tg/${userId}`).set({ level, xp, points, coins });
+    }
+    function loadFromFirebase() {
+        db.ref(`players_tg/${userId}`).once("value").then(snapshot => {
+            if (snapshot.exists()) {
+                const data = snapshot.val();
+                level = data.level || 1;
+                xp = data.xp || 0;
+                points = data.points || 0;
+                coins = data.coins || 0;
+            } else {
+                saveData();
+            }
+            displayTask();
+            updateUI();
+            configureTaskButton();
+        }).catch(e => console.error("Firebase read error:", e));
+    }
+    function requestWithdraw() {
+        if (tg.MainButton.isLoading) return;
+        const amount = parseInt(document.getElementById("amount").value.trim());
+        if (isNaN(amount) || amount < 100) { alert("Minimum 100 coins required."); return; }
+        if (amount > coins) { alert("Not enough balance."); return; }
+
+        tg.MainButton.showProgress();
+        const requestData = { telegramUsername: tg.initDataUnsafe.user?.username || 'N/A', amount, status: 'pending', timestamp: new Date().toISOString() };
+        db.ref(`withdraw_requests/${userId}`).push(requestData).then(() => {
+            coins -= amount;
+            saveData();
+            updateUI();
+            document.getElementById("amount").value = "";
+            tg.HapticFeedback.notificationOccurred('success');
+            tg.MainButton.hideProgress();
+            alert("Withdraw request submitted!");
+        }).catch(() => {
+            tg.MainButton.hideProgress();
+            alert("Error: Could not submit request.");
+        });
+    }
+    function initializeApp() {
+        tg.ready();
+        tg.expand();
+        tg.setHeaderColor(getComputedStyle(document.documentElement).getPropertyValue('--tg-secondary-bg-color').trim());
+        if (!tg.initDataUnsafe?.user) { document.body.innerHTML = "<h1>Please open this game inside Telegram.</h1>"; return; }
+        userId = String(tg.initDataUnsafe.user.id);
+        loadFromFirebase();
+    }
+    initializeApp();
+
+    // Your profitableratecpm ad script
+    (function() {
+      var s = document.createElement('script');
+      s.async = true;
+      s.dataset.cfasync = false;
+      s.src = '//pl27105920.profitableratecpm.com/9db5b9b75728e725b0490f241552e303/invoke.js';
+      var H = document.getElementsByTagName('script')[0];
+      H.parentNode.insertBefore(s, H);
+    })();
+  </script>
+</body>
+          </html>
