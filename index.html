@@ -5,8 +5,6 @@
   <title>MrCoin Master</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
@@ -19,7 +17,8 @@
       --hint-color: #aaaaaa;
       font-family: 'Poppins', sans-serif;
     }
-    body { background: linear-gradient(to right, #0f0c29, #302b63, #24243e); color: var(--text-color); margin: 0; padding: 15px 15px 90px 15px; }
+    body { background: linear-gradient(to right, #0f0c29, #302b63, #24243e); color: var(--text-color); margin: 0; padding: 15px 15px 90px 15px; opacity: 0; transition: opacity 0.5s; }
+    #error-log { position: fixed; top: 0; left: 0; width: 100%; background: #ff4d4d; color: white; padding: 10px; font-size: 12px; z-index: 9999; display: none; white-space: pre-wrap; }
     .page { display: none; }
     .page.active { display: block; animation: fadeIn 0.5s; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -39,35 +38,43 @@
     .nav-btn i { font-size: 22px; display: block; margin-bottom: 4px; }
     .nav-btn.active { color: var(--accent-color); }
     .action-button { background: var(--accent-color); color: #000; border: none; padding: 12px; width: 100%; border-radius: 12px; font-weight: 600; font-size: 16px; }
-    
-    /* Game Hub Styles */
     .game-hub .game-option { text-align: center; cursor: pointer; padding: 20px; border-radius: 15px; background: var(--primary-color); border: 1px solid var(--border-color); }
     .game-hub i { font-size: 40px; margin-bottom: 10px; }
     .game-hub p { margin: 0; font-weight: 600; }
-    
-    /* Tap Tap Game Styles */
-    #tap-game-area { text-align: center; display: none; }
     #tap-button { background: linear-gradient(45deg, #ff512f, #f09819); color: white; border: none; width: 150px; height: 150px; border-radius: 50%; font-size: 24px; font-weight: 700; box-shadow: 0 0 20px #ff512f; }
-    #tap-button:active { transform: scale(0.95); }
-    .game-info { display: flex; justify-content: space-around; margin: 20px 0; }
   </style>
 </head>
 <body>
+  
+  <div id="error-log"></div>
 
-  <!-- Pages -->
+  <!-- All Pages HTML (from your previous working code) -->
   <div id="home-page" class="page active">
-    <!-- Home page content from previous code -->
+    <div class="header">
+        <p style="color: var(--hint-color);"><span id="username">Player</span>'s Empire</p>
+        <div class="balance"><i class="fas fa-coins"></i> <span id="main-coins">0</span></div>
+    </div>
+    <div class="card">
+        <div class="stat-grid">
+            <div><i class="fas fa-star"></i> Level: <b id="level">1</b></div>
+            <div><i class="fas fa-bolt"></i> Energy: <b id="energy-count">0</b></div>
+        </div>
+        <div class="level-progress">
+            <div id="xp-bar" class="progress-bar"></div>
+        </div>
+        <p style="text-align:center; font-size: 12px; color: var(--hint-color);">XP: <span id="xp">0</span> / <span id="xp-target">100</span></p>
+    </div>
   </div>
 
   <div id="tasks-page" class="page">
-    <!-- Tasks page content from previous code -->
+    <div class="card">
+      <div class="card-header">Daily Tasks</div>
+      <div class="task-list" id="task-list"><p id="task-loader">Loading...</p></div>
+    </div>
   </div>
 
   <div id="game-page" class="page">
-      <div class="stat-card" style="margin-bottom: 20px; text-align:center;"><span><i class="fas fa-bolt"></i> Your Energy</span><b id="energy-count">10</b></div>
-      
-      <!-- Game Hub Selection -->
-      <div id="game-hub" class="card game-hub">
+      <div class="card" id="game-hub">
           <div class="stat-grid">
               <div class="game-option" onclick="showGame('crystal-cave')">
                   <i class="fas fa-gem" style="color: #8a2be2;"></i>
@@ -79,22 +86,18 @@
               </div>
           </div>
       </div>
-
-      <!-- Crystal Cave Game Area (Initially Hidden) -->
       <div id="crystal-cave-game" class="card" style="display:none; text-align:center;">
           <div class="card-header">💎 Crystal Cave Adventure</div>
           <button onclick="exploreCave()" class="action-button" style="background: linear-gradient(45deg, #8a2be2, #4b0082);">Explore (1 Energy)</button>
           <div id="cave-result" style="margin-top: 20px; font-weight: 500; min-height: 24px;"></div>
       </div>
-      
-      <!-- Tap Tap Game Area (Initially Hidden) -->
       <div id="tap-tap-game" class="card" style="display:none;">
-          <div class="card-header" style="text-align:center;">💥 Tap Tap Mania</div>
-          <div id="tap-game-start">
+          <div id="tap-game-start" style="text-align:center;">
+              <div class="card-header">💥 Tap Tap Mania</div>
               <button onclick="startTapGame()" class="action-button" style="background: linear-gradient(45deg, #ff512f, #f09819);">Start Game (1 Energy)</button>
           </div>
-          <div id="tap-game-area" style="display:none;">
-              <div class="game-info">
+          <div id="tap-game-area" style="display:none; text-align:center;">
+              <div class="game-info stat-grid">
                   <div>Time: <b id="time-left">10</b>s</div>
                   <div>Taps: <b id="tap-count">0</b></div>
               </div>
@@ -105,11 +108,18 @@
   </div>
   
   <div id="wallet-page" class="page">
-    <!-- Wallet page content from previous code -->
+     <div class="card">
+        <div class="card-header">💸 Withdraw</div>
+        <input type="number" id="amount" placeholder="Amount (min 100)" style="width: 92%; margin: 15px 0; background:var(--bg-color); border:1px solid var(--border-color); padding:12px; color:white; border-radius:12px;">
+        <button onclick="requestWithdraw()" class="action-button">Request Withdraw</button>
+     </div>
   </div>
 
   <div class="bottom-nav">
-    <!-- Bottom nav content from previous code -->
+    <button class="nav-btn active" onclick="showPage('home-page')"><i class="fas fa-home"></i> Home</button>
+    <button class="nav-btn" onclick="showPage('tasks-page')"><i class="fas fa-tasks"></i> Tasks</button>
+    <button class="nav-btn" onclick="showPage('game-page')"><i class="fas fa-gamepad"></i> Game</button>
+    <button class="nav-btn" onclick="showPage('wallet-page')"><i class="fas fa-wallet"></i> Wallet</button>
   </div>
   
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
@@ -117,87 +127,210 @@
   <script type='text/javascript' src='//pl27116575.profitableratecpm.com/fe/bf/32/febf3256881a0941fe9a6905755fc859.js'></script>
   
   <script>
-    // --- Start of JavaScript ---
-    const firebaseConfig = { /* আপনার Firebase Config */ };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-    const tg = window.Telegram.WebApp;
+    document.addEventListener('DOMContentLoaded', () => {
+        try {
+            const firebaseConfig = {
+                // আপনার সঠিক Firebase কনফিগারেশন এখানে সাবধানে পেস্ট করুন
+                apiKey: "AIzaSy...",
+                authDomain: "mr-coin-mastar.firebaseapp.com",
+                projectId: "mr-coin-mastar",
+                storageBucket: "mr-coin-mastar.appspot.com",
+                messagingSenderId: "275029670605",
+                appId: "1:275029670605:web:e42bb40e9b26314367c784"
+            };
+            firebase.initializeApp(firebaseConfig);
+            const db = firebase.database();
+            const tg = window.Telegram.WebApp;
 
-    let playerData = { /* ... */ };
-    let userId = null;
-    let tapGameInterval = null;
+            let playerData = { level: 1, xp: 0, points: 0, coins: 0, energy: 10, lastReset: null, dailyTasks: [] };
+            let userId = null;
+            let tapGameInterval = null;
 
-    function showGame(gameName) {
-        document.getElementById('game-hub').style.display = 'none';
-        if (gameName === 'crystal-cave') {
-            document.getElementById('crystal-cave-game').style.display = 'block';
-        } else if (gameName === 'tap-tap') {
-            document.getElementById('tap-tap-game').style.display = 'block';
-            document.getElementById('tap-game-start').style.display = 'block';
-            document.getElementById('tap-game-area').style.display = 'none';
-            document.getElementById('tap-result').textContent = '';
-        }
-    }
-
-    function startTapGame() {
-        if (playerData.energy <= 0) { alert("Not enough energy!"); return; }
-        playerData.energy--;
-        updateUI();
-        saveData();
-
-        document.getElementById('tap-game-start').style.display = 'none';
-        document.getElementById('tap-game-area').style.display = 'block';
-        document.getElementById('tap-result').textContent = '';
-        
-        let timeLeft = 10;
-        let taps = 0;
-        
-        document.getElementById('time-left').textContent = timeLeft;
-        document.getElementById('tap-count').textContent = taps;
-
-        window.handleTap = () => {
-            taps++;
-            document.getElementById('tap-count').textContent = taps;
-        };
-
-        tapGameInterval = setInterval(() => {
-            timeLeft--;
-            document.getElementById('time-left').textContent = timeLeft;
-            if (timeLeft <= 0) {
-                clearInterval(tapGameInterval);
-                endTapGame(taps);
+            function showPage(pageId) {
+                document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+                document.getElementById(pageId).classList.add('active');
+                document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+                document.querySelector(`.nav-btn[onclick="showPage('${pageId}')"]`).classList.add('active');
+                if (pageId === 'game-page') { // Reset game view
+                    document.getElementById('game-hub').style.display = 'block';
+                    document.getElementById('crystal-cave-game').style.display = 'none';
+                    document.getElementById('tap-tap-game').style.display = 'none';
+                }
             }
-        }, 1000);
-    }
+            window.showPage = showPage;
 
-    function endTapGame(taps) {
-        document.getElementById('tap-game-area').style.display = 'none';
-        document.getElementById('tap-game-start').style.display = 'block';
+            function getTodayDateString() { return new Date().toISOString().split('T')[0]; }
 
-        const pointsEarned = Math.floor(taps * 0.5); // Example: 0.5 points per tap
-        const xpEarned = Math.floor(taps * 0.2); // Example: 0.2 XP per tap
+            function generateDailyTasks() { /* ... unchanged ... */ }
+            function renderTasks() { /* ... unchanged ... */ }
+            function claimTask(index) { /* ... unchanged ... */ }
+            function exploreCave() { /* ... unchanged ... */ }
+            function startTapGame() { /* ... unchanged ... */ }
+            function endTapGame(taps) { /* ... unchanged ... */ }
+            function updateUI() { /* ... unchanged ... */ }
+            function saveData() { /* ... unchanged ... */ }
+            function loadFromFirebase() { /* ... unchanged ... */ }
+            function requestWithdraw() { /* ... unchanged ... */ }
+            function showGame(gameName) { /* ... unchanged ... */ }
+            window.handleTap = () => {};
 
-        playerData.points += pointsEarned;
-        playerData.xp += xpEarned;
+            // --- FULL FUNCTIONS ---
+            function generateDailyTasks() {
+                return [
+                    { id: 'login', text: "Daily Check-in", reward: 20, completed: false, icon: "fa-check-circle" },
+                    { id: 'play', text: "Play any game 3 times", reward: 30, completed: false, icon: "fa-gem", progress: 0, target: 3 },
+                    { id: 'refer', text: "Invite a friend (soon)", reward: 100, completed: true, icon: "fa-user-plus" }
+                ];
+            }
+            function renderTasks() {
+                const taskListDiv = document.getElementById('task-list');
+                const loader = document.getElementById('task-loader');
+                if(loader) loader.remove();
+                taskListDiv.innerHTML = '';
+                if (!playerData.dailyTasks) return;
+                playerData.dailyTasks.forEach((task, index) => {
+                    const isCompleted = (task.target && task.progress >= task.target) || task.completed;
+                    const taskDiv = document.createElement('div');
+                    taskDiv.className = `task-item ${isCompleted ? 'completed' : ''}`;
+                    taskDiv.innerHTML = `<div class="icon"><i class="fas ${task.icon}"></i></div><div class="info"><p>${task.text} ${task.target ? `(${task.progress}/${task.target})` : ''}</p><span>Reward: ${task.reward} Points</span></div><button class="claim-btn" onclick="claimTask(${index})" ${!isCompleted || task.completed ? 'disabled' : ''}>${task.completed ? 'Done' : 'Claim'}</button>`;
+                    taskListDiv.appendChild(taskDiv);
+                });
+            }
+            window.claimTask = claimTask;
+            function claimTask(index) {
+                const task = playerData.dailyTasks[index];
+                if (!task || task.completed || (task.target && task.progress < task.target)) return;
+                playerData.points += task.reward;
+                task.completed = true;
+                updateUI(); saveData(); renderTasks();
+                tg.HapticFeedback.notificationOccurred('success');
+            }
+            window.exploreCave = exploreCave;
+            function exploreCave() {
+                if (playerData.energy <= 0) { alert("Not enough energy!"); return; }
+                playerData.energy--;
+                const playTask = playerData.dailyTasks.find(t => t.id === 'play');
+                if (playTask && !playTask.completed) { playTask.progress++; if (playTask.progress >= playTask.target) { renderTasks(); } }
+                const resultDiv = document.getElementById('cave-result');
+                const rand = Math.random();
+                let message = "";
+                if (rand < 0.02) { message = "🎉 Jackpot! You found 1 MrCoin!"; playerData.coins++; }
+                else if (rand < 0.2) { const p = Math.floor(Math.random()*30)+20; message = `✨ You found ${p} points!`; playerData.points += p; }
+                else { message = "😕 The cave was empty..."; }
+                resultDiv.textContent = message;
+                updateUI(); saveData();
+            }
+            window.showGame = showGame;
+            function showGame(gameName) {
+                document.getElementById('game-hub').style.display = 'none';
+                if (gameName === 'crystal-cave') { document.getElementById('crystal-cave-game').style.display = 'block'; }
+                else if (gameName === 'tap-tap') {
+                    document.getElementById('tap-tap-game').style.display = 'block';
+                    document.getElementById('tap-game-start').style.display = 'block';
+                    document.getElementById('tap-game-area').style.display = 'none';
+                }
+            }
+            window.startTapGame = startTapGame;
+            function startTapGame() {
+                if (playerData.energy <= 0) { alert("Not enough energy!"); return; }
+                playerData.energy--;
+                const playTask = playerData.dailyTasks.find(t => t.id === 'play');
+                if (playTask && !playTask.completed) { playTask.progress++; if (playTask.progress >= playTask.target) { renderTasks(); } }
+                updateUI(); saveData();
+                document.getElementById('tap-game-start').style.display = 'none';
+                document.getElementById('tap-game-area').style.display = 'block';
+                let timeLeft = 10, taps = 0;
+                document.getElementById('time-left').textContent = timeLeft;
+                document.getElementById('tap-count').textContent = taps;
+                window.handleTap = () => { taps++; document.getElementById('tap-count').textContent = taps; };
+                tapGameInterval = setInterval(() => {
+                    timeLeft--;
+                    document.getElementById('time-left').textContent = timeLeft;
+                    if (timeLeft <= 0) { clearInterval(tapGameInterval); endTapGame(taps); }
+                }, 1000);
+            }
+            function endTapGame(taps) {
+                document.getElementById('tap-game-area').style.display = 'none';
+                document.getElementById('tap-game-start').style.display = 'block';
+                const pointsEarned = Math.floor(taps * 0.5);
+                playerData.points += pointsEarned;
+                document.getElementById('tap-result').textContent = `🎉 You earned ${pointsEarned} points!`;
+                const xpTarget = 100 * playerData.level;
+                if (playerData.xp >= xpTarget) { playerData.level++; playerData.xp -= xpTarget; }
+                updateUI(); saveData();
+            }
+            function updateUI() {
+                document.getElementById('main-coins').textContent = playerData.coins;
+                document.getElementById('username').textContent = tg.initDataUnsafe?.user?.first_name || 'Player';
+                document.getElementById('level').textContent = playerData.level;
+                document.getElementById('xp').textContent = playerData.xp;
+                document.getElementById('energy-count').textContent = playerData.energy;
+                const xpTarget = 100 * playerData.level;
+                document.getElementById('xp-target').textContent = xpTarget;
+                document.getElementById('xp-bar').style.width = `${(playerData.xp / xpTarget) * 100}%`;
+            }
+            function saveData() {
+                if (!userId) return;
+                db.ref(`players_tg/${userId}`).set(playerData);
+            }
+            function loadFromFirebase() {
+                db.ref(`players_tg/${userId}`).once("value").then(snapshot => {
+                    const today = getTodayDateString();
+                    if (snapshot.exists()) {
+                        playerData = { ...playerData, ...snapshot.val() };
+                        if (playerData.lastReset !== today) {
+                            playerData.dailyTasks = generateDailyTasks();
+                            playerData.energy = 10;
+                            playerData.lastReset = today;
+                        }
+                    } else {
+                        playerData.dailyTasks = generateDailyTasks();
+                        playerData.lastReset = today;
+                    }
+                    const loginTask = playerData.dailyTasks.find(t => t.id === 'login');
+                    if (loginTask && !loginTask.completed) { claimTask(playerData.dailyTasks.indexOf(loginTask)); }
+                    else { renderTasks(); }
+                    updateUI();
+                    saveData();
+                }).catch(e => {
+                    throw new Error("Firebase Read Failed: " + e.message);
+                });
+            }
+            window.requestWithdraw = requestWithdraw;
+            function requestWithdraw() {
+                 const amount = parseInt(document.getElementById("amount").value.trim());
+                if (isNaN(amount) || amount < 100) { alert("Minimum 100 coins required."); return; }
+                if (amount > playerData.coins) { alert("Not enough balance."); return; }
+                const requestData = { telegramUsername: tg.initDataUnsafe.user?.username || 'N/A', amount, status: 'pending', timestamp: new Date().toISOString() };
+                db.ref(`withdraw_requests/${userId}`).push(requestData).then(() => {
+                    playerData.coins -= amount;
+                    saveData();
+                    updateUI();
+                    document.getElementById("amount").value = "";
+                    alert("Withdraw request submitted!");
+                }).catch(() => alert("Error: Could not submit request."));
+            }
 
-        document.getElementById('tap-result').textContent = `🎉 You tapped ${taps} times and earned ${pointsEarned} points!`;
-        
-        // Check for level up
-        const xpTarget = 100 * playerData.level;
-        if (playerData.xp >= xpTarget) {
-            playerData.level++;
-            playerData.xp -= xpTarget;
-            alert(`Congratulations! You've reached Level ${playerData.level}!`);
+            function initializeApp() {
+                tg.ready();
+                tg.expand();
+                tg.setHeaderColor(getComputedStyle(document.documentElement).getPropertyValue('--bg-color').trim());
+                tg.MainButton.hide();
+                if (!tg.initDataUnsafe?.user) {
+                    throw new Error("This app can only be opened in Telegram.");
+                }
+                userId = String(tg.initDataUnsafe.user.id);
+                loadFromFirebase();
+                document.body.style.opacity = 1;
+            }
+            initializeApp();
+        } catch (e) {
+            const errorDiv = document.getElementById('error-log');
+            errorDiv.style.display = 'block';
+            errorDiv.textContent = 'A critical error occurred:\n' + e.stack;
+            document.body.style.opacity = 1;
         }
-
-        updateUI();
-        saveData();
-    }
-    
-    // --- Rest of your JavaScript code ---
-    // (initializeApp, loadFromFirebase, saveData, etc. from previous response)
-    // IMPORTANT: Make sure to copy the full JS code from the previous working version here.
-    // The snippet above only shows the NEW game logic.
+    });
   </script>
 </body>
 </html>
