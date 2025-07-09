@@ -36,9 +36,10 @@
     .task-list .task-item .icon { font-size: 24px; margin-right: 15px; color: var(--accent-color); }
     .task-list .task-item .info p { margin: 0; }
     .task-list .task-item .info span { font-size: 12px; color: var(--hint-color); }
-    .task-list .task-item .claim-btn { margin-left: auto; background: var(--accent-color); color: #000; border: none; padding: 8px 15px; border-radius: 8px; font-weight: 600; cursor: pointer; }
+    .task-list .task-item .claim-btn { margin-left: auto; background: var(--accent-color); color: #000; border: none; padding: 8px 15px; border-radius: 8px; font-weight: 600; cursor: pointer; min-width: 80px; text-align: center; }
     .task-list .task-item.completed { opacity: 0.6; }
     .task-list .task-item.completed .claim-btn { background: #555; color: #999; cursor: not-allowed; }
+    .ad-task { background: linear-gradient(45deg, #0052d4, #4364f7, #6fb1fc); }
     .game-card { text-align: center; }
     .game-card .energy { margin: 15px 0; font-size: 16px; }
     .game-card .explore-btn { background: linear-gradient(45deg, #8a2be2, #4b0082); color: white; border: none; padding: 15px 30px; font-size: 18px; font-weight: 700; border-radius: 12px; cursor: pointer; width: 100%; }
@@ -47,16 +48,6 @@
     .nav-btn { background: none; border: none; color: var(--hint-color); font-size: 12px; text-align: center; cursor: pointer; }
     .nav-btn i { font-size: 22px; display: block; margin-bottom: 4px; }
     .nav-btn.active { color: var(--accent-color); }
-    #ad-container {
-        margin: 20px 0;
-        background: var(--primary-color);
-        padding: 10px;
-        border-radius: 12px;
-        min-height: 50px; /* Ensures space is reserved */
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
   </style>
 </head>
 <body>
@@ -70,44 +61,36 @@
     <div class="stat-grid">
       <div class="stat-card"><span><i class="fas fa-user"></i> Player</span><b id="username">...</b></div>
       <div class="stat-card"><span><i class="fas fa-star"></i> Level</span><b id="level">1</b></div>
-      <div class="stat-card"><span><i class="fas fa-bolt"></i> XP</span><b id="xp">0</b></div>
-      <div class="stat-card"><span><i class="fas fa-trophy"></i> Points</span><b id="points">0</b></div>
     </div>
-    <!-- Advertisement Container -->
-    <div id="ad-container">
-        <div id="container-9db5b9b75728e725b0490f241552e303"></div>
+    <div class="card">
+        <div id="ad-container"></div>
     </div>
   </div>
 
   <div id="tasks-page" class="page">
     <div class="card">
       <div class="card-header">Daily Tasks</div>
-      <div class="task-list" id="task-list">
-          <p id="task-loader">Loading daily tasks...</p>
-      </div>
+      <div class="task-list" id="task-list"><p id="task-loader">Loading...</p></div>
     </div>
   </div>
 
   <div id="game-page" class="page">
-    <div class="card game-card">
-      <div class="card-header">💎 Crystal Cave Adventure</div>
-      <p style="color:var(--hint-color); font-size:14px;">Use energy to explore the cave. You might find treasures... or nothing at all!</p>
-      <div class="energy">Your Energy: <b id="energy-count">0</b> / 10</div>
-      <button class="explore-btn" onclick="exploreCave()">Explore the Cave</button>
-      <div id="game-result"></div>
-    </div>
+      <div class="stat-card" style="margin-bottom: 20px;"><span><i class="fas fa-bolt"></i> Your Energy</span><b id="energy-count">0</b> / 10</div>
+      <div class="card game-card">
+        <div class="card-header">💎 Crystal Cave Adventure</div>
+        <button class="explore-btn" onclick="exploreCave()">Explore</button>
+        <div id="game-result"></div>
+      </div>
   </div>
 
   <div id="wallet-page" class="page">
      <div class="card">
         <div class="card-header">💸 Withdraw MrCoins</div>
-        <p style="color:var(--hint-color); font-size:14px;">You can request to withdraw your MrCoins. Minimum 100 coins.</p>
-        <input type="number" id="amount" placeholder="Amount of MrCoins" style="width: 95%; margin-top: 15px;">
-        <button class="explore-btn" onclick="requestWithdraw()" style="background: var(--accent-color); color:#000; margin-top:15px; width: auto; padding: 10px 20px;">Request</button>
+        <input type="number" id="amount" placeholder="Amount (min 100)" style="width: 95%; margin: 15px 0;">
+        <button class="explore-btn" onclick="requestWithdraw()" style="background: var(--accent-color); color:#000; margin-top:15px; width:100%; padding: 10px 20px;">Request Withdraw</button>
      </div>
   </div>
 
-  <!-- Bottom Navigation Bar -->
   <div class="bottom-nav">
     <button class="nav-btn active" onclick="showPage('home-page')"><i class="fas fa-home"></i> Home</button>
     <button class="nav-btn" onclick="showPage('tasks-page')"><i class="fas fa-tasks"></i> Tasks</button>
@@ -117,15 +100,13 @@
   
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
-  
-  <!-- ব্যানার অ্যাডের জন্য স্ক্রিপ্ট -->
   <script async="async" data-cfasync="false" src="//pl27105920.profitableratecpm.com/9db5b9b75728e725b0490f241552e303/invoke.js"></script>
-
+  
   <script>
-    try { // Error catching for the whole app
+    try {
         const firebaseConfig = {
-            // আপনার Firebase কনফিগারেশন এখানে পেস্ট করুন
-            apiKey: "AIzaSy...Your-API-Key...",
+            // আপনার সঠিক Firebase কনফিগারেশন এখানে পেস্ট করুন
+            apiKey: "AIzaSy...",
             authDomain: "mr-coin-mastar.firebaseapp.com",
             projectId: "mr-coin-mastar",
             storageBucket: "mr-coin-mastar.appspot.com",
@@ -137,81 +118,100 @@
         const tg = window.Telegram.WebApp;
 
         let playerData = {
-            level: 1, xp: 0, points: 0, coins: 0,
-            energy: 10, lastEnergyReset: null,
-            dailyTasks: { date: null, tasks: [] }
+            level: 1, xp: 0, points: 0, coins: 0, energy: 10,
+            lastReset: null, dailyTasks: []
         };
         let userId = null;
 
-        function getTodayDateString() {
-            const today = new Date();
-            return `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
-        }
+        function getTodayDateString() { return new Date().toISOString().split('T')[0]; }
 
         function generateDailyTasks() {
             return [
-                { id: 'login', text: "Log in to the game", reward: 20, completed: false, icon: "fa-sign-in-alt" },
-                { id: 'play', text: "Play the Crystal Cave game once", reward: 30, completed: false, icon: "fa-gem" },
-                { id: 'wallet', text: "Visit the wallet page", reward: 15, completed: false, icon: "fa-wallet" }
+                { id: 'login', text: "Daily Check-in", reward: 20, completed: false, icon: "fa-check-circle" },
+                { id: 'play', text: "Play the game 3 times", reward: 30, completed: false, icon: "fa-gem", progress: 0, target: 3 },
+                { id: 'ad', text: "Watch Ad for a big reward", reward: 50, completed: false, icon: "fa-video", ad: true },
+                { id: 'wallet', text: "Visit your wallet", reward: 15, completed: false, icon: "fa-wallet" },
+                { id: 'refer', text: "Invite a friend (coming soon)", reward: 100, completed: true, icon: "fa-user-plus" }
             ];
         }
 
         function renderTasks() {
             const taskListDiv = document.getElementById('task-list');
             const loader = document.getElementById('task-loader');
-            if(loader) loader.remove(); // Remove loader if it exists
+            if(loader) loader.remove();
+            taskListDiv.innerHTML = '';
 
-            taskListDiv.innerHTML = ''; // Clear previous tasks
-            if (!playerData.dailyTasks.tasks || playerData.dailyTasks.tasks.length === 0) {
-                taskListDiv.innerHTML = '<p>No tasks available today. Check back tomorrow!</p>';
-                return;
-            }
-
-            playerData.dailyTasks.tasks.forEach((task, index) => {
+            playerData.dailyTasks.forEach((task, index) => {
+                const isCompleted = task.progress >= task.target || task.completed;
                 const taskDiv = document.createElement('div');
-                taskDiv.className = `task-item ${task.completed ? 'completed' : ''}`;
+                taskDiv.className = `task-item ${isCompleted ? 'completed' : ''} ${task.ad ? 'ad-task' : ''}`;
+                
+                let buttonHtml = `<button class="claim-btn" onclick="claimTask(${index})" ${isCompleted ? 'disabled' : ''}>${isCompleted ? 'Done' : 'Claim'}</button>`;
+                if (task.ad) {
+                    buttonHtml = `<button class="claim-btn" id="ad-btn" onclick="watchAd(${index})" ${isCompleted ? 'disabled' : ''}>Watch</button>`;
+                }
+                
                 taskDiv.innerHTML = `
                     <div class="icon"><i class="fas ${task.icon}"></i></div>
                     <div class="info">
-                        <p>${task.text}</p>
+                        <p>${task.text} ${task.target ? `(${task.progress}/${task.target})` : ''}</p>
                         <span>Reward: ${task.reward} Points</span>
                     </div>
-                    <button class="claim-btn" onclick="claimTask(${index})" ${task.completed ? 'disabled' : ''}>
-                        ${task.completed ? 'Claimed' : 'Claim'}
-                    </button>
+                    ${buttonHtml}
                 `;
                 taskListDiv.appendChild(taskDiv);
             });
         }
         
         function claimTask(index) {
-            const task = playerData.dailyTasks.tasks[index];
-            if (!task || task.completed) return;
+            const task = playerData.dailyTasks[index];
+            if (!task || task.completed || (task.target && task.progress < task.target)) return;
             
             playerData.points += task.reward;
             task.completed = true;
-
             updateUI();
             saveData();
             renderTasks();
             tg.HapticFeedback.notificationOccurred('success');
         }
+        
+        function watchAd(index) {
+            const adBtn = document.getElementById('ad-btn');
+            if (!adBtn || adBtn.disabled) return;
+            
+            // Trigger the ad network's pop-under or banner
+            // The script loaded in HTML will handle this automatically on user interaction.
+            // We simulate a "watching" period.
+            let countdown = 15;
+            adBtn.disabled = true;
+            const interval = setInterval(() => {
+                adBtn.textContent = `${countdown}s`;
+                countdown--;
+                if (countdown < 0) {
+                    clearInterval(interval);
+                    adBtn.textContent = "Claim";
+                    adBtn.onclick = () => claimTask(index);
+                    adBtn.disabled = false;
+                    tg.HapticFeedback.notificationOccurred('success');
+                }
+            }, 1000);
+        }
 
         function exploreCave() {
-            if (playerData.energy <= 0) {
-                alert("You don't have enough energy! Come back tomorrow.");
-                return;
-            }
+            if (playerData.energy <= 0) { alert("Not enough energy!"); return; }
             playerData.energy--;
             
-            // Mark the 'play game' task for completion
-            const playTaskIndex = playerData.dailyTasks.tasks.findIndex(t => t.id === 'play');
-            if (playTaskIndex !== -1 && !playerData.dailyTasks.tasks[playTaskIndex].completed) {
-                claimTask(playTaskIndex);
+            const playTask = playerData.dailyTasks.find(t => t.id === 'play');
+            if (playTask && !playTask.completed) {
+                playTask.progress++;
+                if (playTask.progress >= playTask.target) {
+                    tg.HapticFeedback.notificationOccurred('success');
+                    alert("You've completed the 'Play Game' task! Claim your reward.");
+                }
             }
-
-            // ... (rest of the game logic is the same)
-            const resultDiv = document.getElementById('game-result');
+            renderTasks();
+            // ... (rest of game logic)
+             const resultDiv = document.getElementById('game-result');
             const rand = Math.random();
             let message = "";
             if (rand < 0.02) { message = "🎉 Jackpot! You found a rare MrCoin!"; playerData.coins++; tg.HapticFeedback.impactOccurred('heavy'); }
@@ -229,11 +229,10 @@
             document.getElementById(pageId).classList.add('active');
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
             document.querySelector(`.nav-btn[onclick="showPage('${pageId}')"]`).classList.add('active');
-
             if (pageId === 'wallet-page') {
-                const walletTaskIndex = playerData.dailyTasks.tasks.findIndex(t => t.id === 'wallet');
-                if (walletTaskIndex !== -1 && !playerData.dailyTasks.tasks[walletTaskIndex].completed) {
-                    claimTask(walletTaskIndex);
+                const walletTask = playerData.dailyTasks.find(t => t.id === 'wallet');
+                if (walletTask && !walletTask.completed) {
+                    claimTask(playerData.dailyTasks.indexOf(walletTask));
                 }
             }
         }
@@ -243,7 +242,6 @@
             document.getElementById('username').textContent = tg.initDataUnsafe.user?.first_name || 'Player';
             document.getElementById('level').textContent = playerData.level;
             document.getElementById('xp').textContent = playerData.xp;
-            document.getElementById('points').textContent = playerData.points;
             document.getElementById('energy-count').textContent = playerData.energy;
         }
 
@@ -257,32 +255,30 @@
                 const today = getTodayDateString();
                 if (snapshot.exists()) {
                     playerData = { ...playerData, ...snapshot.val() };
-                    if (!playerData.dailyTasks || playerData.dailyTasks.date !== today) {
-                        playerData.dailyTasks = { date: today, tasks: generateDailyTasks() };
-                    }
-                    if (playerData.lastEnergyReset !== today) {
+                    if (playerData.lastReset !== today) {
+                        playerData.dailyTasks = generateDailyTasks();
                         playerData.energy = 10;
-                        playerData.lastEnergyReset = today;
+                        playerData.lastReset = today;
                     }
                 } else {
-                    playerData.dailyTasks = { date: today, tasks: generateDailyTasks() };
-                    playerData.lastEnergyReset = today;
+                    playerData.dailyTasks = generateDailyTasks();
+                    playerData.lastReset = today;
                 }
-                const loginTaskIndex = playerData.dailyTasks.tasks.findIndex(t => t.id === 'login');
-                if (loginTaskIndex !== -1 && !playerData.dailyTasks.tasks[loginTaskIndex].completed) {
-                    claimTask(loginTaskIndex);
+                const loginTask = playerData.dailyTasks.find(t => t.id === 'login');
+                if (loginTask && !loginTask.completed) {
+                    claimTask(playerData.dailyTasks.indexOf(loginTask));
                 }
                 updateUI();
                 renderTasks();
                 saveData();
             }).catch(e => {
-                console.error("Firebase read error:", e);
-                document.getElementById('task-list').innerHTML = '<p>Could not load tasks. Please try again later.</p>';
+                console.error("Firebase Read Error:", e);
+                document.getElementById('task-list').innerHTML = `<p style="color:red;">Could not load tasks. Please check your connection and Firebase setup.</p>`;
             });
         }
-
+        
         function requestWithdraw() {
-            const amount = parseInt(document.getElementById("amount").value.trim());
+             const amount = parseInt(document.getElementById("amount").value.trim());
             if (isNaN(amount) || amount < 100) { alert("Minimum 100 coins required."); return; }
             if (amount > playerData.coins) { alert("Not enough balance."); return; }
             const requestData = { telegramUsername: tg.initDataUnsafe.user?.username || 'N/A', amount, status: 'pending', timestamp: new Date().toISOString() };
@@ -300,15 +296,16 @@
             tg.expand();
             tg.setHeaderColor(getComputedStyle(document.documentElement).getPropertyValue('--bg-color').trim());
             tg.MainButton.hide();
-            if (!tg.initDataUnsafe?.user) { document.body.innerHTML = "<h1>Please open this game inside Telegram.</h1>"; return; }
+            if (!tg.initDataUnsafe?.user) { document.body.innerHTML = "<h1>Please open in Telegram.</h1>"; return; }
             userId = String(tg.initDataUnsafe.user.id);
             loadFromFirebase();
+            document.getElementById('ad-container').innerHTML = '<div id="container-9db5b9b75728e725b0490f241552e303"></div>';
         }
-        
         initializeApp();
     } catch (e) {
-        document.body.innerHTML = `<h1>An error occurred: ${e.message}</h1>`;
+        document.body.innerHTML = `<h1>A critical error occurred: ${e.message}. Please check console.</h1>`;
+        console.error(e);
     }
   </script>
 </body>
-      </html>
+  </html>
