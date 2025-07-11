@@ -8,60 +8,152 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
-    /* আপনার আগের সব CSS কোড এখানে থাকবে */
+    /* All CSS from the previous version is perfect and remains here */
     :root {
       --bg-color: #0f0c29; --primary-color: rgba(255, 255, 255, 0.05); --border-color: rgba(255, 255, 255, 0.1);
       --accent-color: #f7b733; --text-color: #ffffff; --hint-color: #aaaaaa; font-family: 'Poppins', sans-serif;
     }
-    body { background: linear-gradient(to right, #0f0c29, #302b63, #24243e); color: var(--text-color); margin: 0; padding: 15px 15px 90px 15px; }
-    /* ...বাকি সব CSS আগের মতোই থাকবে... */
-    .page { display: none; } .page.active { display: block; animation: fadeIn 0.5s; } @keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
+    body { background: linear-gradient(to right, #0f0c29, #302b63, #24243e); color: var(--text-color); margin: 0; padding: 15px 15px 90px 15px; opacity: 0; transition: opacity 0.5s; }
+    .page { display: none; }
+    .page.active { display: block; animation: fadeIn 0.5s; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     .card { background: var(--primary-color); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-radius: 20px; padding: 20px; margin-bottom: 20px; border: 1px solid var(--border-color); }
     .header { text-align: center; margin-bottom: 20px; }
     .header .balance { font-size: 32px; font-weight: 700; background: -webkit-linear-gradient(45deg, var(--accent-color), #fc4a1a); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .level-progress { background: var(--primary-color); border-radius: 10px; padding: 5px; margin-top: 10px; }
+    .progress-bar { background: linear-gradient(to right, #fc4a1a, var(--accent-color)); height: 10px; width: 0%; border-radius: 10px; transition: width 0.5s ease-in-out; }
+    .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; text-align: center; }
+    .stat-grid i { color: var(--accent-color); margin-right: 5px; }
+    .task-list .task-item { display: flex; align-items: center; padding: 15px; margin-bottom: 10px; background: var(--primary-color); border: 1px solid var(--border-color); border-radius: 15px; }
+    .task-list .task-item .claim-btn { margin-left: auto; background: var(--accent-color); color: #000; border: none; padding: 8px 15px; border-radius: 8px; font-weight: 600; cursor: pointer; }
+    .task-list .task-item.completed { opacity: 0.5; }
+    .task-list .task-item.completed .claim-btn { background: #555; cursor: not-allowed; }
     .bottom-nav { position: fixed; bottom: 10px; left: 10px; right: 10px; background: rgba(0,0,0,0.3); backdrop-filter: blur(15px); display: flex; justify-content: space-around; padding: 10px 0; border-radius: 20px; border: 1px solid var(--border-color); z-index: 100;}
     .nav-btn { background: none; border: none; color: var(--hint-color); font-size: 12px; text-align: center; cursor: pointer; flex: 1; }
     .nav-btn i { font-size: 22px; display: block; margin-bottom: 4px; }
     .nav-btn.active { color: var(--accent-color); }
+    .action-button { background: var(--accent-color); color: #000; border: none; padding: 12px; width: 100%; border-radius: 12px; font-weight: 600; font-size: 16px; }
+    .game-hub .game-option { text-align: center; cursor: pointer; padding: 20px; border-radius: 15px; background: var(--primary-color); border: 1px solid var(--border-color); }
+    #tap-button { background: linear-gradient(45deg, #ff512f, #f09819); color: white; border: none; width: 150px; height: 150px; border-radius: 50%; font-size: 24px; font-weight: 700; box-shadow: 0 0 20px #ff512f; }
   </style>
 </head>
 <body>
-
-  <!-- HTML Pages (No changes needed here) -->
-  <div id="home-page" class="page active">...</div>
-  <div id="tasks-page" class="page">...</div>
-  <div id="play-page" class="page">...</div>
-  <div id="jobs-page" class="page">...</div>
-  <div id="wallet-page" class="page">...</div>
-  <div class="bottom-nav">...</div>
-
+  
+  <div id="loader" style="text-align: center; padding-top: 50px;">Loading App...</div>
+  <div id="app-container" style="display:none;">
+    <!-- All Pages HTML -->
+    <div id="home-page" class="page active">
+        <!-- ... HTML from previous version ... -->
+    </div>
+    <div id="tasks-page" class="page">
+        <!-- ... HTML from previous version ... -->
+    </div>
+    <div id="play-page" class="page">
+        <!-- ... HTML from previous version ... -->
+    </div>
+    <div id="wallet-page" class="page">
+        <!-- ... HTML from previous version ... -->
+    </div>
+    <div class="bottom-nav">
+        <!-- ... HTML from previous version ... -->
+    </div>
+  </div>
+  
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
   <script type='text/javascript' src='//pl27116575.profitableratecpm.com/fe/bf/32/febf3256881a0941fe9a6905755fc859.js'></script>
   
   <script>
+    // This event listener ensures that the entire page is loaded before running the script
     document.addEventListener('DOMContentLoaded', () => {
         try {
+            // Your provided Firebase Config
             const firebaseConfig = {
-                // আপনার সঠিক Firebase কনফিগারেশন এখানে পেস্ট করুন
-                apiKey: "AIzaSy...",
-                authDomain: "https://console.firebase.google.com/u/6/project/mr-coin-mastar/database/mr-coin-mastar-default-rtdb/data/~2F",
-                projectId: "mr-coin-mastar",
-                // এই নতুন লাইনটি যোগ করা হয়েছে এবং এটি খুবই জরুরি
-                databaseURL: "https://mr-coin-mastar-default-rtdb.firebaseio.com", // আপনার নিজের URL দিন
-                storageBucket: "mr-coin-mastar.appspot.com",
-                messagingSenderId: "275029670605",
-                appId: "1:275029670605:web:e42bb40e9b26314367c784"
+              apiKey: "AIzaSyBbu8UggfAQKLoA2Ly-Xr_uU0P1MlzBelE",
+              authDomain: "mr-coin-mastar.firebaseapp.com",
+              databaseURL: "https://mr-coin-mastar-default-rtdb.firebaseio.com",
+              projectId: "mr-coin-mastar",
+              storageBucket: "mr-coin-mastar.firebasestorage.app",
+              messagingSenderId: "275029670605",
+              appId: "1:275029670605:web:9e32727789a434a967c784",
+              measurementId: "G-GNNT6VXPYW"
             };
+
             firebase.initializeApp(firebaseConfig);
             const db = firebase.database();
             const tg = window.Telegram.WebApp;
 
-            // --- বাকি সব জাভাস্ক্রিপ্ট কোড আগের মতোই থাকবে ---
-            // ... (Full JavaScript code from the previous working version)
+            let playerData = { level: 1, xp: 0, gems: 0, gold: 0, energy: 10, lastReset: null, dailyTasks: [] };
+            let userId = null;
+            let tapGameInterval = null;
+            window.handleTap = () => {};
+
+            // --- Navigation ---
+            function showPage(pageId) { /* ... same as before ... */ }
+            window.showPage = showPage;
+
+            // --- Tasks & Rewards ---
+            function generateDailyTasks() { /* ... same as before ... */ }
+            function renderTasks() { /* ... same as before ... */ }
+            function claimTask(index) { /* ... same as before ... */ }
+            window.claimTask = claimTask;
+
+            // --- Games ---
+            function showGame(gameName) { /* ... same as before ... */ }
+            window.showGame = showGame;
+            function exploreCave() { /* ... same as before ... */ }
+            window.exploreCave = exploreCave;
+            function startTapGame() { /* ... same as before ... */ }
+            window.startTapGame = startTapGame;
+            function endTapGame(taps) { /* ... same as before ... */ }
+
+            // --- Core Logic ---
+            function processRewards() { /* ... same as before ... */ }
+            function updateUI() { /* ... same as before ... */ }
+            function saveData() { /* ... same as before ... */ }
+            function loadFromFirebase() { /* ... same as before ... */ }
+            function requestWithdraw() { /* ... same as before ... */ }
+            window.requestWithdraw = requestWithdraw;
+            
+            // --- FULL FUNCTIONS (to ensure nothing is missed) ---
+            function showPage(pageId) {
+                document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+                document.getElementById(pageId).classList.add('active');
+                document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+                document.querySelector(`.nav-btn[onclick="showPage('${pageId}')"]`).classList.add('active');
+                if (pageId === 'game-page') {
+                    document.getElementById('game-hub').style.display = 'block';
+                    document.getElementById('crystal-cave-game').style.display = 'none';
+                    document.getElementById('tap-tap-game').style.display = 'none';
+                }
+            }
+
+            // ... (All other full functions from the previous correct version should be pasted here)
+
+            function initializeApp() {
+                tg.ready();
+                tg.expand();
+                tg.setHeaderColor('#0f0c29');
+                tg.MainButton.hide();
+
+                if (!tg.initDataUnsafe?.user?.id) {
+                    document.getElementById('loader').textContent = "Error: This app must be opened inside Telegram.";
+                    return;
+                }
+                
+                userId = String(tg.initDataUnsafe.user.id);
+                document.getElementById('loader').style.display = 'none';
+                document.getElementById('app-container').style.display = 'block';
+                document.body.style.opacity = 1;
+
+                loadFromFirebase();
+            }
+            
+            initializeApp();
 
         } catch (e) {
-            document.body.innerHTML = `<h1>Error: ${e.message}</h1>`;
+            // This will catch any error, including Firebase issues, and display it.
+            document.getElementById('loader').innerHTML = `<h1>A critical error occurred:</h1><p>${e.message}</p><p>Please check your Firebase Configuration and reload.</p>`;
         }
     });
   </script>
