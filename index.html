@@ -8,101 +8,33 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
-    :root { /* Styles from previous version */ }
-    body { background: linear-gradient(to right, #0f0c29, #302b63, #24243e); /* ... */ }
-    /* All other CSS from previous version is good, just adding new styles */
+    /* আপনার আগের সব CSS কোড এখানে থাকবে */
+    :root {
+      --bg-color: #0f0c29; --primary-color: rgba(255, 255, 255, 0.05); --border-color: rgba(255, 255, 255, 0.1);
+      --accent-color: #f7b733; --text-color: #ffffff; --hint-color: #aaaaaa; font-family: 'Poppins', sans-serif;
+    }
+    body { background: linear-gradient(to right, #0f0c29, #302b63, #24243e); color: var(--text-color); margin: 0; padding: 15px 15px 90px 15px; }
+    /* ...বাকি সব CSS আগের মতোই থাকবে... */
     .page { display: none; } .page.active { display: block; animation: fadeIn 0.5s; } @keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
-    .card { background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border-radius: 20px; padding: 20px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.1); }
+    .card { background: var(--primary-color); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-radius: 20px; padding: 20px; margin-bottom: 20px; border: 1px solid var(--border-color); }
     .header { text-align: center; margin-bottom: 20px; }
-    .header .balance { font-size: 32px; font-weight: 700; background: -webkit-linear-gradient(45deg, #f7b733, #fc4a1a); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; text-align: center; }
-    .bottom-nav { position: fixed; bottom: 10px; left: 10px; right: 10px; background: rgba(0,0,0,0.3); backdrop-filter: blur(15px); display: flex; justify-content: space-around; padding: 10px 0; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); }
-    .nav-btn { background: none; border: none; color: #aaa; font-size: 12px; text-align: center; cursor: pointer; }
+    .header .balance { font-size: 32px; font-weight: 700; background: -webkit-linear-gradient(45deg, var(--accent-color), #fc4a1a); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .bottom-nav { position: fixed; bottom: 10px; left: 10px; right: 10px; background: rgba(0,0,0,0.3); backdrop-filter: blur(15px); display: flex; justify-content: space-around; padding: 10px 0; border-radius: 20px; border: 1px solid var(--border-color); z-index: 100;}
+    .nav-btn { background: none; border: none; color: var(--hint-color); font-size: 12px; text-align: center; cursor: pointer; flex: 1; }
     .nav-btn i { font-size: 22px; display: block; margin-bottom: 4px; }
-    .nav-btn.active { color: #f7b733; }
-    .action-button { background: #f7b733; color: #000; border: none; padding: 12px; width: 100%; border-radius: 12px; font-weight: 600; font-size: 16px; }
-    
-    /* Fruit Game Styles */
-    #fruit-canvas { background: #1a1a1d; border-radius: 15px; cursor: crosshair; }
-    
-    /* Job Marketplace Styles */
-    .job-item { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; margin-bottom: 10px; }
-    .job-item .title { font-weight: 600; }
-    .job-item .reward { color: #f7b733; font-weight: bold; }
-    .job-item .action { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
-    input, select, textarea { width: 92%; padding: 12px; margin: 10px 0; background: #0f0c29; border: 1px solid rgba(255,255,255,0.1); color: white; border-radius: 12px; }
-    
-    /* Spin Wheel Styles */
-    .wheel-container { position: relative; width: 250px; height: 250px; margin: 20px auto; }
-    .wheel { width: 100%; height: 100%; border-radius: 50%; background-image: conic-gradient( #ffc400 0% 12.5%, #ff5722 12.5% 25%, #4caf50 25% 37.5%, #2196f3 37.5% 50%, #9c27b0 50% 62.5%, #e91e63 62.5% 75%, #00bcd4 75% 87.5%, #8bc34a 87.5% 100% ); transition: transform 5s cubic-bezier(.25,1,.5,1); }
-    .wheel-pointer { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 20px solid transparent; border-right: 20px solid transparent; border-top: 30px solid white; }
-    .wheel-button { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80px; height: 80px; border-radius: 50%; background: white; color: black; font-weight: 700; border: 5px solid #333; cursor:pointer; }
+    .nav-btn.active { color: var(--accent-color); }
   </style>
 </head>
 <body>
 
-  <!-- Pages -->
-  <div id="home-page" class="page active">
-    <!-- Home Page content ... -->
-  </div>
+  <!-- HTML Pages (No changes needed here) -->
+  <div id="home-page" class="page active">...</div>
+  <div id="tasks-page" class="page">...</div>
+  <div id="play-page" class="page">...</div>
+  <div id="jobs-page" class="page">...</div>
+  <div id="wallet-page" class="page">...</div>
+  <div class="bottom-nav">...</div>
 
-  <div id="tasks-page" class="page">
-    <div class="card" style="text-align:center;">
-        <div class="card-header">Daily Spin</div>
-        <div class="wheel-container">
-            <div id="wheel" class="wheel"></div>
-            <div class="wheel-pointer"></div>
-            <button id="spin-btn" class="wheel-button" onclick="spinWheel(true)">SPIN</button>
-        </div>
-        <button onclick="spinWithAd()" class="action-button" style="margin-top:20px;">Spin with Ad <i class="fas fa-video"></i></button>
-    </div>
-  </div>
-
-  <div id="play-page" class="page">
-     <div class="card" style="text-align:center;">
-        <div class="card-header">🍉 Fruit Slice</div>
-        <canvas id="fruit-canvas" width="320" height="400"></canvas>
-        <button id="start-fruit-game-btn" onclick="startFruitGame()" class="action-button" style="margin-top:15px;">Play Game (1 Energy)</button>
-     </div>
-  </div>
-  
-  <div id="jobs-page" class="page">
-    <div class="card">
-        <div class="card-header">Post a New Job</div>
-        <input type="text" id="job-title" placeholder="Job Title (e.g., Subscribe to my channel)">
-        <textarea id="job-desc" rows="3" placeholder="Description & Link"></textarea>
-        <input type="number" id="job-reward" placeholder="Reward in Gems (min 30)">
-        <button class="action-button" onclick="postJob()">Post Job</button>
-    </div>
-    <div class="card">
-        <div class="card-header">Job Marketplace</div>
-        <div id="job-list"><p>Loading jobs...</p></div>
-    </div>
-  </div>
-
-  <div id="wallet-page" class="page">
-     <div class="card">
-        <div class="card-header">💸 Withdraw Gold</div>
-        <select id="withdraw-method">
-            <option value="bkash">bKash</option>
-            <option value="nagad">Nagad</option>
-            <option value="paypal">PayPal</option>
-            <option value="binance">Binance (USDT)</option>
-        </select>
-        <input type="text" id="withdraw-account" placeholder="Your Account Number / ID">
-        <input type="number" id="withdraw-amount" placeholder="Amount of Gold (min 10)">
-        <button onclick="requestWithdraw()" class="action-button">Request Withdraw</button>
-     </div>
-  </div>
-
-  <div class="bottom-nav">
-    <button class="nav-btn active" onclick="showPage('home-page')"><i class="fas fa-home"></i> Home</button>
-    <button class="nav-btn" onclick="showPage('tasks-page')"><i class="fas fa-gift"></i> Rewards</button>
-    <button class="nav-btn" onclick="showPage('play-page')"><i class="fas fa-gamepad"></i> Play</button>
-    <button class="nav-btn" onclick="showPage('jobs-page')"><i class="fas fa-briefcase"></i> Jobs</button>
-    <button class="nav-btn" onclick="showPage('wallet-page')"><i class="fas fa-wallet"></i> Wallet</button>
-  </div>
-  
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
   <script type='text/javascript' src='//pl27116575.profitableratecpm.com/fe/bf/32/febf3256881a0941fe9a6905755fc859.js'></script>
@@ -110,184 +42,27 @@
   <script>
     document.addEventListener('DOMContentLoaded', () => {
         try {
-            const firebaseConfig = { /* আপনার Firebase Config */ };
+            const firebaseConfig = {
+                // আপনার সঠিক Firebase কনফিগারেশন এখানে পেস্ট করুন
+                apiKey: "AIzaSy...",
+                authDomain: "mr-coin-mastar.firebaseapp.com",
+                projectId: "mr-coin-mastar",
+                // এই নতুন লাইনটি যোগ করা হয়েছে এবং এটি খুবই জরুরি
+                databaseURL: "https://mr-coin-mastar-default-rtdb.firebaseio.com", // আপনার নিজের URL দিন
+                storageBucket: "mr-coin-mastar.appspot.com",
+                messagingSenderId: "275029670605",
+                appId: "1:275029670605:web:e42bb40e9b26314367c784"
+            };
             firebase.initializeApp(firebaseConfig);
             const db = firebase.database();
             const tg = window.Telegram.WebApp;
 
-            let playerData = { level: 1, xp: 0, gems: 0, gold: 0, energy: 10, lastReset: null, spinUsed: false };
-            let userId = null;
+            // --- বাকি সব জাভাস্ক্রিপ্ট কোড আগের মতোই থাকবে ---
+            // ... (Full JavaScript code from the previous working version)
 
-            // --- Fruit Slice Game Logic ---
-            const canvas = document.getElementById('fruit-canvas');
-            const ctx = canvas.getContext('2d');
-            let fruits = [], bombs = [], particles = [], score = 0, gameActive = false;
-            
-            function startFruitGame() {
-                if (playerData.energy <= 0) { alert("Not enough energy!"); return; }
-                playerData.energy--;
-                updateUI(); saveData();
-                
-                gameActive = true;
-                score = 0;
-                fruits = [];
-                bombs = [];
-                document.getElementById('start-fruit-game-btn').disabled = true;
-                
-                const gameInterval = setInterval(() => {
-                    if (!gameActive) { clearInterval(gameInterval); return; }
-                    // Generate fruits and bombs
-                    if (Math.random() < 0.8) fruits.push(new Fruit());
-                    if (Math.random() < 0.1) bombs.push(new Bomb());
-                }, 1000);
-                
-                animateFruitGame();
-            }
-            window.startFruitGame = startFruitGame;
-
-            class Particle { /* ... */ } class Fruit { /* ... */ } class Bomb { /* ... */ }
-            // (Full implementation of Fruit Slice classes and animation loop is complex and long, so it's abstracted here for clarity. The logic will be included in the full script.)
-
-            function animateFruitGame() {
-                if (!gameActive) return;
-                requestAnimationFrame(animateFruitGame);
-                ctx.fillStyle = '#1a1a1d';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                // Update and draw fruits, bombs, particles
-                // ...
-            }
-
-            canvas.addEventListener('mousemove', (e) => {
-                if (!gameActive) return;
-                const rect = canvas.getBoundingClientRect();
-                const mouseX = e.clientX - rect.left;
-                const mouseY = e.clientY - rect.top;
-                // Collision detection logic
-                // ...
-            });
-            
-            function endFruitGame() {
-                gameActive = false;
-                alert(`Game Over! Your score: ${score}`);
-                playerData.gems += score;
-                processRewards();
-                document.getElementById('start-fruit-game-btn').disabled = false;
-            }
-
-            // --- Spin Wheel Logic ---
-            function spinWheel(isFree) {
-                const spinBtn = document.getElementById('spin-btn');
-                if (isFree && playerData.spinUsed) { alert("You have used your free daily spin!"); return; }
-                if (!isFree && playerData.gems < 10) { alert("Not enough gems to spin!"); return; } // Example cost
-                
-                if (isFree) playerData.spinUsed = true;
-                else playerData.gems -= 10;
-                
-                spinBtn.disabled = true;
-                const wheel = document.getElementById('wheel');
-                const segments = [200, 20, 0, 50, 10, 5, 80, 0];
-                const segmentAngle = 360 / segments.length;
-                const randomStop = Math.floor(Math.random() * segments.length);
-                const rotation = 360 * 5 + (randomStop * segmentAngle);
-                
-                wheel.style.transform = `rotate(${rotation}deg)`;
-                
-                setTimeout(() => {
-                    const prize = segments[randomStop];
-                    if (prize > 0) {
-                        playerData.gems += prize;
-                        alert(`You won ${prize} Gems!`);
-                    } else {
-                        alert("Better luck next time!");
-                    }
-                    spinBtn.disabled = isFree ? playerData.spinUsed : false;
-                    processRewards();
-                }, 5500);
-            }
-            window.spinWheel = spinWheel;
-            
-            function spinWithAd() {
-                alert("Please interact with the ad shown by the social bar. Your spin will be ready after a short delay.");
-                setTimeout(() => {
-                    spinWheel(false); // This spin is not free
-                }, 5000); // 5-second delay to simulate ad watch
-            }
-            window.spinWithAd = spinWithAd;
-
-            // --- Micro-Job Marketplace Logic ---
-            function postJob() {
-                const title = document.getElementById('job-title').value;
-                const desc = document.getElementById('job-desc').value;
-                const reward = parseInt(document.getElementById('job-reward').value);
-
-                if (!title || !desc || !reward) { alert("Please fill all fields."); return; }
-                if (reward < 30) { alert("Minimum reward is 30 Gems."); return; }
-                if (playerData.gems < reward) { alert("You don't have enough Gems to post this job."); return; }
-
-                playerData.gems -= reward;
-                const jobData = {
-                    posterId: userId,
-                    posterName: tg.initDataUnsafe.user?.first_name || 'A user',
-                    title, desc, reward,
-                    postedAt: Date.now()
-                };
-                db.ref('micro_jobs').push(jobData);
-                alert("Job posted successfully!");
-                processRewards();
-            }
-            window.postJob = postJob;
-
-            function loadJobs() {
-                const jobListDiv = document.getElementById('job-list');
-                db.ref('micro_jobs').on('value', snapshot => {
-                    jobListDiv.innerHTML = '';
-                    if (!snapshot.exists()) {
-                        jobListDiv.innerHTML = '<p>No jobs available right now.</p>';
-                        return;
-                    }
-                    snapshot.forEach(childSnapshot => {
-                        const jobKey = childSnapshot.key;
-                        const job = childSnapshot.val();
-                        if (job.posterId === userId) return; // Don't show your own jobs
-
-                        const jobDiv = document.createElement('div');
-                        jobDiv.className = 'job-item';
-                        jobDiv.innerHTML = `<p class="title">${job.title}</p><p class="reward">${job.reward} Gems</p><div class="action"><a href="${job.desc.includes('http') ? job.desc : '#'}" target="_blank">View Task</a><button onclick="completeJob('${jobKey}', ${job.reward})">I did it</button></div>`;
-                        jobListDiv.appendChild(jobDiv);
-                    });
-                });
-            }
-
-            function completeJob(jobKey, reward) {
-                // In a real app, this needs server-side verification.
-                // For now, it's a trust-based system.
-                playerData.gems += reward;
-                db.ref('micro_jobs').child(jobKey).remove(); // Remove job after completion
-                alert(`You have earned ${reward} Gems!`);
-                processRewards();
-            }
-            window.completeJob = completeJob;
-
-            // --- All other core functions ---
-            // (initializeApp, loadFromFirebase, saveData, updateUI, showPage, etc.)
-            // These functions are complex and need to be included fully.
-
-            function initializeApp() {
-                tg.ready();
-                tg.expand();
-                tg.setHeaderColor('#0f0c29');
-                tg.MainButton.hide();
-                
-                if (!tg.initDataUnsafe?.user?.id) {
-                    document.body.innerHTML = "<h1>Please open in Telegram.</h1>";
-                    return;
-                }
-                userId = String(tg.initDataUnsafe.user.id);
-                loadFromFirebase();
-                loadJobs();
-            }
-            initializeApp();
-        } catch (e) { document.body.innerHTML = `<h1>Error: ${e.message}</h1>`; }
+        } catch (e) {
+            document.body.innerHTML = `<h1>Error: ${e.message}</h1>`;
+        }
     });
   </script>
 </body>
