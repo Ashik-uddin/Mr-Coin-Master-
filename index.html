@@ -1,161 +1,300 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8" />
-  <title>MrCoin Master</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover"/>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <style>
-    /* All CSS from the previous version is perfect and remains here */
-    :root {
-      --bg-color: #0f0c29; --primary-color: rgba(255, 255, 255, 0.05); --border-color: rgba(255, 255, 255, 0.1);
-      --accent-color: #f7b733; --text-color: #ffffff; --hint-color: #aaaaaa; font-family: 'Poppins', sans-serif;
-    }
-    body { background: linear-gradient(to right, #0f0c29, #302b63, #24243e); color: var(--text-color); margin: 0; padding: 15px 15px 90px 15px; opacity: 0; transition: opacity 0.5s; }
-    .page { display: none; }
-    .page.active { display: block; animation: fadeIn 0.5s; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    .card { background: var(--primary-color); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-radius: 20px; padding: 20px; margin-bottom: 20px; border: 1px solid var(--border-color); }
-    .header { text-align: center; margin-bottom: 20px; }
-    .header .balance { font-size: 32px; font-weight: 700; background: -webkit-linear-gradient(45deg, var(--accent-color), #fc4a1a); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .level-progress { background: var(--primary-color); border-radius: 10px; padding: 5px; margin-top: 10px; }
-    .progress-bar { background: linear-gradient(to right, #fc4a1a, var(--accent-color)); height: 10px; width: 0%; border-radius: 10px; transition: width 0.5s ease-in-out; }
-    .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; text-align: center; }
-    .stat-grid i { color: var(--accent-color); margin-right: 5px; }
-    .task-list .task-item { display: flex; align-items: center; padding: 15px; margin-bottom: 10px; background: var(--primary-color); border: 1px solid var(--border-color); border-radius: 15px; }
-    .task-list .task-item .claim-btn { margin-left: auto; background: var(--accent-color); color: #000; border: none; padding: 8px 15px; border-radius: 8px; font-weight: 600; cursor: pointer; }
-    .task-list .task-item.completed { opacity: 0.5; }
-    .task-list .task-item.completed .claim-btn { background: #555; cursor: not-allowed; }
-    .bottom-nav { position: fixed; bottom: 10px; left: 10px; right: 10px; background: rgba(0,0,0,0.3); backdrop-filter: blur(15px); display: flex; justify-content: space-around; padding: 10px 0; border-radius: 20px; border: 1px solid var(--border-color); z-index: 100;}
-    .nav-btn { background: none; border: none; color: var(--hint-color); font-size: 12px; text-align: center; cursor: pointer; flex: 1; }
-    .nav-btn i { font-size: 22px; display: block; margin-bottom: 4px; }
-    .nav-btn.active { color: var(--accent-color); }
-    .action-button { background: var(--accent-color); color: #000; border: none; padding: 12px; width: 100%; border-radius: 12px; font-weight: 600; font-size: 16px; }
-    .game-hub .game-option { text-align: center; cursor: pointer; padding: 20px; border-radius: 15px; background: var(--primary-color); border: 1px solid var(--border-color); }
-    #tap-button { background: linear-gradient(45deg, #ff512f, #f09819); color: white; border: none; width: 150px; height: 150px; border-radius: 50%; font-size: 24px; font-weight: 700; box-shadow: 0 0 20px #ff512f; }
-  </style>
+    <meta charset="UTF-8" />
+    <title>MrCoin Master</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        :root { --bg-color: #0f0c29; --primary-color: rgba(255, 255, 255, 0.05); --border-color: rgba(255, 255, 255, 0.1); --accent-color: #f7b733; --text-color: #ffffff; --hint-color: #aaaaaa; font-family: 'Poppins', sans-serif; }
+        body { background: linear-gradient(to right, #0f0c29, #302b63, #24243e); color: var(--text-color); margin: 0; padding: 15px 15px 90px 15px; opacity: 0; transition: opacity 0.5s; text-align: center; }
+        #loader { padding-top: 50px; }
+        #app-container { display: none; }
+        .page { display: none; } .page.active { display: block; animation: fadeIn 0.5s; } @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .card { background: var(--primary-color); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-radius: 20px; padding: 20px; margin-bottom: 20px; border: 1px solid var(--border-color); text-align: left; }
+        .header { text-align: center; margin-bottom: 20px; }
+        .header .balance { font-size: 32px; font-weight: 700; background: -webkit-linear-gradient(45deg, var(--accent-color), #fc4a1a); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .level-progress { background: var(--primary-color); border-radius: 10px; padding: 5px; margin-top: 10px; }
+        .progress-bar { background: linear-gradient(to right, #fc4a1a, var(--accent-color)); height: 10px; width: 0%; border-radius: 10px; transition: width 0.5s ease-in-out; }
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; text-align: center; }
+        .stat-grid i { color: var(--accent-color); margin-right: 5px; }
+        .task-list .task-item { display: flex; align-items: center; padding: 15px; margin-bottom: 10px; background: var(--primary-color); border: 1px solid var(--border-color); border-radius: 15px; }
+        .task-list .task-item .icon { font-size: 24px; margin-right: 15px; color: var(--accent-color); width: 30px; }
+        .task-list .task-item .info p { margin: 0; font-weight: 500; }
+        .task-list .task-item .claim-btn { margin-left: auto; background: var(--accent-color); color: #000; border: none; padding: 8px 15px; border-radius: 8px; font-weight: 600; cursor: pointer; }
+        .task-list .task-item.completed { opacity: 0.5; }
+        .task-list .task-item.completed .claim-btn { background: #555; cursor: not-allowed; }
+        .bottom-nav { position: fixed; bottom: 10px; left: 10px; right: 10px; background: rgba(0,0,0,0.3); backdrop-filter: blur(15px); display: flex; justify-content: space-around; padding: 10px 0; border-radius: 20px; border: 1px solid var(--border-color); z-index: 100;}
+        .nav-btn { background: none; border: none; color: var(--hint-color); font-size: 12px; text-align: center; cursor: pointer; flex: 1; }
+        .nav-btn i { font-size: 22px; display: block; margin-bottom: 4px; }
+        .nav-btn.active { color: var(--accent-color); }
+        .action-button { background: var(--accent-color); color: #000; border: none; padding: 12px; width: 100%; border-radius: 12px; font-weight: 600; font-size: 16px; }
+        .game-hub .game-option { text-align: center; cursor: pointer; padding: 20px; border-radius: 15px; background: var(--primary-color); border: 1px solid var(--border-color); }
+        .game-hub i { font-size: 40px; margin-bottom: 10px; }
+        #tap-button { background: linear-gradient(45deg, #ff512f, #f09819); color: white; border: none; width: 150px; height: 150px; border-radius: 50%; font-size: 24px; font-weight: 700; box-shadow: 0 0 20px #ff512f; }
+    </style>
 </head>
 <body>
-  
-  <div id="loader" style="text-align: center; padding-top: 50px;">Loading App...</div>
-  <div id="app-container" style="display:none;">
-    <!-- All Pages HTML -->
-    <div id="home-page" class="page active">
-        <!-- ... HTML from previous version ... -->
+    <div id="loader">Loading App...</div>
+    <div id="app-container">
+        <div id="home-page" class="page active">
+            <div class="header">
+                <p style="color: var(--hint-color);"><span id="username">Player</span>'s Empire</p>
+                <div class="balance"><i class="fas fa-coins"></i> <span id="main-gold">0</span></div>
+            </div>
+            <div class="card">
+                <div class="stat-grid">
+                    <div><i class="fas fa-star"></i> Level: <b id="level">1</b></div>
+                    <div><i class="fas fa-bolt"></i> Energy: <b id="energy-count">0</b></div>
+                </div>
+                <div class="level-progress">
+                    <div id="xp-bar" class="progress-bar"></div>
+                </div>
+                <p style="text-align:center; font-size: 12px; color: var(--hint-color);">XP: <span id="xp">0</span> / <span id="xp-target">100</span></p>
+            </div>
+        </div>
+        <div id="tasks-page" class="page">
+            <div class="card">
+                <div class="card-header">Daily Tasks</div>
+                <div class="task-list" id="task-list"><p id="task-loader">Loading...</p></div>
+            </div>
+        </div>
+        <div id="play-page" class="page">
+            <div class="card" id="game-hub">
+                <div class="stat-grid">
+                    <div class="game-option" onclick="window.showGame('crystal-cave')"><i class="fas fa-gem" style="color: #8a2be2;"></i><p>Crystal Cave</p></div>
+                    <div class="game-option" onclick="window.showGame('tap-tap')"><i class="fas fa-hand-pointer" style="color: #f09819;"></i><p>Tap Tap Mania</p></div>
+                </div>
+            </div>
+            <div id="crystal-cave-game" class="card" style="display:none; text-align:center;">
+                <button onclick="window.exploreCave()" class="action-button" style="background: linear-gradient(45deg, #8a2be2, #4b0082);">Explore (1 Energy)</button>
+                <div id="cave-result" style="margin-top: 20px; font-weight: 500; min-height: 24px;"></div>
+            </div>
+            <div id="tap-tap-game" class="card" style="display:none;">
+                <div id="tap-game-start" style="text-align:center;">
+                    <button onclick="window.startTapGame()" class="action-button" style="background: linear-gradient(45deg, #ff512f, #f09819);">Start Game (1 Energy)</button>
+                </div>
+                <div id="tap-game-area" style="display:none; text-align:center;">
+                    <div class="stat-grid">
+                        <div>Time: <b id="time-left">10</b>s</div>
+                        <div>Taps: <b id="tap-count">0</b></div>
+                    </div>
+                    <button id="tap-button" onclick="window.handleTap()">Tap!</button>
+                </div>
+                <div id="tap-result" style="margin-top: 20px; font-weight: 500; min-height: 24px; text-align:center;"></div>
+            </div>
+        </div>
+        <div id="wallet-page" class="page">
+            <div class="card">
+                <div class="card-header">💸 Withdraw</div>
+                <input type="number" id="amount" placeholder="Amount (min 100)" style="width: 92%; margin: 15px 0; background:var(--bg-color); border:1px solid var(--border-color); padding:12px; color:white; border-radius:12px;">
+                <button onclick="window.requestWithdraw()" class="action-button">Request Withdraw</button>
+            </div>
+        </div>
+        <div class="bottom-nav">
+            <button class="nav-btn active" onclick="window.showPage('home-page')"><i class="fas fa-home"></i> Home</button>
+            <button class="nav-btn" onclick="window.showPage('tasks-page')"><i class="fas fa-tasks"></i> Tasks</button>
+            <button class="nav-btn" onclick="window.showPage('play-page')"><i class="fas fa-gamepad"></i> Game</button>
+            <button class="nav-btn" onclick="window.showPage('wallet-page')"><i class="fas fa-wallet"></i> Wallet</button>
+        </div>
     </div>
-    <div id="tasks-page" class="page">
-        <!-- ... HTML from previous version ... -->
-    </div>
-    <div id="play-page" class="page">
-        <!-- ... HTML from previous version ... -->
-    </div>
-    <div id="wallet-page" class="page">
-        <!-- ... HTML from previous version ... -->
-    </div>
-    <div class="bottom-nav">
-        <!-- ... HTML from previous version ... -->
-    </div>
-  </div>
-  
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
-  <script type='text/javascript' src='//pl27116575.profitableratecpm.com/fe/bf/32/febf3256881a0941fe9a6905755fc859.js'></script>
-  
-  <script>
-    // This event listener ensures that the entire page is loaded before running the script
-    document.addEventListener('DOMContentLoaded', () => {
-        try {
-            // Your provided Firebase Config
-            const firebaseConfig = {
-              apiKey: "AIzaSyBbu8UggfAQKLoA2Ly-Xr_uU0P1MlzBelE",
-              authDomain: "mr-coin-mastar.firebaseapp.com",
-              databaseURL: "https://mr-coin-mastar-default-rtdb.firebaseio.com",
-              projectId: "mr-coin-mastar",
-              storageBucket: "mr-coin-mastar.firebasestorage.app",
-              messagingSenderId: "275029670605",
-              appId: "1:275029670605:web:9e32727789a434a967c784",
-              measurementId: "G-GNNT6VXPYW"
-            };
 
-            firebase.initializeApp(firebaseConfig);
-            const db = firebase.database();
-            const tg = window.Telegram.WebApp;
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+    <script type='text/javascript' src='//pl27116575.profitableratecpm.com/fe/bf/32/febf3256881a0941fe9a6905755fc859.js'></script>
+    
+    <script>
+        window.onload = () => {
+            try {
+                // আপনার সঠিক Firebase কনফিগারেশন এখানে পেস্ট করুন
+                const firebaseConfig = {
+                    apiKey: "AIzaSyBbu8UggfAQKLoA2Ly-Xr_uU0P1MlzBelE",
+                    authDomain: "mr-coin-mastar.firebaseapp.com",
+                    databaseURL: "https://mr-coin-mastar-default-rtdb.firebaseio.com",
+                    projectId: "mr-coin-mastar",
+                    storageBucket: "mr-coin-mastar.firebasestorage.app",
+                    messagingSenderId: "275029670605",
+                    appId: "1:275029670605:web:9e32727789a434a967c784",
+                    measurementId: "G-GNNT6VXPYW"
+                };
 
-            let playerData = { level: 1, xp: 0, gems: 0, gold: 0, energy: 10, lastReset: null, dailyTasks: [] };
-            let userId = null;
-            let tapGameInterval = null;
-            window.handleTap = () => {};
+                firebase.initializeApp(firebaseConfig);
+                const db = firebase.database();
+                const tg = window.Telegram.WebApp;
 
-            // --- Navigation ---
-            function showPage(pageId) { /* ... same as before ... */ }
-            window.showPage = showPage;
+                let playerData = { level: 1, xp: 0, gold: 0, energy: 10, lastReset: null, dailyTasks: [] };
+                let userId = null;
+                let tapGameInterval = null;
+                window.handleTap = () => {};
 
-            // --- Tasks & Rewards ---
-            function generateDailyTasks() { /* ... same as before ... */ }
-            function renderTasks() { /* ... same as before ... */ }
-            function claimTask(index) { /* ... same as before ... */ }
-            window.claimTask = claimTask;
-
-            // --- Games ---
-            function showGame(gameName) { /* ... same as before ... */ }
-            window.showGame = showGame;
-            function exploreCave() { /* ... same as before ... */ }
-            window.exploreCave = exploreCave;
-            function startTapGame() { /* ... same as before ... */ }
-            window.startTapGame = startTapGame;
-            function endTapGame(taps) { /* ... same as before ... */ }
-
-            // --- Core Logic ---
-            function processRewards() { /* ... same as before ... */ }
-            function updateUI() { /* ... same as before ... */ }
-            function saveData() { /* ... same as before ... */ }
-            function loadFromFirebase() { /* ... same as before ... */ }
-            function requestWithdraw() { /* ... same as before ... */ }
-            window.requestWithdraw = requestWithdraw;
-            
-            // --- FULL FUNCTIONS (to ensure nothing is missed) ---
-            function showPage(pageId) {
-                document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-                document.getElementById(pageId).classList.add('active');
-                document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-                document.querySelector(`.nav-btn[onclick="showPage('${pageId}')"]`).classList.add('active');
-                if (pageId === 'game-page') {
-                    document.getElementById('game-hub').style.display = 'block';
-                    document.getElementById('crystal-cave-game').style.display = 'none';
-                    document.getElementById('tap-tap-game').style.display = 'none';
+                function showPage(pageId) {
+                    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+                    document.getElementById(pageId).classList.add('active');
+                    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+                    document.querySelector(`.nav-btn[onclick="window.showPage('${pageId}')"]`).classList.add('active');
+                    if (pageId === 'play-page') {
+                        document.getElementById('game-hub').style.display = 'block';
+                        document.getElementById('crystal-cave-game').style.display = 'none';
+                        document.getElementById('tap-tap-game').style.display = 'none';
+                    }
                 }
-            }
+                window.showPage = showPage;
 
-            // ... (All other full functions from the previous correct version should be pasted here)
+                function generateDailyTasks() {
+                    return [
+                        { id: 'login', text: "Daily Check-in", reward: 20, completed: false, icon: "fa-check-circle" },
+                        { id: 'play', text: "Play any game 3 times", reward: 30, completed: false, icon: "fa-gem", progress: 0, target: 3 },
+                        { id: 'refer', text: "Invite a friend (soon)", reward: 100, completed: true, icon: "fa-user-plus" }
+                    ];
+                }
+                function renderTasks() {
+                    const taskListDiv = document.getElementById('task-list');
+                    if (!taskListDiv) return;
+                    taskListDiv.innerHTML = '';
+                    playerData.dailyTasks.forEach((task, index) => {
+                        const isCompleted = (task.target && task.progress >= task.target) || task.completed;
+                        const taskDiv = document.createElement('div');
+                        taskDiv.className = `task-item ${isCompleted ? 'completed' : ''}`;
+                        taskDiv.innerHTML = `<div class="icon"><i class="fas ${task.icon}"></i></div><div class="info"><p>${task.text} ${task.target ? `(${task.progress}/${task.target})` : ''}</p><span>Reward: ${task.reward} Gold</span></div><button class="claim-btn" onclick="window.claimTask(${index})" ${isCompleted && !task.completed ? '' : 'disabled'}>${task.completed ? 'Done' : 'Claim'}</button>`;
+                        taskListDiv.appendChild(taskDiv);
+                    });
+                }
+                window.claimTask = claimTask;
+                function claimTask(index) {
+                    const task = playerData.dailyTasks[index];
+                    if (!task || task.completed || (task.target && task.progress < task.target)) return;
+                    playerData.gold += task.reward;
+                    task.completed = true;
+                    updateUI(); saveData(); renderTasks();
+                }
+                function showGame(gameName) {
+                    document.getElementById('game-hub').style.display = 'none';
+                    if (gameName === 'crystal-cave') { document.getElementById('crystal-cave-game').style.display = 'block'; }
+                    else if (gameName === 'tap-tap') {
+                        document.getElementById('tap-tap-game').style.display = 'block';
+                        document.getElementById('tap-game-start').style.display = 'block';
+                        document.getElementById('tap-game-area').style.display = 'none';
+                    }
+                }
+                window.showGame = showGame;
+                function exploreCave() {
+                    if (playerData.energy <= 0) { alert("Not enough energy!"); return; }
+                    playerData.energy--;
+                    const playTask = playerData.dailyTasks.find(t => t.id === 'play');
+                    if (playTask && !playTask.completed) { playTask.progress++; }
+                    const resultDiv = document.getElementById('cave-result');
+                    const rand = Math.random();
+                    if (rand < 0.2) { const p = Math.floor(Math.random()*30)+20; resultDiv.textContent = `✨ You found ${p} gold!`; playerData.gold += p; }
+                    else { resultDiv.textContent = "😕 The cave was empty..."; }
+                    updateUI(); saveData(); renderTasks();
+                }
+                window.exploreCave = exploreCave;
+                function startTapGame() {
+                    if (playerData.energy <= 0) { alert("Not enough energy!"); return; }
+                    playerData.energy--;
+                    const playTask = playerData.dailyTasks.find(t => t.id === 'play');
+                    if (playTask && !playTask.completed) { playTask.progress++; }
+                    updateUI(); saveData(); renderTasks();
+                    document.getElementById('tap-game-start').style.display = 'none';
+                    document.getElementById('tap-game-area').style.display = 'block';
+                    let timeLeft = 10, taps = 0;
+                    document.getElementById('time-left').textContent = timeLeft;
+                    document.getElementById('tap-count').textContent = taps;
+                    window.handleTap = () => { taps++; document.getElementById('tap-count').textContent = taps; };
+                    tapGameInterval = setInterval(() => {
+                        timeLeft--;
+                        document.getElementById('time-left').textContent = timeLeft;
+                        if (timeLeft <= 0) { clearInterval(tapGameInterval); endTapGame(taps); }
+                    }, 1000);
+                }
+                window.startTapGame = startTapGame;
+                function endTapGame(taps) {
+                    document.getElementById('tap-game-area').style.display = 'none';
+                    document.getElementById('tap-game-start').style.display = 'block';
+                    const goldEarned = Math.floor(taps * 0.5);
+                    playerData.gold += goldEarned;
+                    document.getElementById('tap-result').textContent = `🎉 You earned ${goldEarned} gold!`;
+                    updateUI(); saveData();
+                }
+                function updateUI() {
+                    document.getElementById('main-gold').textContent = playerData.gold;
+                    document.getElementById('username').textContent = tg.initDataUnsafe?.user?.first_name || 'Player';
+                    document.getElementById('level').textContent = playerData.level;
+                    document.getElementById('xp').textContent = playerData.xp;
+                    document.getElementById('energy-count').textContent = playerData.energy;
+                    const xpTarget = 100 * playerData.level;
+                    document.getElementById('xp-target').textContent = xpTarget;
+                    document.getElementById('xp-bar').style.width = `${(playerData.xp / xpTarget) * 100}%`;
+                }
+                function saveData() { if (userId) db.ref(`players_tg/${userId}`).set(playerData); }
+                function loadFromFirebase() {
+                    db.ref(`players_tg/${userId}`).once("value").then(snapshot => {
+                        const today = getTodayDateString();
+                        if (snapshot.exists()) {
+                            playerData = { ...playerData, ...snapshot.val() };
+                            if (playerData.lastReset !== today) {
+                                playerData.dailyTasks = generateDailyTasks();
+                                playerData.energy = 10;
+                                playerData.lastReset = today;
+                            }
+                        } else {
+                            playerData.dailyTasks = generateDailyTasks();
+                            playerData.lastReset = today;
+                        }
+                        const loginTask = playerData.dailyTasks.find(t => t.id === 'login');
+                        if (loginTask && !loginTask.completed) { claimTask(playerData.dailyTasks.indexOf(loginTask)); }
+                        else { renderTasks(); }
+                        updateUI();
+                        saveData();
+                    }).catch(e => {
+                        document.getElementById('loader').textContent = `Error loading data: ${e.message}`;
+                    });
+                }
+                function requestWithdraw() {
+                    const amount = parseInt(document.getElementById("amount").value.trim());
+                    if (isNaN(amount) || amount < 100) { alert("Minimum 100 gold required."); return; }
+                    if (amount > playerData.gold) { alert("Not enough gold."); return; }
+                    const requestData = { telegramUsername: tg.initDataUnsafe.user?.username || 'N/A', amount, status: 'pending', timestamp: new Date().toISOString() };
+                    db.ref(`withdraw_requests/${userId}`).push(requestData).then(() => {
+                        playerData.gold -= amount;
+                        saveData(); updateUI();
+                        document.getElementById("amount").value = "";
+                        alert("Withdraw request submitted!");
+                    }).catch(() => alert("Error submitting request."));
+                }
+                window.requestWithdraw = requestWithdraw;
+                
+                function initializeApp() {
+                    tg.ready();
+                    tg.expand();
+                    tg.setHeaderColor('#0f0c29');
+                    tg.MainButton.hide();
 
-            function initializeApp() {
-                tg.ready();
-                tg.expand();
-                tg.setHeaderColor('#0f0c29');
-                tg.MainButton.hide();
+                    if (!tg.initDataUnsafe?.user?.id) {
+                        document.getElementById('loader').textContent = "Error: Please open this app in Telegram.";
+                        document.body.style.opacity = 1;
+                        return;
+                    }
+                    
+                    userId = String(tg.initDataUnsafe.user.id);
+                    document.getElementById('loader').style.display = 'none';
+                    document.getElementById('app-container').style.display = 'block';
+                    document.body.style.opacity = 1;
 
-                if (!tg.initDataUnsafe?.user?.id) {
-                    document.getElementById('loader').textContent = "Error: This app must be opened inside Telegram.";
-                    return;
+                    loadFromFirebase();
                 }
                 
-                userId = String(tg.initDataUnsafe.user.id);
-                document.getElementById('loader').style.display = 'none';
-                document.getElementById('app-container').style.display = 'block';
+                initializeApp();
+
+            } catch (e) {
+                const loader = document.getElementById('loader');
+                loader.textContent = `A critical error occurred: ${e.message}`;
+                loader.style.color = 'red';
                 document.body.style.opacity = 1;
-
-                loadFromFirebase();
             }
-            
-            initializeApp();
-
-        } catch (e) {
-            // This will catch any error, including Firebase issues, and display it.
-            document.getElementById('loader').innerHTML = `<h1>A critical error occurred:</h1><p>${e.message}</p><p>Please check your Firebase Configuration and reload.</p>`;
-        }
-    });
-  </script>
+        };
+    </script>
 </body>
 </html>
