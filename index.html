@@ -1,222 +1,260 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Mr. Coin Casino Lobby</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Aviator – Mr. Coin Casino</title>
+
   <!-- Bootstrap 5 -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+
+  <!-- Chart.js for the multiplier graph -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
   <style>
-    body { background: #121212; color: #f0f0f0; }
-    .navbar, .nav-pills .nav-link.active { background: #1f1f1f !important; }
-    .nav-pills .nav-link { color: #ccc; }
-    .nav-pills .nav-link.active { color: #00ffc3; }
-    .game-card {
-      background: #1f1f1f;
-      border-radius: 8px;
-      overflow: hidden;
-      transition: transform .2s;
-      cursor: pointer;
+    body {
+      background: #0f0f0f;
+      color: #e0e0e0;
+      font-family: Arial, sans-serif;
+      padding: 20px;
     }
-    .game-card:hover { transform: scale(1.03); }
-    .game-card img { width: 100%; height: 100px; object-fit: cover; }
-    .game-card .card-body { padding: .5rem; text-align: center; }
-    .badge-coins { font-size:1rem; background:#00ffc3; color:#121212; }
-    .avatar { width:32px; height:32px; border-radius:50%; }
-    .modal-content { background: #1f1f1f; color:#f0f0f0; }
-    .btn-custom { background: #00ffc3; color: #121212; }
-    input[type=number] { max-width:100px; }
+    .container {
+      max-width: 500px;
+      margin: auto;
+    }
+    .balance {
+      font-size: 1.2rem;
+      text-align: center;
+      margin-bottom: 15px;
+    }
+    #graph-container {
+      position: relative;
+      height: 200px;
+      margin-bottom: 10px;
+    }
+    .multiplier-display {
+      font-size: 2.5rem;
+      text-align: center;
+      margin-bottom: 10px;
+      color: #00ffc3;
+      text-shadow: 0 0 8px #00ffc3;
+    }
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+    .controls input[type=number] {
+      width: 80px;
+      text-align: center;
+      background: #1a1a1a;
+      border: 1px solid #333;
+      color: #e0e0e0;
+      border-radius: 4px;
+      padding: 4px;
+    }
+    .controls button {
+      background: #00ffc3;
+      color: #0f0f0f;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: transform .1s;
+    }
+    .controls button:active {
+      transform: scale(0.95);
+    }
+    .history {
+      background: #1a1a1a;
+      padding: 10px;
+      border-radius: 4px;
+    }
+    .history h6 {
+      margin-top: 0;
+    }
+    .history .round {
+      display: inline-block;
+      background: #333;
+      color: #00ffc3;
+      padding: 4px 8px;
+      margin: 2px;
+      border-radius: 4px;
+      font-size: 0.9rem;
+    }
   </style>
 </head>
 <body>
 
-  <!-- NAVBAR WITH USER INFO -->
-  <nav class="navbar navbar-expand bg-dark px-3 mb-3">
-    <span class="navbar-brand mb-0 h5 text-warning">Mr. Coin Casino</span>
-    <div class="ms-auto d-flex align-items-center">
-      <img src="https://i.pravatar.cc/32" class="avatar me-2"/>
-      <span id="username">User1234</span>
-      <span class="badge badge-coins ms-3" id="coinBadge">0 Coins</span>
-    </div>
-  </nav>
-
-  <div class="container-fluid px-3">
-
-    <!-- TABS -->
-    <ul class="nav nav-pills mb-3" id="tabs">
-      <li class="nav-item"><button class="nav-link active" data-tab="home">Home</button></li>
-      <li class="nav-item"><button class="nav-link" data-tab="promo">Promotion</button></li>
-      <li class="nav-item"><button class="nav-link" data-tab="invite">Invite</button></li>
-      <li class="nav-item"><button class="nav-link" data-tab="reward">Reward</button></li>
-      <li class="nav-item"><button class="nav-link" data-tab="profile">Profile</button></li>
-    </ul>
-
-    <!-- TAB PAGES -->
-    <div id="home" class="tab-page">
-      <div class="row g-2">
-        <!-- Aviator -->
-        <div class="col-6 col-md-3">
-          <div class="card game-card" onclick="openGame('Aviator')">
-            <img src="https://i.imgur.com/fqXzXSP.png" alt="Aviator"/>
-            <div class="card-body"><h6>✈️ Aviator</h6></div>
-          </div>
-        </div>
-        <!-- 11 Other Games -->
-        <div class="col-6 col-md-3"><div class="card game-card" onclick="openGame('Slots')"><img src="https://i.imgur.com/7Y5zubD.png"/><div class="card-body"><h6>🎰 Slots</h6></div></div></div>
-        <div class="col-6 col-md-3"><div class="card game-card" onclick="openGame('Roulette')"><img src="https://i.imgur.com/3x4H4nK.png"/><div class="card-body"><h6>🎡 Roulette</h6></div></div></div>
-        <div class="col-6 col-md-3"><div class="card game-card" onclick="openGame('Dice')"><img src="https://i.imgur.com/Np3ReV6.png"/><div class="card-body"><h6>🎲 Dice Roll</h6></div></div></div>
-        <div class="col-6 col-md-3"><div class="card game-card" onclick="openGame('Blackjack')"><img src="https://i.imgur.com/lkT6jkH.png"/><div class="card-body"><h6>🃏 Blackjack</h6></div></div></div>
-        <div class="col-6 col-md-3"><div class="card game-card" onclick="openGame('Crash')"><img src="https://i.imgur.com/oQXlR3E.png"/><div class="card-body"><h6>💥 Crash</h6></div></div></div>
-        <div class="col-6 col-md-3"><div class="card game-card" onclick="openGame('Plinko')"><img src="https://i.imgur.com/kzAg2yI.png"/><div class="card-body"><h6>🎯 Plinko</h6></div></div></div>
-        <div class="col-6 col-md-3"><div class="card game-card" onclick="openGame('Coin Toss')"><img src="https://i.imgur.com/pvTZE1b.png"/><div class="card-body"><h6>💰 Coin Toss</h6></div></div></div>
-        <div class="col-6 col-md-3"><div class="card game-card" onclick="openGame('Scratch Card')"><img src="https://i.imgur.com/iKXyE0r.png"/><div class="card-body"><h6>🪙 Scratch</h6></div></div></div>
-        <div class="col-6 col-md-3"><div class="card game-card" onclick="openGame('Dart')"><img src="https://i.imgur.com/tn8krsT.png"/><div class="card-body"><h6>🎯 Dart Throw</h6></div></div></div>
-        <div class="col-6 col-md-3"><div class="card game-card" onclick="openGame('Lucky Wheel')"><img src="https://i.imgur.com/UFWE4Xz.png"/><div class="card-body"><h6>🎠 Lucky Wheel</h6></div></div></div>
-        <div class="col-6 col-md-3"><div class="card game-card" onclick="openGame('Emoji Match')"><img src="https://i.imgur.com/4K1qVg6.png"/><div class="card-body"><h6>😎 Emoji Match</h6></div></div></div>
-      </div>
+  <div class="container">
+    <div class="balance">
+      Balance: <span id="coins">0</span> TK  
+      &nbsp;|&nbsp;  
+      Bet: <span id="betDisplay">0.5</span> TK  
+      &nbsp;|&nbsp;  
+      Win: <span id="payoutDisplay">0.00</span> TK
     </div>
 
-    <div id="promo" class="tab-page d-none text-center">
-      <h4>📢 Promotion</h4>
-      <p>Watch ads to earn extra coins:</p>
-      <button class="btn btn-custom mb-2" onclick="watchAd()">Watch Rewarded Ad</button>
-      <div id="promo-ad" class="mt-3">
-        <!-- In-App Interstitial Ads auto-run -->
-      </div>
+    <div id="graph-container">
+      <canvas id="multiplierChart"></canvas>
     </div>
 
-    <div id="invite" class="tab-page d-none text-center">
-      <h4>📲 Invite Friends</h4>
-      <p>Get +20 coins per referral!</p>
-      <input type="text" class="form-control mb-2 text-center" id="refLink" readonly>
-      <button class="btn btn-custom" onclick="copyRef()">Copy Link</button>
+    <div class="multiplier-display">
+      <span id="currentMultiplier">1.00</span>x
     </div>
 
-    <div id="reward" class="tab-page d-none text-center">
-      <h4>🎁 Rewards</h4>
-      <p>🎊 Daily Bonus: +<span id="dailyBonus">0</span> coins</p>
-      <button class="btn btn-custom mb-3" onclick="claimDaily()">Claim Daily</button>
-      <div>
-        <button class="btn btn-custom me-2" onclick="deposit()">Deposit</button>
-        <button class="btn btn-custom" onclick="withdraw()">Withdraw</button>
-      </div>
-      <small class="text-muted d-block mt-2">Min. withdraw: 100 TK</small>
+    <div class="controls">
+      <button id="betDec">–</button>
+      <input id="betInput" type="number" step="0.5" min="0.5" value="0.5"/>
+      <button id="betInc">+</button>
+      <button id="cashout" disabled>Cash Out</button>
+      <button id="playBtn">Play</button>
     </div>
 
-    <div id="profile" class="tab-page d-none text-center">
-      <h4>👤 Profile</h4>
-      <img src="https://i.pravatar.cc/80" class="avatar mb-2"/>
-      <p><strong id="uid">User#0000</strong></p>
-      <p>Joined: <span id="joined">Today</span></p>
-    </div>
-
-  </div>
-
-  <!-- GAME MODAL -->
-  <div class="modal fade" id="gameModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content text-light">
-        <div class="modal-header border-0">
-          <h5 class="modal-title" id="gameTitle"></h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body text-center" id="gameBody"></div>
-      </div>
+    <div class="history">
+      <h6>Last Rounds:</h6>
+      <div id="roundHistory"></div>
     </div>
   </div>
 
-  <!-- Bootstrap & JS -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    // INITIALIZE USER DATA
+    // --- State & Persistence ---
     let coins = parseFloat(localStorage.getItem('coins')) || 100;
-    const dailyBonus = 20;
-    const lastClaim = localStorage.getItem('lastClaim') || 0;
-    const updateHeader = () => {
-      document.getElementById('coinBadge').innerText = coins.toFixed(2) + ' Coins';
-      document.getElementById('dailyBonus').innerText = dailyBonus;
-    };
-    updateHeader();
+    let bet = 0.5;
+    let chart, runInterval, crashPoint;
+    const historyEl = document.getElementById('roundHistory');
 
-    // TAB SWITCHING
-    document.querySelectorAll('#tabs [data-tab]').forEach(btn => {
-      btn.onclick = () => {
-        document.querySelectorAll('.tab-page').forEach(p => p.classList.add('d-none'));
-        document.querySelectorAll('#tabs .nav-link').forEach(n => n.classList.remove('active'));
-        document.getElementById(btn.dataset.tab).classList.remove('d-none');
-        btn.classList.add('active');
-      };
+    // Update Balance & Bet Displays
+    function updateDisplays() {
+      document.getElementById('coins').innerText = coins.toFixed(2);
+      document.getElementById('betDisplay').innerText = bet.toFixed(2);
+      document.getElementById('payoutDisplay').innerText = (bet * parseFloat(document.getElementById('currentMultiplier').innerText)).toFixed(2);
+      localStorage.setItem('coins', coins);
+    }
+    updateDisplays();
+
+    // --- Chart.js Setup ---
+    const ctx = document.getElementById('multiplierChart').getContext('2d');
+    chart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [{
+          label: 'Multiplier',
+          data: [],
+          borderColor: '#00ffc3',
+          backgroundColor: 'rgba(0,255,195,0.2)',
+          pointRadius: 0,
+          tension: 0.3
+        }]
+      },
+      options: {
+        animation: false,
+        scales: {
+          x: { display: false },
+          y: {
+            min: 1,
+            ticks: { color: '#e0e0e0' }
+          }
+        },
+        plugins: {
+          legend: { display: false }
+        }
+      }
     });
 
-    // CLAIM DAILY BONUS
-    function claimDaily() {
-      const now = Date.now();
-      if (now - lastClaim < 86400000) return alert('Already claimed today!');
-      coins += dailyBonus;
-      localStorage.setItem('coins', coins);
-      localStorage.setItem('lastClaim', now);
-      updateHeader();
-      alert(`🎉 You got +${dailyBonus} coins!`);
+    // --- Bet Controls ---
+    document.getElementById('betDec').onclick = () => {
+      bet = Math.max(0.5, bet - 0.5);
+      document.getElementById('betInput').value = bet;
+      updateDisplays();
+    };
+    document.getElementById('betInc').onclick = () => {
+      bet = bet + 0.5;
+      document.getElementById('betInput').value = bet;
+      updateDisplays();
+    };
+    document.getElementById('betInput').oninput = e => {
+      bet = Math.max(0.5, parseFloat(e.target.value) || 0.5);
+      updateDisplays();
+    };
+
+    // --- Play / Crash Logic ---
+    document.getElementById('playBtn').onclick = startRound;
+    document.getElementById('cashout').onclick = cashOut;
+
+    function startRound() {
+      if (bet > coins) return alert('Not enough balance!');
+      coins -= bet;
+      updateDisplays();
+
+      // Prepare round
+      chart.data.labels.length = 0;
+      chart.data.datasets[0].data.length = 0;
+      chart.update();
+      document.getElementById('currentMultiplier').innerText = '1.00';
+      document.getElementById('cashout').disabled = false;
+      document.getElementById('playBtn').disabled = true;
+
+      // Random crash between 1.2 and 12.0
+      crashPoint = (Math.random() * 10 + 1.2).toFixed(2);
+
+      let m = 1.00;
+      const step = () => {
+        m += m * 0.01; // exponential growth
+        if (m.toFixed(2) >= crashPoint) {
+          // CRASH!
+          endRound(false);
+        } else {
+          // update
+          document.getElementById('currentMultiplier').innerText = m.toFixed(2);
+          chart.data.labels.push('');
+          chart.data.datasets[0].data.push(m.toFixed(2));
+          chart.update();
+        }
+      };
+      runInterval = setInterval(step, 100);
     }
 
-    // REFERRAL LINK
-    const ref = `https://t.me/YourBot?start=${Math.floor(Math.random()*1e6)}`;
-    document.getElementById('refLink').value = ref;
-    function copyRef() {
-      navigator.clipboard.writeText(ref);
-      alert('Link copied!');
-    }
+    function endRound(won) {
+      clearInterval(runInterval);
+      document.getElementById('cashout').disabled = true;
+      document.getElementById('playBtn').disabled = false;
 
-    // MONETAG ADS
-    function watchAd() {
-      show_9563904()
-      .then(()=>{ coins+=15; localStorage.setItem('coins', coins); updateHeader(); alert('+15 coins for watching ad!'); })
-      .catch(()=>{ alert('Ad failed.'); });
-      // auto in-app
-      show_9563904({ type:'inApp', inAppSettings:{ frequency:2, capping:0.1, interval:30, timeout:5, everyPage:false }});
-    }
-
-    // PAYOUT STUBS
-    function deposit() { alert('Redirect to bKash/Nagad/PayPal/Binance…'); }
-    function withdraw(){
-      if(coins<100) return alert('Need ≥100 TK to withdraw.');
-      alert('Withdraw request sent!');
-    }
-
-    // OPEN GAME MODAL
-    const gameModal = new bootstrap.Modal(document.getElementById('gameModal'));
-    function openGame(name) {
-      document.getElementById('gameTitle').innerText = name;
-      const body = document.getElementById('gameBody');
-      // Aviator playable
-      if(name==='Aviator') {
-        body.innerHTML = `
-          <div id="flight" class="mb-2">✈️</div>
-          <p>Multiplier: <span id="multiplier">0.00x</span></p>
-          <input type="number" id="bet" step="0.5" min="0.5" class="form-control d-inline-block mb-2" placeholder="Bet TK">
-          <button class="btn btn-custom d-block mx-auto" onclick="playAviator()">Play</button>
-        `;
+      const cm = parseFloat(document.getElementById('currentMultiplier').innerText);
+      let result, reward = 0;
+      if (won) {
+        reward = (bet * cm).toFixed(2);
+        coins += parseFloat(reward);
+        result = `${reward} TK`;
       } else {
-        body.innerHTML = `<p>${name} is coming soon!</p>`;
+        result = 'CRASHED';
       }
-      gameModal.show();
+      updateHistory(cm, result);
+      updateDisplays();
+
+      // Monetag rewarded ad on round end
+      show_9563904('pop')
+        .then(() => alert('Thanks for watching an ad!'))
+        .catch(() => {/* ignore */});
     }
 
-    // PLAY AVIATOR
-    function playAviator() {
-      const bet = parseFloat(document.getElementById('bet').value);
-      if(!bet || bet<0.5 || bet>coins) return alert('Invalid bet or insufficient coins.');
-      const mul = (Math.random()*2+1).toFixed(2);
-      document.getElementById('multiplier').innerText = mul+'x';
-      coins = coins - bet + bet*mul;
-      localStorage.setItem('coins', coins);
-      updateHeader();
-      alert(`✈️ You cashed out at ${mul}x!`);
+    function cashOut() {
+      endRound(true);
     }
 
-    // PROFILE
-    document.getElementById('uid').innerText = 'User#'+Math.floor(Math.random()*9000+1000);
-    document.getElementById('joined').innerText = new Date().toLocaleDateString();
+    // --- Round History ---
+    function updateHistory(mult, res) {
+      const div = document.createElement('div');
+      div.className = 'round';
+      div.innerText = `${mult}x → ${res}`;
+      historyEl.prepend(div);
+      if (historyEl.children.length > 8) {
+        historyEl.removeChild(historyEl.lastChild);
+      }
+    }
   </script>
 </body>
 </html>
