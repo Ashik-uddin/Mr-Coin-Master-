@@ -1,63 +1,82 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Aviator – Mr. Coin Casino</title>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>🚀 Aviator – Mr. Coin Casino</title>
 
   <!-- Bootstrap 5 -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
 
-  <!-- Chart.js for the multiplier graph -->
+  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
     body {
-      background: #0f0f0f;
+      background: #0a0a0a;
       color: #e0e0e0;
-      font-family: Arial, sans-serif;
+      font-family: 'Segoe UI', sans-serif;
       padding: 20px;
     }
     .container {
-      max-width: 500px;
+      max-width: 480px;
       margin: auto;
     }
-    .balance {
-      font-size: 1.2rem;
+    .balance-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .balance-bar .badge {
+      background: #00ffc3;
+      color: #0a0a0a;
+      font-size: 1rem;
+      padding: 0.6em 1em;
+    }
+    .neon-plane {
       text-align: center;
-      margin-bottom: 15px;
+      margin-bottom: 8px;
+    }
+    .neon-plane img {
+      height: 40px;
+      filter: drop-shadow(0 0 6px #ff1aff) drop-shadow(0 0 8px #cc00ff);
     }
     #graph-container {
       position: relative;
       height: 200px;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
+      background: #111;
+      border-radius: 8px;
+      padding: 8px;
     }
     .multiplier-display {
-      font-size: 2.5rem;
+      font-size: 2.8rem;
       text-align: center;
-      margin-bottom: 10px;
       color: #00ffc3;
       text-shadow: 0 0 8px #00ffc3;
+      margin-bottom: 12px;
     }
     .controls {
       display: flex;
       justify-content: center;
-      gap: 8px;
+      align-items: center;
+      gap: 6px;
       flex-wrap: wrap;
-      margin-bottom: 20px;
+      margin-bottom: 16px;
     }
-    .controls input[type=number] {
+    .controls input {
       width: 80px;
       text-align: center;
-      background: #1a1a1a;
+      background: #1f1f1f;
       border: 1px solid #333;
       color: #e0e0e0;
       border-radius: 4px;
-      padding: 4px;
+      padding: 6px;
     }
     .controls button {
       background: #00ffc3;
-      color: #0f0f0f;
+      color: #0a0a0a;
       border: none;
       padding: 8px 12px;
       border-radius: 4px;
@@ -68,12 +87,13 @@
       transform: scale(0.95);
     }
     .history {
-      background: #1a1a1a;
+      background: #1f1f1f;
+      border-radius: 6px;
       padding: 10px;
-      border-radius: 4px;
     }
     .history h6 {
-      margin-top: 0;
+      margin: 0 0 6px;
+      font-size: 1rem;
     }
     .history .round {
       display: inline-block;
@@ -82,179 +102,181 @@
       padding: 4px 8px;
       margin: 2px;
       border-radius: 4px;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
     }
   </style>
 </head>
 <body>
 
   <div class="container">
-    <div class="balance">
-      Balance: <span id="coins">0</span> TK  
-      &nbsp;|&nbsp;  
-      Bet: <span id="betDisplay">0.5</span> TK  
-      &nbsp;|&nbsp;  
-      Win: <span id="payoutDisplay">0.00</span> TK
+    <!-- Balance & Bet/Won Display -->
+    <div class="balance-bar">
+      <span>Balance: <span id="coins">0.00</span> TK</span>
+      <span class="badge">Win: <span id="win">0.00</span></span>
     </div>
 
+    <!-- Neon Plane -->
+    <div class="neon-plane">
+      <img src="https://static.vecteezy.com/system/resources/previews/024/087/974/original/airplane-transport-neon-light-png.png" alt="Neon Plane">
+    </div>
+
+    <!-- Graph -->
     <div id="graph-container">
-      <canvas id="multiplierChart"></canvas>
+      <canvas id="chart"></canvas>
     </div>
 
+    <!-- Multiplier -->
     <div class="multiplier-display">
-      <span id="currentMultiplier">1.00</span>x
+      <span id="multiplier">1.00</span>x
     </div>
 
+    <!-- Controls -->
     <div class="controls">
-      <button id="betDec">–</button>
-      <input id="betInput" type="number" step="0.5" min="0.5" value="0.5"/>
-      <button id="betInc">+</button>
+      <button id="decBet">–</button>
+      <input type="number" id="betInput" step="0.5" min="0.5" value="0.5"/>
+      <button id="incBet">+</button>
       <button id="cashout" disabled>Cash Out</button>
-      <button id="playBtn">Play</button>
+      <button id="play">Play</button>
     </div>
 
+    <!-- Round History -->
     <div class="history">
       <h6>Last Rounds:</h6>
-      <div id="roundHistory"></div>
+      <div id="rounds"></div>
     </div>
   </div>
 
+  <!-- Monetag SDK placeholder: add your SDK script here -->
+  <!-- <script src="https://your-monetag-sdk.js"></script> -->
+
+  <!-- JS Logic -->
   <script>
-    // --- State & Persistence ---
+    // ----- State & Persistence -----
     let coins = parseFloat(localStorage.getItem('coins')) || 100;
     let bet = 0.5;
-    let chart, runInterval, crashPoint;
-    const historyEl = document.getElementById('roundHistory');
+    let crashPoint, intervalId;
+    const roundsEl = document.getElementById('rounds');
 
-    // Update Balance & Bet Displays
-    function updateDisplays() {
-      document.getElementById('coins').innerText = coins.toFixed(2);
-      document.getElementById('betDisplay').innerText = bet.toFixed(2);
-      document.getElementById('payoutDisplay').innerText = (bet * parseFloat(document.getElementById('currentMultiplier').innerText)).toFixed(2);
-      localStorage.setItem('coins', coins);
-    }
-    updateDisplays();
+    // ----- UI References -----
+    const coinsEl = document.getElementById('coins');
+    const winEl   = document.getElementById('win');
+    const multEl  = document.getElementById('multiplier');
+    const betInput = document.getElementById('betInput');
+    const playBtn = document.getElementById('play');
+    const cashBtn = document.getElementById('cashout');
+    const decBtn  = document.getElementById('decBet');
+    const incBtn  = document.getElementById('incBet');
 
-    // --- Chart.js Setup ---
-    const ctx = document.getElementById('multiplierChart').getContext('2d');
-    chart = new Chart(ctx, {
+    // ----- Chart.js Setup -----
+    const ctx = document.getElementById('chart').getContext('2d');
+    const chart = new Chart(ctx, {
       type: 'line',
-      data: {
-        labels: [],
-        datasets: [{
-          label: 'Multiplier',
-          data: [],
-          borderColor: '#00ffc3',
-          backgroundColor: 'rgba(0,255,195,0.2)',
-          pointRadius: 0,
-          tension: 0.3
-        }]
-      },
+      data: { labels: [], datasets: [{ data: [], borderColor: '#00ffc3', backgroundColor: 'rgba(0,255,195,0.2)', pointRadius:0, tension:0.2 }] },
       options: {
-        animation: false,
+        animation:false,
         scales: {
-          x: { display: false },
-          y: {
-            min: 1,
-            ticks: { color: '#e0e0e0' }
-          }
+          x:{ display:false },
+          y:{ min:1, ticks:{ color:'#e0e0e0' } }
         },
-        plugins: {
-          legend: { display: false }
-        }
+        plugins:{ legend:{ display:false } }
       }
     });
 
-    // --- Bet Controls ---
-    document.getElementById('betDec').onclick = () => {
+    // ----- Helpers -----
+    function updateDisplay() {
+      coinsEl.innerText = coins.toFixed(2);
+      winEl.innerText   = (bet * parseFloat(multEl.innerText)).toFixed(2);
+      localStorage.setItem('coins', coins);
+    }
+
+    function addHistory(mult, won) {
+      const r = document.createElement('div');
+      r.className = 'round';
+      r.innerText = `${mult.toFixed(2)}x → ${won ? (bet*mult).toFixed(2)+' TK' : 'CRASH'}`;
+      roundsEl.prepend(r);
+      if (roundsEl.children.length > 8) roundsEl.removeChild(roundsEl.lastChild);
+    }
+
+    // ----- Bet Controls -----
+    decBtn.onclick = () => {
       bet = Math.max(0.5, bet - 0.5);
-      document.getElementById('betInput').value = bet;
-      updateDisplays();
+      betInput.value = bet;
+      updateDisplay();
     };
-    document.getElementById('betInc').onclick = () => {
-      bet = bet + 0.5;
-      document.getElementById('betInput').value = bet;
-      updateDisplays();
+    incBtn.onclick = () => {
+      bet += 0.5;
+      betInput.value = bet;
+      updateDisplay();
     };
-    document.getElementById('betInput').oninput = e => {
+    betInput.oninput = e => {
       bet = Math.max(0.5, parseFloat(e.target.value) || 0.5);
-      updateDisplays();
+      updateDisplay();
     };
 
-    // --- Play / Crash Logic ---
-    document.getElementById('playBtn').onclick = startRound;
-    document.getElementById('cashout').onclick = cashOut;
-
-    function startRound() {
-      if (bet > coins) return alert('Not enough balance!');
+    // ----- Round Logic -----
+    playBtn.onclick = () => {
+      if (bet > coins) return alert('Insufficient balance!');
       coins -= bet;
-      updateDisplays();
+      updateDisplay();
 
-      // Prepare round
+      // reset chart
       chart.data.labels.length = 0;
       chart.data.datasets[0].data.length = 0;
       chart.update();
-      document.getElementById('currentMultiplier').innerText = '1.00';
-      document.getElementById('cashout').disabled = false;
-      document.getElementById('playBtn').disabled = true;
 
-      // Random crash between 1.2 and 12.0
-      crashPoint = (Math.random() * 10 + 1.2).toFixed(2);
+      multEl.innerText = '1.00';
+      cashBtn.disabled = false;
+      playBtn.disabled = true;
+
+      // pick crash point
+      crashPoint = (Math.random() * 10 + 1.2);
 
       let m = 1.00;
-      const step = () => {
-        m += m * 0.01; // exponential growth
-        if (m.toFixed(2) >= crashPoint) {
-          // CRASH!
+      intervalId = setInterval(() => {
+        m += m * 0.01;
+        if (m >= crashPoint) {
           endRound(false);
         } else {
-          // update
-          document.getElementById('currentMultiplier').innerText = m.toFixed(2);
+          multEl.innerText = m.toFixed(2);
           chart.data.labels.push('');
           chart.data.datasets[0].data.push(m.toFixed(2));
           chart.update();
         }
-      };
-      runInterval = setInterval(step, 100);
-    }
+      }, 100);
+    };
+
+    cashBtn.onclick = () => endRound(true);
 
     function endRound(won) {
-      clearInterval(runInterval);
-      document.getElementById('cashout').disabled = true;
-      document.getElementById('playBtn').disabled = false;
+      clearInterval(intervalId);
+      cashBtn.disabled = true;
+      playBtn.disabled = false;
 
-      const cm = parseFloat(document.getElementById('currentMultiplier').innerText);
-      let result, reward = 0;
+      const mult = parseFloat(multEl.innerText);
       if (won) {
-        reward = (bet * cm).toFixed(2);
-        coins += parseFloat(reward);
-        result = `${reward} TK`;
+        const profit = bet * mult;
+        coins += profit;
+        updateDisplay();
+        addHistory(mult, true);
       } else {
-        result = 'CRASHED';
+        addHistory(mult, false);
       }
-      updateHistory(cm, result);
-      updateDisplays();
 
-      // Monetag rewarded ad on round end
+      // Monetag Popup Ad
       show_9563904('pop')
-        .then(() => alert('Thanks for watching an ad!'))
-        .catch(() => {/* ignore */});
+        .then(() => console.log('Ad watched'))
+        .catch(() => console.log('Ad error'));
     }
 
-    function cashOut() {
-      endRound(true);
-    }
+    // ----- Init -----
+    updateDisplay();
 
-    // --- Round History ---
-    function updateHistory(mult, res) {
-      const div = document.createElement('div');
-      div.className = 'round';
-      div.innerText = `${mult}x → ${res}`;
-      historyEl.prepend(div);
-      if (historyEl.children.length > 8) {
-        historyEl.removeChild(historyEl.lastChild);
-      }
-    }
+    // Auto In-App Ads
+    show_9563904({
+      type: 'inApp',
+      inAppSettings: { frequency:2, capping:0.1, interval:30, timeout:5, everyPage:false }
+    });
+
   </script>
 </body>
-</html>
+      </html>
