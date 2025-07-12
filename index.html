@@ -1,122 +1,267 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Mr. Coin Casino 🎰</title>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Mr. Coin Casino WebApp</title>
   <style>
+    :root {
+      --bg: #0d0d0d;
+      --fg: #e0e0e0;
+      --accent: #00ffc3;
+      --panel: #1a1a1a;
+      --btn-bg: #00ffc3;
+      --btn-fg: #0d0d0d;
+      --radius: 8px;
+      --gap: 12px;
+    }
+    * { box-sizing: border-box; margin:0; padding:0; }
     body {
-      background: #101010;
-      color: #f0f0f0;
-      font-family: sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: 'Segoe UI', sans-serif;
+      display: flex; flex-direction: column;
+      min-height: 100vh;
+    }
+    header, nav, main, footer { width: 100%; }
+    header {
+      padding: var(--gap);
       text-align: center;
-      margin: 0; padding: 20px;
+      background: #111;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.5);
     }
-    h1 { color: #00ffc3; }
-    input, button {
-      padding: 10px;
-      margin: 8px;
-      font-size: 16px;
+    header h1 {
+      color: var(--accent);
+      text-shadow: 0 0 6px var(--accent);
+      font-size: 1.5rem;
+    }
+    nav {
+      display: flex;
+      background: #111;
+      border-top: 1px solid #222;
+    }
+    nav button {
+      flex:1;
+      padding: var(--gap);
+      background: none;
       border: none;
-      border-radius: 6px;
-    }
-    button {
-      background: #00ffc3;
-      color: #111;
+      color: var(--fg);
+      font-size: 1rem;
       cursor: pointer;
+      transition: background .2s;
     }
-    #flight { margin: 20px auto; height: 100px; animation: fly 3s linear infinite; }
+    nav button.active, nav button:hover {
+      background: rgba(0,255,195,.1);
+    }
+    main {
+      flex:1;
+      padding: var(--gap);
+      display: none;
+      overflow-y: auto;
+    }
+    main.active { display: block; }
+    .panel {
+      background: var(--panel);
+      border-radius: var(--radius);
+      padding: var(--gap);
+      margin-bottom: var(--gap);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    }
+    .btn {
+      display: inline-block;
+      padding: 10px 16px;
+      margin: var(--gap) 4px 0;
+      background: var(--btn-bg);
+      color: var(--btn-fg);
+      border: none;
+      border-radius: var(--radius);
+      cursor: pointer;
+      text-decoration: none;
+      font-weight: bold;
+      transition: transform .1s;
+    }
+    .btn:active { transform: scale(.95); }
+    input[type=number] {
+      width: 80px; padding: 8px; border-radius: var(--radius);
+      border: 1px solid #333; background: #222; color: var(--fg);
+      text-align: center;
+    }
+    /* Aviator Game */
+    #flight {
+      font-size: 4rem;
+      text-align: center;
+      animation: fly 3s linear infinite;
+    }
     @keyframes fly {
       0% { transform: translateY(0); }
-      100% { transform: translateY(-60px); }
+      100% { transform: translateY(-40px); }
     }
-    .panel { margin: 20px 0; }
-    footer { margin-top: 30px; border-top: 1px solid #444; padding-top: 10px; }
+    /* Invite & Profile */
+    .ref-link {
+      display: flex; align-items: center; justify-content: center;
+      gap: 8px; background: #222; padding: 8px; border-radius: var(--radius);
+    }
+    .ref-link input {
+      flex:1; background: transparent; border:none; color:var(--fg);
+    }
   </style>
 </head>
 <body>
-  <h1>🎰 Mr. Coin Casino</h1>
-  
-  <div id="flight">✈️</div>
-  <p>Multiplier: <span id="multiplier">0.00x</span></p>
+  <header>
+    <h1>🎰 Mr. Coin Casino</h1>
+  </header>
 
-  <div class="panel">
-    <input type="number" id="betAmount" placeholder="Bet (1–10 TK)">
-    <button onclick="playGame()">Play</button>
-  </div>
+  <nav>
+    <button data-tab="dash" class="active">Dashboard</button>
+    <button data-tab="games">Games</button>
+    <button data-tab="invite">Invite</button>
+    <button data-tab="profile">Profile</button>
+    <button data-tab="payout">Payout</button>
+  </nav>
 
-  <div class="panel">
-    <p>🪙 Coins: <span id="coins">100</span> | 🎁 Bonus: <span id="bonus">+10</span></p>
-    <button onclick="claimBonus()">Claim Bonus</button>
-  </div>
-
-  <div class="panel">
-    <button onclick="watchAd()">Watch Ad for Coins</button>
-    <button onclick="shareTelegram()">Share on Telegram</button>
-  </div>
-
-  <div class="panel">
-    <button onclick="deposit()">Deposit</button>
-    <button onclick="withdraw()">Withdraw</button>
-  </div>
-
-  <footer>
-    <div id="ad-container">
-      <!-- Adsterra ad script goes here -->
-      <p>📢 Ads show here</p>
-      <!-- Example: <script src="YOUR_AD_TAG.js"></script> -->
+  <main id="dash" class="active">
+    <div class="panel">
+      <h2>🪙 Balance</h2>
+      <p style="font-size:2rem;"><span id="coins">0</span> Coins</p>
+      <p>Bonus: +<span id="bonus">0</span> per day</p>
+      <button class="btn" onclick="claimDaily()">Claim Daily Bonus</button>
     </div>
+    <div class="panel">
+      <h2>Quick Actions</h2>
+      <button class="btn" onclick="goTab('games')">🎮 Play Games</button>
+      <button class="btn" onclick="goTab('payout')">💳 Deposit / Withdraw</button>
+    </div>
+  </main>
+
+  <main id="games">
+    <div class="panel">
+      <h2>✈️ Aviator</h2>
+      <div id="flight">✈️</div>
+      <p>Multiplier: <span id="multiplier">0.00x</span></p>
+      <input type="number" id="bet" placeholder="1–10 TK" min="1" max="10"/>
+      <button class="btn" onclick="playAviator()">Play</button>
+    </div>
+    <!-- ADDITIONAL GAMES HERE -->
+  </main>
+
+  <main id="invite">
+    <div class="panel">
+      <h2>Invite Friends</h2>
+      <p>Get +20 coins per referral!</p>
+      <div class="ref-link">
+        <input id="refLink" readonly/>
+        <button class="btn" onclick="copyLink()">Copy</button>
+      </div>
+    </div>
+    <div class="panel">
+      <button class="btn" onclick="shareTelegram()">
+        📲 Share on Telegram
+      </button>
+    </div>
+  </main>
+
+  <main id="profile">
+    <div class="panel">
+      <h2>Your Profile</h2>
+      <p><strong>ID:</strong> <span id="uid">-</span></p>
+      <p><strong>Joined:</strong> <span id="joined">-</span></p>
+    </div>
+  </main>
+
+  <main id="payout">
+    <div class="panel">
+      <h2>Deposit / Withdraw</h2>
+      <button class="btn" onclick="deposit()">Deposit</button>
+      <button class="btn" onclick="withdraw()">Withdraw</button>
+    </div>
+  </main>
+
+  <footer style="text-align:center; padding:12px; font-size:.9rem;">
+    <div id="ad-container"><!-- Adsterra slot --></div>
   </footer>
 
   <script>
-    let coins = parseInt(localStorage.getItem("coins") || "100");
-    let bonus = 10;
-    document.getElementById("coins").textContent = coins;
-    document.getElementById("bonus").textContent = bonus;
+    /* TELEGRAM WEBAPP READY */
+    if (window.Telegram && Telegram.WebApp) {
+      Telegram.WebApp.ready();
+      document.body.style.paddingTop = Telegram.WebApp.MainButton.isVisible ? '40px' : '0';
+    }
 
-    function playGame() {
-      const bet = parseInt(document.getElementById("betAmount").value);
-      if (bet < 1 || bet > 10 || bet > coins) {
-        alert("Invalid bet amount or not enough coins!");
+    /* COIN & BONUS LOGIC */
+    let coins = parseInt(localStorage.getItem('coins')) || 100;
+    let bonus = 20;
+    let lastClaim = localStorage.getItem('lastClaim') || 0;
+
+    const updateUI = () => {
+      document.getElementById('coins').textContent = coins;
+      document.getElementById('bonus').textContent = bonus;
+    };
+    updateUI();
+
+    function claimDaily() {
+      let now = Date.now();
+      if (now - lastClaim < 24*60*60*1000) {
+        alert('You already claimed today!');
         return;
       }
-      const multiplier = (Math.random() * 2 + 1).toFixed(2);
-      document.getElementById("multiplier").textContent = multiplier + "x";
-      coins = coins - bet + bet * multiplier;
-      coins = Math.floor(coins);
-      localStorage.setItem("coins", coins);
-      document.getElementById("coins").textContent = coins;
-    }
-
-    function claimBonus() {
       coins += bonus;
-      localStorage.setItem("coins", coins);
-      document.getElementById("coins").textContent = coins;
-      alert("🎉 Bonus claimed!");
+      lastClaim = now;
+      localStorage.setItem('coins', coins);
+      localStorage.setItem('lastClaim', now);
+      updateUI();
+      alert(`🎉 You got +${bonus} coins!`);
     }
 
-    function watchAd() {
-      // Example ad logic — replace with real SDK like show_9563904()
-      alert("🎦 Showing ad... (demo)");
-      coins += 15;
-      localStorage.setItem("coins", coins);
-      document.getElementById("coins").textContent = coins;
-      alert("💰 You earned 15 coins from ad!");
+    /* NAVIGATION */
+    document.querySelectorAll('nav button').forEach(b => {
+      b.onclick = ()=>goTab(b.dataset.tab);
+    });
+    function goTab(tab) {
+      document.querySelectorAll('nav button, main').forEach(el=>{
+        el.classList.toggle('active', el.dataset.tab===tab || el.id===tab);
+      });
     }
 
-    function deposit() {
-      alert("Redirect to Deposit Form (bKash/Nagad/Binance)");
-    }
-
-    function withdraw() {
-      if (coins >= 100) {
-        alert("Withdraw request sent!");
-      } else {
-        alert("Minimum 100 TK required to withdraw.");
+    /* AVIATOR GAME */
+    function playAviator() {
+      let bet = parseInt(document.getElementById('bet').value);
+      if (!bet || bet<1 || bet>10 || bet>coins) {
+        return alert('Invalid bet or not enough coins');
       }
+      let mul = (Math.random()*2+1).toFixed(2);
+      document.getElementById('multiplier').textContent = mul+'x';
+      coins = coins - bet + bet*mul;
+      coins = Math.floor(coins);
+      localStorage.setItem('coins', coins);
+      updateUI();
+      // reward ad hook
+      show_9563904().then(()=>{
+        console.log('Ad watched, you rock!');
+      });
     }
 
+    /* INVITE */
+    const ref = `https://t.me/YourBot?start=${Math.floor(Math.random()*1e6)}`;
+    document.getElementById('refLink').value = ref;
+    function copyLink() {
+      navigator.clipboard.writeText(ref);
+      alert('Link copied!');
+    }
+
+    /* TELEGRAM SHARE */
     function shareTelegram() {
-      window.open("https://t.me/share/url?url=https://yourcasino.example.com&text=🎰 Play Mr. Coin Casino!", "_blank");
+      window.open(`https://t.me/share/url?url=${encodeURIComponent(ref)}&text=Join Mr. Coin Casino!`, '_blank');
+    }
+
+    /* PAYOUT STUBS */
+    function deposit() {
+      alert('🔗 Redirecting to deposit gateway…');
+    }
+    function withdraw() {
+      if (coins<100) {
+        return alert('Need at least 100 TK to withdraw.');
+      }
+      alert('🔗 Redirecting to withdraw form…');
     }
   </script>
 </body>
