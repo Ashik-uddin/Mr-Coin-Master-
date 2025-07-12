@@ -1,285 +1,125 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>MrCoin Master</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover"/>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <!-- Kaboom.js for Fruit Slice Game -->
-  <script src="https://unpkg.com/kaboom@3000.0.1/dist/kaboom.js"></script>
+  <meta charset="UTF-8">
+  <title>Mr. Coin Casino 🎰</title>
   <style>
-    :root {
-      --bg-color: #10101d; --primary-color: #1c1c2b; --border-color: rgba(255, 255, 255, 0.1);
-      --accent-color: #6a11cb; --accent-gradient: linear-gradient(to right, #2575fc, #6a11cb);
-      --text-color: #ffffff; --hint-color: #aaaaaa; font-family: 'Poppins', sans-serif;
+    body {
+      background: #101010;
+      color: #f0f0f0;
+      font-family: sans-serif;
+      text-align: center;
+      margin: 0; padding: 20px;
     }
-    body { background: var(--bg-color); color: var(--text-color); margin: 0; padding: 15px 15px 90px 15px; }
-    .page { display: none; }
-    .page.active { display: block; animation: fadeIn 0.5s; }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-    .card { background: var(--primary-color); border-radius: 20px; padding: 20px; margin-bottom: 20px; border: 1px solid var(--border-color); }
-    .header { text-align: center; margin-bottom: 20px; }
-    .header .balance { font-size: 32px; font-weight: 700; background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-    .stat-card { background: var(--secondary-color, #2c2c2e); padding: 15px; border-radius: 12px; text-align: center; }
-    .stat-card span { display: block; font-size: 14px; color: var(--hint-color); }
-    .stat-card b { font-size: 20px; }
-    .bottom-nav { position: fixed; bottom: 10px; left: 10px; right: 10px; background: rgba(0,0,0,0.3); backdrop-filter: blur(15px); display: flex; justify-content: space-around; padding: 10px 0; border-radius: 20px; border: 1px solid var(--border-color); }
-    .nav-btn { background: none; border: none; color: var(--hint-color); font-size: 12px; text-align: center; cursor: pointer; }
-    .nav-btn i { font-size: 22px; display: block; margin-bottom: 4px; }
-    .nav-btn.active { color: var(--accent-color); }
-    .action-button { background: var(--accent-gradient); color: white; border: none; padding: 12px; width: 100%; border-radius: 12px; font-weight: 600; font-size: 16px; cursor: pointer; }
-    
-    /* Task Marketplace */
-    .task-tabs { display: flex; margin-bottom: 15px; }
-    .tab-link { flex: 1; text-align: center; padding: 10px; background: #333; border: none; color: white; font-weight: 600; cursor: pointer; }
-    .tab-link:first-child { border-radius: 10px 0 0 10px; }
-    .tab-link:last-child { border-radius: 0 10px 10px 0; }
-    .tab-link.active { background: var(--accent-gradient); }
-    .task-list .task-item { padding: 15px; margin-bottom: 10px; border-radius: 15px; background: var(--primary-color); }
-    input, textarea, select { width: 92%; padding: 12px; margin-bottom: 10px; border-radius: 10px; border: 1px solid var(--border-color); background: var(--bg-color); color: white; }
-    
-    /* Spin Wheel */
-    .wheel-container { position: relative; width: 250px; height: 250px; margin: 20px auto; }
-    .wheel { width: 100%; height: 100%; border-radius: 50%; background-image: conic-gradient( #ffc400 0 60deg, #ff5722 60deg 120deg, #4caf50 120deg 180deg, #2196f3 180deg 240deg, #9c27b0 240deg 300deg, #e91e63 300deg 360deg ); transition: transform 5s ease-out; }
-    .wheel-pointer { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 20px solid transparent; border-right: 20px solid transparent; border-top: 30px solid white; }
-    .wheel-button { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80px; height: 80px; border-radius: 50%; background: white; color: black; font-weight: 700; border: 5px solid #333; }
-    
-    /* Fruit Game Canvas */
-    #fruit-game-canvas { display: none; width: 100%; height: 400px; border-radius: 15px; }
+    h1 { color: #00ffc3; }
+    input, button {
+      padding: 10px;
+      margin: 8px;
+      font-size: 16px;
+      border: none;
+      border-radius: 6px;
+    }
+    button {
+      background: #00ffc3;
+      color: #111;
+      cursor: pointer;
+    }
+    #flight { margin: 20px auto; height: 100px; animation: fly 3s linear infinite; }
+    @keyframes fly {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(-60px); }
+    }
+    .panel { margin: 20px 0; }
+    footer { margin-top: 30px; border-top: 1px solid #444; padding-top: 10px; }
   </style>
 </head>
 <body>
-
-  <!-- Pages -->
-  <div id="home-page" class="page active">
-    <div class="header">
-      <p style="color: var(--hint-color);"><span id="username">Player</span>'s Profile</p>
-      <div class="balance">💰 <span id="main-gold">0</span></div>
-    </div>
-    <div class="stat-grid">
-      <div class="stat-card"><span>💎 Gems</span><b id="gems-balance">0</b></div>
-      <div class="stat-card"><span>⚡ Energy</span><b id="energy-count">0</b></div>
-    </div>
-  </div>
-
-  <div id="tasks-page" class="page">
-    <div class="card">
-      <div class="task-tabs">
-        <button id="browse-tasks-btn" class="tab-link active" onclick="showTaskView('browse')">Browse Tasks</button>
-        <button id="create-task-btn" class="tab-link" onclick="showTaskView('create')">Create Task</button>
-      </div>
-      <div id="browse-tasks-view">
-          <div id="task-list"><!-- Tasks will be loaded here --></div>
-      </div>
-      <div id="create-task-view" style="display:none;">
-          <input id="task-title" type="text" placeholder="Task Title (e.g., Visit my site)">
-          <textarea id="task-desc" placeholder="Description & Link"></textarea>
-          <input id="task-reward" type="number" placeholder="Reward per user (min 30 Gems)">
-          <button class="action-button" onclick="createTask()">Post Task</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="game-page" class="page">
-    <div class="card" style="text-align:center;">
-      <div class="card-header">🍉 Fruit Slice Pro</div>
-      <p style="color:var(--hint-color); font-size:14px;">Slice the fruits and avoid the bombs!</p>
-      <canvas id="fruit-game-canvas"></canvas>
-      <button id="start-fruit-game" class="action-button" onclick="startFruitGame()">Start Game (1 Energy)</button>
-    </div>
-  </div>
+  <h1>🎰 Mr. Coin Casino</h1>
   
-  <div id="spin-page" class="page">
-    <div class="card" style="text-align:center;">
-      <div class="card-header">🎡 Daily Spin</div>
-      <div class="wheel-container">
-          <div id="wheel" class="wheel"></div>
-          <div class="wheel-pointer"></div>
-          <button id="spin-btn" class="wheel-button" onclick="spinWheel()">SPIN</button>
-      </div>
-      <button id="ad-spin-btn" class="action-button" style="margin-top: 15px; background: #333;">Watch Ad to Spin</button>
+  <div id="flight">✈️</div>
+  <p>Multiplier: <span id="multiplier">0.00x</span></p>
+
+  <div class="panel">
+    <input type="number" id="betAmount" placeholder="Bet (1–10 TK)">
+    <button onclick="playGame()">Play</button>
+  </div>
+
+  <div class="panel">
+    <p>🪙 Coins: <span id="coins">100</span> | 🎁 Bonus: <span id="bonus">+10</span></p>
+    <button onclick="claimBonus()">Claim Bonus</button>
+  </div>
+
+  <div class="panel">
+    <button onclick="watchAd()">Watch Ad for Coins</button>
+    <button onclick="shareTelegram()">Share on Telegram</button>
+  </div>
+
+  <div class="panel">
+    <button onclick="deposit()">Deposit</button>
+    <button onclick="withdraw()">Withdraw</button>
+  </div>
+
+  <footer>
+    <div id="ad-container">
+      <!-- Adsterra ad script goes here -->
+      <p>📢 Ads show here</p>
+      <!-- Example: <script src="YOUR_AD_TAG.js"></script> -->
     </div>
-  </div>
+  </footer>
 
-  <div id="wallet-page" class="page">
-     <div class="card">
-        <div class="card-header">💸 Withdraw Gold</div>
-        <select id="payment-method" style="width:100%;">
-            <option value="bkash">bKash</option>
-            <option value="nagad">Nagad</option>
-            <option value="paypal">PayPal</option>
-            <option value="binance">Binance (USDT)</option>
-        </select>
-        <input id="payment-details" type="text" placeholder="Your Payment Number / Email / Address">
-        <input id="amount" type="number" placeholder="Amount of Gold (min 10)">
-        <button onclick="requestWithdraw()" class="action-button">Request Withdraw</button>
-     </div>
-  </div>
-
-  <div class="bottom-nav">
-    <button class="nav-btn active" onclick="showPage('home-page')"><i class="fas fa-home"></i> Home</button>
-    <button class="nav-btn" onclick="showPage('tasks-page')"><i class="fas fa-tasks"></i> Tasks</button>
-    <button class="nav-btn" onclick="showPage('game-page')"><i class="fas fa-gamepad"></i> Game</button>
-    <button class="nav-btn" onclick="showPage('spin-page')"><i class="fas fa-dharmachakra"></i> Spin</button>
-    <button class="nav-btn" onclick="showPage('wallet-page')"><i class="fas fa-wallet"></i> Wallet</button>
-  </div>
-  
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
-  <script type='text/javascript' src='//pl27116575.profitableratecpm.com/fe/bf/32/febf3256881a0941fe9a6905755fc859.js'></script>
-  
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        try {
-            const firebaseConfig = { /* আপনার Firebase Config */ };
-            firebase.initializeApp(firebaseConfig);
-            const db = firebase.database();
-            const tg = window.Telegram.WebApp;
+    let coins = parseInt(localStorage.getItem("coins") || "100");
+    let bonus = 10;
+    document.getElementById("coins").textContent = coins;
+    document.getElementById("bonus").textContent = bonus;
 
-            let playerData = { level: 1, xp: 0, gems: 100, gold: 0, energy: 10, lastReset: null, spinUsed: false };
-            let userId = null;
+    function playGame() {
+      const bet = parseInt(document.getElementById("betAmount").value);
+      if (bet < 1 || bet > 10 || bet > coins) {
+        alert("Invalid bet amount or not enough coins!");
+        return;
+      }
+      const multiplier = (Math.random() * 2 + 1).toFixed(2);
+      document.getElementById("multiplier").textContent = multiplier + "x";
+      coins = coins - bet + bet * multiplier;
+      coins = Math.floor(coins);
+      localStorage.setItem("coins", coins);
+      document.getElementById("coins").textContent = coins;
+    }
 
-            // --- Navigation ---
-            function showPage(pageId) { /* ... same as before ... */ }
-            window.showPage = showPage;
+    function claimBonus() {
+      coins += bonus;
+      localStorage.setItem("coins", coins);
+      document.getElementById("coins").textContent = coins;
+      alert("🎉 Bonus claimed!");
+    }
 
-            // --- Fruit Slice Game Logic ---
-            let fruitGameInstance = null;
-            window.startFruitGame = () => {
-                if (playerData.energy <= 0) { alert("Not enough energy!"); return; }
-                playerData.energy--;
-                updateUI();
-                saveData();
-                
-                document.getElementById('fruit-game-canvas').style.display = 'block';
-                document.getElementById('start-fruit-game').style.display = 'none';
+    function watchAd() {
+      show_9563904().then(() => {
+        coins += 15;
+        localStorage.setItem("coins", coins);
+        document.getElementById("coins").textContent = coins;
+        alert("💰 You earned 15 coins from ad!");
+      }).catch(() => {
+        alert("Ad not completed.");
+      });
+    }
 
-                if (fruitGameInstance) fruitGameInstance.destroy();
-                fruitGameInstance = kaboom({ canvas: document.getElementById("fruit-game-canvas"), background: [16, 16, 29], });
-                
-                const fruits = ["apple", "banana", "cherries", "strawberry", "watermelon"];
-                fruits.forEach(f => loadSprite(f, `https://kaboomjs.com/sprites/${f}.png`));
-                loadSprite("bomb", "https://kaboomjs.com/sprites/bomb.png");
+    function deposit() {
+      alert("Redirect to Deposit Form (bKash/Nagad/Binance)");
+    }
 
-                let score = 0;
-                const scoreLabel = add([text("Score: 0"), pos(12, 12)]);
-                
-                loop(1, () => {
-                    const isBomb = rand() < 0.2;
-                    const f = add([
-                        sprite(isBomb ? "bomb" : choice(fruits)),
-                        pos(rand(0, width()), height()),
-                        area(),
-                        move(UP, rand(240, 320)),
-                        offscreen({ destroy: true }),
-                        isBomb ? "bomb" : "fruit",
-                    ]);
-                });
+    function withdraw() {
+      if (coins >= 100) {
+        alert("Withdraw request sent!");
+      } else {
+        alert("Minimum 100 TK required to withdraw.");
+      }
+    }
 
-                onUpdate("fruit", (f) => { if (isMousePressed()) { if (f.isHovering()) { score++; scoreLabel.text = "Score: " + score; f.destroy(); addKaboom(f.pos); } } });
-                onUpdate("bomb", (b) => { if (isMousePressed()) { if (b.isHovering()) { go("lose", score); } } });
-                
-                scene("lose", (s) => {
-                    add([text("Game Over!"), pos(center()), anchor("center")]);
-                    add([text("You sliced " + s + " fruits!"), pos(center().add(0, 40)), anchor("center")]);
-                    
-                    const gemsEarned = Math.floor(s * 1.5);
-                    playerData.gems += gemsEarned;
-                    processRewards();
-                    
-                    setTimeout(() => {
-                        document.getElementById('fruit-game-canvas').style.display = 'none';
-                        document.getElementById('start-fruit-game').style.display = 'block';
-                    }, 2000);
-                });
-            };
-
-            // --- Other functions (spin, tasks, etc.) ---
-            window.spinWheel = () => { /* ... same as before ... */ };
-            // --- Task Marketplace Logic ---
-            window.showTaskView = (view) => {
-                if (view === 'browse') {
-                    document.getElementById('browse-tasks-view').style.display = 'block';
-                    document.getElementById('create-task-view').style.display = 'none';
-                    document.getElementById('browse-tasks-btn').classList.add('active');
-                    document.getElementById('create-task-btn').classList.remove('active');
-                    loadMarketplaceTasks();
-                } else {
-                    document.getElementById('browse-tasks-view').style.display = 'none';
-                    document.getElementById('create-task-view').style.display = 'block';
-                    document.getElementById('browse-tasks-btn').classList.remove('active');
-                    document.getElementById('create-task-btn').classList.add('active');
-                }
-            };
-            
-            function loadMarketplaceTasks() {
-                const taskListDiv = document.getElementById('task-list');
-                taskListDiv.innerHTML = '<p>Loading marketplace...</p>';
-                db.ref('marketplace_tasks').limitToLast(20).once('value', snapshot => {
-                    taskListDiv.innerHTML = '';
-                    if (!snapshot.exists()) { taskListDiv.innerHTML = '<p>No tasks available right now.</p>'; return; }
-                    snapshot.forEach(child => {
-                        const task = child.val();
-                        if(playerData.completedMarketTasks && playerData.completedMarketTasks.includes(child.key)) return; // Skip completed
-                        
-                        const taskDiv = document.createElement('div');
-                        taskDiv.className = 'task-item';
-                        taskDiv.innerHTML = `<div class="info"><p>${task.title}</p><span>Reward: ${task.reward} Gems</span></div><button class="claim-btn" onclick="completeTask('${child.key}', '${task.link}')">Do It</button>`;
-                        taskListDiv.appendChild(taskDiv);
-                    });
-                });
-            }
-            window.completeTask = (taskId, link) => {
-                if(!playerData.completedMarketTasks) playerData.completedMarketTasks = [];
-                if(playerData.completedMarketTasks.includes(taskId)) { alert("You have already completed this task!"); return; }
-                
-                tg.openLink(link);
-                
-                // After user confirms completion
-                setTimeout(() => {
-                    if (confirm("Have you completed the task?")) {
-                        db.ref(`marketplace_tasks/${taskId}/reward`).once('value', snapshot => {
-                            const reward = snapshot.val();
-                            playerData.gems += reward;
-                            playerData.completedMarketTasks.push(taskId);
-                            processRewards();
-                            alert(`You earned ${reward} Gems!`);
-                        });
-                    }
-                }, 10000); // Give user 10 seconds
-            };
-
-            window.createTask = () => {
-                const title = document.getElementById('task-title').value;
-                const desc = document.getElementById('task-desc').value;
-                const reward = parseInt(document.getElementById('task-reward').value);
-
-                if(!title || !desc || !reward) { alert("Please fill all fields."); return; }
-                if(reward < 30) { alert("Minimum reward is 30 Gems."); return; }
-                if(playerData.gems < reward) { alert("You don't have enough Gems to post this task."); return; }
-                
-                playerData.gems -= reward;
-                const newTaskRef = db.ref('marketplace_tasks').push();
-                newTaskRef.set({
-                    creatorId: userId,
-                    title: title,
-                    link: desc, // Assuming description contains the link
-                    reward: reward
-                }).then(() => {
-                    alert("Task posted successfully!");
-                    showTaskView('browse');
-                    processRewards();
-                });
-            };
-
-            // --- Initialize ---
-            function initializeApp() { /* ... same as before, load user data ... */ }
-            initializeApp();
-        } catch (e) { document.body.innerHTML = `<h1>Error: ${e.message}</h1>`; }
-    });
+    function shareTelegram() {
+      window.open("https://t.me/share/url?url=https://yourcasino.example.com&text=🎰 Play Mr. Coin Casino!", "_blank");
+    }
   </script>
 </body>
 </html>
