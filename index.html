@@ -3,167 +3,220 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Mr. Coin Casino 🎰</title>
+  <title>Mr. Coin Casino Lobby</title>
+  <!-- Bootstrap 5 -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
   <style>
-    body { background: #0f0f0f; color: #eee; }
-    .nav-link.active { background-color: #00ffc3 !important; color: #111 !important; }
-    .game-card { background: #1a1a1a; border-radius: 10px; padding: 20px; margin: 10px 0; }
-    .btn-custom { background: #00ffc3; color: #111; border: none; }
-    input[type=number] { max-width: 100px; text-align: center; }
-    #flight { font-size: 3rem; animation: fly 3s linear infinite; }
-    @keyframes fly { 0%{transform:translateY(0);}100%{transform:translateY(-50px);} }
+    body { background: #121212; color: #f0f0f0; }
+    .navbar, .nav-pills .nav-link.active { background: #1f1f1f !important; }
+    .nav-pills .nav-link { color: #ccc; }
+    .nav-pills .nav-link.active { color: #00ffc3; }
+    .game-card {
+      background: #1f1f1f;
+      border-radius: 8px;
+      overflow: hidden;
+      transition: transform .2s;
+      cursor: pointer;
+    }
+    .game-card:hover { transform: scale(1.03); }
+    .game-card img { width: 100%; height: 100px; object-fit: cover; }
+    .game-card .card-body { padding: .5rem; text-align: center; }
+    .badge-coins { font-size:1rem; background:#00ffc3; color:#121212; }
+    .avatar { width:32px; height:32px; border-radius:50%; }
+    .modal-content { background: #1f1f1f; color:#f0f0f0; }
+    .btn-custom { background: #00ffc3; color: #121212; }
+    input[type=number] { max-width:100px; }
   </style>
 </head>
 <body>
-  <div class="container py-4">
-    <h2 class="text-center mb-3 text-warning">🎰 Mr. Coin Casino</h2>
 
-    <!-- NAVIGATION -->
-    <ul class="nav nav-tabs mb-3" id="mainTabs">
-      <li class="nav-item"><button class="nav-link active" data-tab="dashboard">Dashboard</button></li>
-      <li class="nav-item"><button class="nav-link" data-tab="games">Games</button></li>
-      <li class="nav-item"><button class="nav-link" data-tab="payout">Payout</button></li>
+  <!-- NAVBAR WITH USER INFO -->
+  <nav class="navbar navbar-expand bg-dark px-3 mb-3">
+    <span class="navbar-brand mb-0 h5 text-warning">Mr. Coin Casino</span>
+    <div class="ms-auto d-flex align-items-center">
+      <img src="https://i.pravatar.cc/32" class="avatar me-2"/>
+      <span id="username">User1234</span>
+      <span class="badge badge-coins ms-3" id="coinBadge">0 Coins</span>
+    </div>
+  </nav>
+
+  <div class="container-fluid px-3">
+
+    <!-- TABS -->
+    <ul class="nav nav-pills mb-3" id="tabs">
+      <li class="nav-item"><button class="nav-link active" data-tab="home">Home</button></li>
+      <li class="nav-item"><button class="nav-link" data-tab="promo">Promotion</button></li>
       <li class="nav-item"><button class="nav-link" data-tab="invite">Invite</button></li>
+      <li class="nav-item"><button class="nav-link" data-tab="reward">Reward</button></li>
       <li class="nav-item"><button class="nav-link" data-tab="profile">Profile</button></li>
     </ul>
 
-    <!-- DASHBOARD -->
-    <div id="dashboard" class="tab-page">
-      <div class="game-card text-center">
-        <h4>🪙 Coins: <span id="coins">100</span></h4>
-        <p>🎁 Daily Bonus: +<span id="bonus">10</span></p>
-        <button class="btn btn-custom" onclick="claimBonus()">Claim Bonus</button>
+    <!-- TAB PAGES -->
+    <div id="home" class="tab-page">
+      <div class="row g-2">
+        <!-- Aviator -->
+        <div class="col-6 col-md-3">
+          <div class="card game-card" onclick="openGame('Aviator')">
+            <img src="https://i.imgur.com/fqXzXSP.png" alt="Aviator"/>
+            <div class="card-body"><h6>✈️ Aviator</h6></div>
+          </div>
+        </div>
+        <!-- 11 Other Games -->
+        <div class="col-6 col-md-3"><div class="card game-card" onclick="openGame('Slots')"><img src="https://i.imgur.com/7Y5zubD.png"/><div class="card-body"><h6>🎰 Slots</h6></div></div></div>
+        <div class="col-6 col-md-3"><div class="card game-card" onclick="openGame('Roulette')"><img src="https://i.imgur.com/3x4H4nK.png"/><div class="card-body"><h6>🎡 Roulette</h6></div></div></div>
+        <div class="col-6 col-md-3"><div class="card game-card" onclick="openGame('Dice')"><img src="https://i.imgur.com/Np3ReV6.png"/><div class="card-body"><h6>🎲 Dice Roll</h6></div></div></div>
+        <div class="col-6 col-md-3"><div class="card game-card" onclick="openGame('Blackjack')"><img src="https://i.imgur.com/lkT6jkH.png"/><div class="card-body"><h6>🃏 Blackjack</h6></div></div></div>
+        <div class="col-6 col-md-3"><div class="card game-card" onclick="openGame('Crash')"><img src="https://i.imgur.com/oQXlR3E.png"/><div class="card-body"><h6>💥 Crash</h6></div></div></div>
+        <div class="col-6 col-md-3"><div class="card game-card" onclick="openGame('Plinko')"><img src="https://i.imgur.com/kzAg2yI.png"/><div class="card-body"><h6>🎯 Plinko</h6></div></div></div>
+        <div class="col-6 col-md-3"><div class="card game-card" onclick="openGame('Coin Toss')"><img src="https://i.imgur.com/pvTZE1b.png"/><div class="card-body"><h6>💰 Coin Toss</h6></div></div></div>
+        <div class="col-6 col-md-3"><div class="card game-card" onclick="openGame('Scratch Card')"><img src="https://i.imgur.com/iKXyE0r.png"/><div class="card-body"><h6>🪙 Scratch</h6></div></div></div>
+        <div class="col-6 col-md-3"><div class="card game-card" onclick="openGame('Dart')"><img src="https://i.imgur.com/tn8krsT.png"/><div class="card-body"><h6>🎯 Dart Throw</h6></div></div></div>
+        <div class="col-6 col-md-3"><div class="card game-card" onclick="openGame('Lucky Wheel')"><img src="https://i.imgur.com/UFWE4Xz.png"/><div class="card-body"><h6>🎠 Lucky Wheel</h6></div></div></div>
+        <div class="col-6 col-md-3"><div class="card game-card" onclick="openGame('Emoji Match')"><img src="https://i.imgur.com/4K1qVg6.png"/><div class="card-body"><h6>😎 Emoji Match</h6></div></div></div>
       </div>
     </div>
 
-    <!-- GAMES -->
-    <div id="games" class="tab-page d-none">
-      <!-- Aviator Game -->
-      <div class="game-card text-center">
-        <h5>✈️ Aviator</h5>
-        <div id="flight">✈️</div>
-        <p>Multiplier: <span id="multiplier">0.00x</span></p>
-        <input type="number" step="0.5" min="0.5" id="betAmount" placeholder="Bet TK" class="form-control d-inline">
-        <button class="btn btn-custom" onclick="playAviator()">Play</button>
+    <div id="promo" class="tab-page d-none text-center">
+      <h4>📢 Promotion</h4>
+      <p>Watch ads to earn extra coins:</p>
+      <button class="btn btn-custom mb-2" onclick="watchAd()">Watch Rewarded Ad</button>
+      <div id="promo-ad" class="mt-3">
+        <!-- In-App Interstitial Ads auto-run -->
       </div>
-
-      <!-- Other Game Placeholders -->
-      <div class="game-card">
-        <h5>🎰 Slots</h5><p>Coming Soon…</p>
-      </div>
-      <div class="game-card">
-        <h5>🎲 Dice Roll</h5><p>Coming Soon…</p>
-      </div>
-      <div class="game-card">
-        <h5>🃏 Blackjack Lite</h5><p>Coming Soon…</p>
-      </div>
-      <!-- Expand with more games -->
     </div>
 
-    <!-- PAYOUT -->
-    <div id="payout" class="tab-page d-none">
-      <div class="game-card text-center">
-        <h5>💳 Deposit & Withdraw</h5>
-        <button class="btn btn-custom" onclick="deposit()">Deposit</button>
+    <div id="invite" class="tab-page d-none text-center">
+      <h4>📲 Invite Friends</h4>
+      <p>Get +20 coins per referral!</p>
+      <input type="text" class="form-control mb-2 text-center" id="refLink" readonly>
+      <button class="btn btn-custom" onclick="copyRef()">Copy Link</button>
+    </div>
+
+    <div id="reward" class="tab-page d-none text-center">
+      <h4>🎁 Rewards</h4>
+      <p>🎊 Daily Bonus: +<span id="dailyBonus">0</span> coins</p>
+      <button class="btn btn-custom mb-3" onclick="claimDaily()">Claim Daily</button>
+      <div>
+        <button class="btn btn-custom me-2" onclick="deposit()">Deposit</button>
         <button class="btn btn-custom" onclick="withdraw()">Withdraw</button>
-        <p class="mt-2 text-muted">Minimum withdrawal: 100 TK</p>
       </div>
+      <small class="text-muted d-block mt-2">Min. withdraw: 100 TK</small>
     </div>
 
-    <!-- INVITE -->
-    <div id="invite" class="tab-page d-none">
-      <div class="game-card text-center">
-        <h5>📲 Invite Friends</h5>
-        <p>Earn coins by sharing!</p>
-        <input type="text" class="form-control" value="https://t.me/share/url?url=https://yourcasino.example.com" readonly>
-        <button class="btn btn-custom mt-2" onclick="shareTelegram()">Share on Telegram</button>
-      </div>
+    <div id="profile" class="tab-page d-none text-center">
+      <h4>👤 Profile</h4>
+      <img src="https://i.pravatar.cc/80" class="avatar mb-2"/>
+      <p><strong id="uid">User#0000</strong></p>
+      <p>Joined: <span id="joined">Today</span></p>
     </div>
 
-    <!-- PROFILE -->
-    <div id="profile" class="tab-page d-none">
-      <div class="game-card text-center">
-        <h5>👤 Profile</h5>
-        <p>ID: <span id="uid">User#<script>document.write(Math.floor(Math.random()*9999))</script></span></p>
-        <p>Joined: <span id="joined">Today</span></p>
+  </div>
+
+  <!-- GAME MODAL -->
+  <div class="modal fade" id="gameModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content text-light">
+        <div class="modal-header border-0">
+          <h5 class="modal-title" id="gameTitle"></h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body text-center" id="gameBody"></div>
       </div>
-    </div>
-
-    <!-- ADS -->
-    <div class="game-card text-center">
-      <h6>📢 Ads</h6>
-      <!-- Monetag Ad Integration -->
-      <script>
-        // Rewarded Ad (interstitial)
-        show_9563904().then(() => {
-          alert('🎁 You watched an ad and earned 15 coins!');
-          coins += 15; updateCoins();
-        });
-
-        // Popup Ad
-        show_9563904('pop').then(() => {
-          console.log('Popup ad seen');
-        }).catch(e => {
-          console.log('Ad error', e);
-        });
-
-        // In-App Interstitial Ad
-        show_9563904({ type: 'inApp', inAppSettings: {
-          frequency: 2, capping: 0.1, interval: 30, timeout: 5, everyPage: false
-        }});
-      </script>
     </div>
   </div>
 
-  <!-- JS -->
+  <!-- Bootstrap & JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    // Tabs
-    const tabs = document.querySelectorAll('[data-tab]');
-    tabs.forEach(tab => tab.onclick = () => {
-      document.querySelectorAll('.tab-page').forEach(p => p.classList.add('d-none'));
-      document.getElementById(tab.dataset.tab).classList.remove('d-none');
-      tabs.forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
+    // INITIALIZE USER DATA
+    let coins = parseFloat(localStorage.getItem('coins')) || 100;
+    const dailyBonus = 20;
+    const lastClaim = localStorage.getItem('lastClaim') || 0;
+    const updateHeader = () => {
+      document.getElementById('coinBadge').innerText = coins.toFixed(2) + ' Coins';
+      document.getElementById('dailyBonus').innerText = dailyBonus;
+    };
+    updateHeader();
+
+    // TAB SWITCHING
+    document.querySelectorAll('#tabs [data-tab]').forEach(btn => {
+      btn.onclick = () => {
+        document.querySelectorAll('.tab-page').forEach(p => p.classList.add('d-none'));
+        document.querySelectorAll('#tabs .nav-link').forEach(n => n.classList.remove('active'));
+        document.getElementById(btn.dataset.tab).classList.remove('d-none');
+        btn.classList.add('active');
+      };
     });
 
-    // Coin logic
-    let coins = parseFloat(localStorage.getItem("coins")) || 100;
-    let bonus = 10;
-    updateCoins();
-    function updateCoins() {
-      document.getElementById("coins").textContent = coins.toFixed(2);
-      document.getElementById("bonus").textContent = bonus;
-      localStorage.setItem("coins", coins);
+    // CLAIM DAILY BONUS
+    function claimDaily() {
+      const now = Date.now();
+      if (now - lastClaim < 86400000) return alert('Already claimed today!');
+      coins += dailyBonus;
+      localStorage.setItem('coins', coins);
+      localStorage.setItem('lastClaim', now);
+      updateHeader();
+      alert(`🎉 You got +${dailyBonus} coins!`);
     }
 
-    function claimBonus() {
-      coins += bonus; updateCoins();
-      alert(`🎉 You claimed +${bonus} coins!`);
+    // REFERRAL LINK
+    const ref = `https://t.me/YourBot?start=${Math.floor(Math.random()*1e6)}`;
+    document.getElementById('refLink').value = ref;
+    function copyRef() {
+      navigator.clipboard.writeText(ref);
+      alert('Link copied!');
     }
 
+    // MONETAG ADS
+    function watchAd() {
+      show_9563904()
+      .then(()=>{ coins+=15; localStorage.setItem('coins', coins); updateHeader(); alert('+15 coins for watching ad!'); })
+      .catch(()=>{ alert('Ad failed.'); });
+      // auto in-app
+      show_9563904({ type:'inApp', inAppSettings:{ frequency:2, capping:0.1, interval:30, timeout:5, everyPage:false }});
+    }
+
+    // PAYOUT STUBS
+    function deposit() { alert('Redirect to bKash/Nagad/PayPal/Binance…'); }
+    function withdraw(){
+      if(coins<100) return alert('Need ≥100 TK to withdraw.');
+      alert('Withdraw request sent!');
+    }
+
+    // OPEN GAME MODAL
+    const gameModal = new bootstrap.Modal(document.getElementById('gameModal'));
+    function openGame(name) {
+      document.getElementById('gameTitle').innerText = name;
+      const body = document.getElementById('gameBody');
+      // Aviator playable
+      if(name==='Aviator') {
+        body.innerHTML = `
+          <div id="flight" class="mb-2">✈️</div>
+          <p>Multiplier: <span id="multiplier">0.00x</span></p>
+          <input type="number" id="bet" step="0.5" min="0.5" class="form-control d-inline-block mb-2" placeholder="Bet TK">
+          <button class="btn btn-custom d-block mx-auto" onclick="playAviator()">Play</button>
+        `;
+      } else {
+        body.innerHTML = `<p>${name} is coming soon!</p>`;
+      }
+      gameModal.show();
+    }
+
+    // PLAY AVIATOR
     function playAviator() {
-      const bet = parseFloat(document.getElementById("betAmount").value);
-      if (!bet || bet < 0.5 || bet > coins) return alert("Invalid bet or not enough coins.");
-      const multiplier = (Math.random() * 2 + 1).toFixed(2);
-      document.getElementById("multiplier").textContent = multiplier + "x";
-      coins = coins - bet + (bet * multiplier);
-      updateCoins();
-      alert(`✈️ You played Aviator! Multiplier: ${multiplier}`);
+      const bet = parseFloat(document.getElementById('bet').value);
+      if(!bet || bet<0.5 || bet>coins) return alert('Invalid bet or insufficient coins.');
+      const mul = (Math.random()*2+1).toFixed(2);
+      document.getElementById('multiplier').innerText = mul+'x';
+      coins = coins - bet + bet*mul;
+      localStorage.setItem('coins', coins);
+      updateHeader();
+      alert(`✈️ You cashed out at ${mul}x!`);
     }
 
-    function deposit() {
-      alert("Redirect to bKash/Nagad/Binance payment gateway…");
-    }
-
-    function withdraw() {
-      if (coins < 100) return alert("Minimum 100 TK required to withdraw.");
-      alert("Withdraw request submitted!");
-    }
-
-    function shareTelegram() {
-      window.open("https://t.me/share/url?url=https://yourcasino.example.com", "_blank");
-    }
+    // PROFILE
+    document.getElementById('uid').innerText = 'User#'+Math.floor(Math.random()*9000+1000);
+    document.getElementById('joined').innerText = new Date().toLocaleDateString();
   </script>
 </body>
 </html>
