@@ -95,14 +95,12 @@
     }
 
     function watchAd() {
-      show_9563904().then(() => {
-        coins += 15;
-        localStorage.setItem("coins", coins);
-        document.getElementById("coins").textContent = coins;
-        alert("💰 You earned 15 coins from ad!");
-      }).catch(() => {
-        alert("Ad not completed.");
-      });
+      // Example ad logic — replace with real SDK like show_9563904()
+      alert("🎦 Showing ad... (demo)");
+      coins += 15;
+      localStorage.setItem("coins", coins);
+      document.getElementById("coins").textContent = coins;
+      alert("💰 You earned 15 coins from ad!");
     }
 
     function deposit() {
