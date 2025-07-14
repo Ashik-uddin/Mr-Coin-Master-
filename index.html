@@ -1,282 +1,85 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>🚀 Aviator – Mr. Coin Casino</title>
-
-  <!-- Bootstrap 5 -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
-
-  <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-  <style>
-    body {
-      background: #0a0a0a;
-      color: #e0e0e0;
-      font-family: 'Segoe UI', sans-serif;
-      padding: 20px;
-    }
-    .container {
-      max-width: 480px;
-      margin: auto;
-    }
-    .balance-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 12px;
-    }
-    .balance-bar .badge {
-      background: #00ffc3;
-      color: #0a0a0a;
-      font-size: 1rem;
-      padding: 0.6em 1em;
-    }
-    .neon-plane {
-      text-align: center;
-      margin-bottom: 8px;
-    }
-    .neon-plane img {
-      height: 40px;
-      filter: drop-shadow(0 0 6px #ff1aff) drop-shadow(0 0 8px #cc00ff);
-    }
-    #graph-container {
-      position: relative;
-      height: 200px;
-      margin-bottom: 8px;
-      background: #111;
-      border-radius: 8px;
-      padding: 8px;
-    }
-    .multiplier-display {
-      font-size: 2.8rem;
-      text-align: center;
-      color: #00ffc3;
-      text-shadow: 0 0 8px #00ffc3;
-      margin-bottom: 12px;
-    }
-    .controls {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 6px;
-      flex-wrap: wrap;
-      margin-bottom: 16px;
-    }
-    .controls input {
-      width: 80px;
-      text-align: center;
-      background: #1f1f1f;
-      border: 1px solid #333;
-      color: #e0e0e0;
-      border-radius: 4px;
-      padding: 6px;
-    }
-    .controls button {
-      background: #00ffc3;
-      color: #0a0a0a;
-      border: none;
-      padding: 8px 12px;
-      border-radius: 4px;
-      cursor: pointer;
-      transition: transform .1s;
-    }
-    .controls button:active {
-      transform: scale(0.95);
-    }
-    .history {
-      background: #1f1f1f;
-      border-radius: 6px;
-      padding: 10px;
-    }
-    .history h6 {
-      margin: 0 0 6px;
-      font-size: 1rem;
-    }
-    .history .round {
-      display: inline-block;
-      background: #333;
-      color: #00ffc3;
-      padding: 4px 8px;
-      margin: 2px;
-      border-radius: 4px;
-      font-size: 0.85rem;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎬 Movie Bot Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js"></script>
+    <style>
+        body { background-color: #f5f5f5; }
+        .movie-card { margin-bottom: 15px; }
+    </style>
 </head>
 <body>
+    <div class="container mt-4">
+        <h1 class="text-center mb-4">🎬 Trending Movies</h1>
+        
+        <div class="mb-4">
+            <input type="text" id="searchInput" class="form-control" placeholder="🔎 Search Movies..." onkeyup="searchMovie()">
+        </div>
 
-  <div class="container">
-    <!-- Balance & Bet/Won Display -->
-    <div class="balance-bar">
-      <span>Balance: <span id="coins">0.00</span> TK</span>
-      <span class="badge">Win: <span id="win">0.00</span></span>
+        <div id="movieList" class="row"></div>
+
+        <div class="text-center mt-4">
+            <a href="https://t.me/YourBotUsername" target="_blank" class="btn btn-primary">👉 Join Telegram Bot</a>
+        </div>
+
+        <div class="mt-4 p-3 text-center bg-warning rounded">
+            <strong>🔥 Sponsored by:</strong>
+            <a href="https://mannytag.com/your-affiliate-link" target="_blank">Mannytag Ads - Earn Now!</a>
+        </div>
     </div>
 
-    <!-- Neon Plane -->
-    <div class="neon-plane">
-      <img src="https://static.vecteezy.com/system/resources/previews/024/087/974/original/airplane-transport-neon-light-png.png" alt="Neon Plane">
-    </div>
+    <script>
+        // Firebase Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyBdUOmQQlRfpNkHpDdMpiAOrsAehqKEdt4",
+            authDomain: "mr-coin-mastar.firebaseapp.com",
+            databaseURL: "https://mr-coin-mastar-default-rtdb.firebaseio.com",
+            projectId: "mr-coin-mastar",
+            storageBucket: "mr-coin-mastar.firebasestorage.app",
+            messagingSenderId: "275029670605",
+            appId: "1:275029670605:android:e42bb40e9b26314367c784"
+        };
 
-    <!-- Graph -->
-    <div id="graph-container">
-      <canvas id="chart"></canvas>
-    </div>
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
 
-    <!-- Multiplier -->
-    <div class="multiplier-display">
-      <span id="multiplier">1.00</span>x
-    </div>
+        function loadMovies() {
+            db.ref('movies').once('value', snapshot => {
+                const movies = snapshot.val();
+                const movieList = document.getElementById('movieList');
+                movieList.innerHTML = '';
 
-    <!-- Controls -->
-    <div class="controls">
-      <button id="decBet">–</button>
-      <input type="number" id="betInput" step="0.5" min="0.5" value="0.5"/>
-      <button id="incBet">+</button>
-      <button id="cashout" disabled>Cash Out</button>
-      <button id="play">Play</button>
-    </div>
-
-    <!-- Round History -->
-    <div class="history">
-      <h6>Last Rounds:</h6>
-      <div id="rounds"></div>
-    </div>
-  </div>
-
-  <!-- Monetag SDK placeholder: add your SDK script here -->
-  <!-- <script src="https://your-monetag-sdk.js"></script> -->
-
-  <!-- JS Logic -->
-  <script>
-    // ----- State & Persistence -----
-    let coins = parseFloat(localStorage.getItem('coins')) || 100;
-    let bet = 0.5;
-    let crashPoint, intervalId;
-    const roundsEl = document.getElementById('rounds');
-
-    // ----- UI References -----
-    const coinsEl = document.getElementById('coins');
-    const winEl   = document.getElementById('win');
-    const multEl  = document.getElementById('multiplier');
-    const betInput = document.getElementById('betInput');
-    const playBtn = document.getElementById('play');
-    const cashBtn = document.getElementById('cashout');
-    const decBtn  = document.getElementById('decBet');
-    const incBtn  = document.getElementById('incBet');
-
-    // ----- Chart.js Setup -----
-    const ctx = document.getElementById('chart').getContext('2d');
-    const chart = new Chart(ctx, {
-      type: 'line',
-      data: { labels: [], datasets: [{ data: [], borderColor: '#00ffc3', backgroundColor: 'rgba(0,255,195,0.2)', pointRadius:0, tension:0.2 }] },
-      options: {
-        animation:false,
-        scales: {
-          x:{ display:false },
-          y:{ min:1, ticks:{ color:'#e0e0e0' } }
-        },
-        plugins:{ legend:{ display:false } }
-      }
-    });
-
-    // ----- Helpers -----
-    function updateDisplay() {
-      coinsEl.innerText = coins.toFixed(2);
-      winEl.innerText   = (bet * parseFloat(multEl.innerText)).toFixed(2);
-      localStorage.setItem('coins', coins);
-    }
-
-    function addHistory(mult, won) {
-      const r = document.createElement('div');
-      r.className = 'round';
-      r.innerText = `${mult.toFixed(2)}x → ${won ? (bet*mult).toFixed(2)+' TK' : 'CRASH'}`;
-      roundsEl.prepend(r);
-      if (roundsEl.children.length > 8) roundsEl.removeChild(roundsEl.lastChild);
-    }
-
-    // ----- Bet Controls -----
-    decBtn.onclick = () => {
-      bet = Math.max(0.5, bet - 0.5);
-      betInput.value = bet;
-      updateDisplay();
-    };
-    incBtn.onclick = () => {
-      bet += 0.5;
-      betInput.value = bet;
-      updateDisplay();
-    };
-    betInput.oninput = e => {
-      bet = Math.max(0.5, parseFloat(e.target.value) || 0.5);
-      updateDisplay();
-    };
-
-    // ----- Round Logic -----
-    playBtn.onclick = () => {
-      if (bet > coins) return alert('Insufficient balance!');
-      coins -= bet;
-      updateDisplay();
-
-      // reset chart
-      chart.data.labels.length = 0;
-      chart.data.datasets[0].data.length = 0;
-      chart.update();
-
-      multEl.innerText = '1.00';
-      cashBtn.disabled = false;
-      playBtn.disabled = true;
-
-      // pick crash point
-      crashPoint = (Math.random() * 10 + 1.2);
-
-      let m = 1.00;
-      intervalId = setInterval(() => {
-        m += m * 0.01;
-        if (m >= crashPoint) {
-          endRound(false);
-        } else {
-          multEl.innerText = m.toFixed(2);
-          chart.data.labels.push('');
-          chart.data.datasets[0].data.push(m.toFixed(2));
-          chart.update();
+                for (let name in movies) {
+                    const link = movies[name];
+                    movieList.innerHTML += `
+                        <div class="col-md-4 movie-card">
+                            <div class="card shadow">
+                                <div class="card-body">
+                                    <h5 class="card-title">${name}</h5>
+                                    <a href="${link}" target="_blank" class="btn btn-success btn-sm">Download</a>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
         }
-      }, 100);
-    };
 
-    cashBtn.onclick = () => endRound(true);
+        function searchMovie() {
+            const filter = document.getElementById('searchInput').value.toLowerCase();
+            const cards = document.querySelectorAll('.movie-card');
 
-    function endRound(won) {
-      clearInterval(intervalId);
-      cashBtn.disabled = true;
-      playBtn.disabled = false;
+            cards.forEach(card => {
+                const title = card.querySelector('.card-title').textContent.toLowerCase();
+                card.style.display = title.includes(filter) ? '' : 'none';
+            });
+        }
 
-      const mult = parseFloat(multEl.innerText);
-      if (won) {
-        const profit = bet * mult;
-        coins += profit;
-        updateDisplay();
-        addHistory(mult, true);
-      } else {
-        addHistory(mult, false);
-      }
-
-      // Monetag Popup Ad
-      show_9563904('pop')
-        .then(() => console.log('Ad watched'))
-        .catch(() => console.log('Ad error'));
-    }
-
-    // ----- Init -----
-    updateDisplay();
-
-    // Auto In-App Ads
-    show_9563904({
-      type: 'inApp',
-      inAppSettings: { frequency:2, capping:0.1, interval:30, timeout:5, everyPage:false }
-    });
-
-  </script>
+        loadMovies();
+    </script>
 </body>
-      </html>
+</html>
