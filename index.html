@@ -3,104 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎬 RGB Neon Movie Search</title>
+    <title>🎬 Pro RGB Neon Movie Search</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
-            background: linear-gradient(135deg, #ff00cc, #3333ff, #00ffcc);
-            color: #fff;
+            background: linear-gradient(135deg, #fc466b, #3f5efb);
+            color: white;
             font-family: 'Arial', sans-serif;
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-        h1 {
-            text-shadow: 0 0 10px #0ff, 0 0 20px #0ff;
         }
         .neon-btn {
             background: transparent;
             border: 2px solid #0ff;
             color: #0ff;
-            text-shadow: 0 0 5px #0ff, 0 0 10px #0ff;
             border-radius: 5px;
-            transition: all 0.3s;
+            text-shadow: 0 0 8px #0ff;
+            transition: all 0.4s;
         }
         .neon-btn:hover {
             background: #0ff;
             color: #000;
-            box-shadow: 0 0 20px #0ff, 0 0 30px #0ff;
-        }
-        .movie-card {
-            background-color: rgba(0,0,0,0.6);
-            border: 1px solid #0ff;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            padding: 10px;
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
-        .movie-card:hover {
-            transform: scale(1.05);
             box-shadow: 0 0 20px #0ff;
+            transform: scale(1.05);
+        }
+        .glass-card {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 20px;
         }
         .ad-banner {
-            background: rgba(255, 255, 0, 0.8);
-            color: black;
-            text-align: center;
+            background: rgba(255,255,0,0.9);
+            color: #000;
             border-radius: 8px;
-            margin: 20px 0;
-            padding: 12px;
+            text-align: center;
             font-weight: bold;
-            box-shadow: 0 0 10px #ff0;
-        }
-        .form-control {
-            background-color: #111;
-            border: 1px solid #0ff;
-            color: #0ff;
-        }
-        .form-control::placeholder {
-            color: #666;
-        }
-        .loader {
-            border: 4px solid #333;
-            border-top: 4px solid #0ff;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 20px auto;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg);}
-            100% { transform: rotate(360deg);}
+            padding: 10px;
+            margin: 15px 0;
+            box-shadow: 0 0 15px #ff0;
         }
     </style>
 </head>
 <body>
 
     <div class="container mt-5">
-        <h1 class="text-center mb-4">🎬 Neon RGB Movie Search</h1>
+        <h1 class="text-center mb-4">🎬 Pro RGB Neon Movie Search</h1>
 
         <div class="input-group mb-4">
-            <input type="text" id="searchInput" class="form-control" placeholder="🔎 Search for any movie...">
+            <input type="text" id="searchInput" class="form-control" placeholder="🔎 Enter movie name...">
             <button class="btn neon-btn" onclick="search()">Search</button>
         </div>
 
-        <div id="loader" class="loader d-none"></div>
         <div id="results" class="row"></div>
     </div>
 
     <script>
-        const YT_API_KEY = 'YOUR_YOUTUBE_API_KEY';
-        const GOOGLE_API_KEY = 'YOUR_GOOGLE_API_KEY';
-        const CX = 'YOUR_GOOGLE_CUSTOM_SEARCH_ENGINE_ID';
+        const YT_API_KEY = 'AIzaSyD4cw5u_vi9uBX8xUEsu03Pgf7_oDEXs0M';
+        const GOOGLE_API_KEY = 'AIzaSyAx4ZvLaNAVEj7wXjjt-711qr81d_D3GgY';
+        const CX = '7604e1aeabfdf4120';
 
         async function search() {
             const query = document.getElementById('searchInput').value.trim();
-            if (!query) return alert('❌ Please enter a movie name to search.');
+            if (!query) return alert('❌ Enter a movie name.');
 
-            const loader = document.getElementById('loader');
             const resultsDiv = document.getElementById('results');
-            loader.classList.remove('d-none');
-            resultsDiv.innerHTML = '';
+            resultsDiv.innerHTML = 'Loading...';
 
             try {
                 const ytRes = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&q=${encodeURIComponent(query)} trailer&key=${YT_API_KEY}&maxResults=4`);
@@ -109,6 +77,8 @@
                 const imgRes = await fetch(`https://www.googleapis.com/customsearch/v1?q=${encodeURIComponent(query)} movie poster&searchType=image&key=${GOOGLE_API_KEY}&cx=${CX}&num=4`);
                 const imgData = await imgRes.json();
 
+                resultsDiv.innerHTML = '';
+
                 ytData.items.forEach((item, idx) => {
                     const ytTitle = item.snippet.title;
                     const ytThumb = item.snippet.thumbnails.medium.url;
@@ -116,10 +86,12 @@
                     const imgItem = imgData.items && imgData.items[idx] ? imgData.items[idx].link : ytThumb;
 
                     resultsDiv.innerHTML += `
-                        <div class="col-md-6 movie-card">
-                            <img src="${imgItem}" class="img-fluid rounded mb-2" alt="${ytTitle}">
-                            <h5>${ytTitle}</h5>
-                            <a href="${ytLink}" target="_blank" class="btn neon-btn btn-sm mt-2">▶️ Watch Trailer</a>
+                        <div class="col-md-6">
+                            <div class="glass-card">
+                                <img src="${imgItem}" class="img-fluid rounded mb-2">
+                                <h5>${ytTitle}</h5>
+                                <a href="${ytLink}" target="_blank" class="btn neon-btn btn-sm" onclick="triggerRewardedInterstitial()">▶️ Watch Trailer</a>
+                            </div>
                         </div>
                     `;
 
@@ -133,12 +105,41 @@
                 });
 
             } catch (err) {
-                alert('❌ Error fetching data. Please check API keys.');
-            } finally {
-                loader.classList.add('d-none');
+                alert('Error fetching data');
             }
         }
+
+        // Monetag Ads
+        show_9563904({
+            type: 'inApp',
+            inAppSettings: {
+                frequency: 2,
+                capping: 0.1,
+                interval: 30,
+                timeout: 5,
+                everyPage: false
+            }
+        });
+
+        function triggerRewardedPopup() {
+            show_9563904('pop').then(() => {
+                alert('🎉 Thanks for watching the ad!');
+            }).catch(e => {
+                console.log('Popup Ad Error', e);
+            });
+        }
+
+        function triggerRewardedInterstitial() {
+            show_9563904().then(() => {
+                alert('✅ Ad watched, enjoy!');
+            }).catch(e => {
+                console.log('Rewarded Interstitial Error', e);
+            });
+        }
     </script>
+
+    <!-- Monetag Base Code JS file should be here -->
+    <script src="https://example.monetag.com/base.js"></script>
 
 </body>
 </html>
