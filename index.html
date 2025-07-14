@@ -3,63 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎬 Movie Search & Download</title>
+    <title>🎬 Movie & Trailer Search</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        .movie-card { margin-bottom: 15px; }
-        .ad-banner { background: #ffe600; padding: 10px; text-align: center; border-radius: 5px; margin: 10px 0;}
+        .movie-card { margin-bottom: 20px; }
+        .ad-banner { background: #ffe600; padding: 10px; text-align: center; border-radius: 5px; margin: 20px 0; }
     </style>
 </head>
 <body>
     <div class="container mt-4">
-        <h2 class="text-center">🎬 Search Movies, Trailers & More</h2>
-
-        <div class="input-group mb-3 mt-4">
-            <input type="text" id="searchInput" class="form-control" placeholder="Enter movie name..." />
-            <button class="btn btn-primary" onclick="searchMovies()">Search</button>
+        <h2 class="text-center">🎬 Search Movies, Trailers & Posters</h2>
+        <div class="input-group my-4">
+            <input type="text" id="searchInput" class="form-control" placeholder="Enter Movie Name...">
+            <button class="btn btn-primary" onclick="search()">Search</button>
         </div>
-
         <div id="results" class="row"></div>
     </div>
 
     <script>
-        async function searchMovies() {
+        const YT_API_KEY = 'YOUR_YOUTUBE_API_KEY';
+        const GOOGLE_API_KEY = 'YOUR_GOOGLE_API_KEY';
+        const CX = 'YOUR_GOOGLE_CUSTOM_SEARCH_ENGINE_ID'; // Google Programmable Search CX
+
+        async function search() {
             const query = document.getElementById('searchInput').value;
             const resultsDiv = document.getElementById('results');
-            resultsDiv.innerHTML = "Searching...";
+            resultsDiv.innerHTML = '<p>🔎 Searching...</p>';
 
-            // YouTube API KEY
-            const YT_API_KEY = 'YOUR_YOUTUBE_API_KEY';
-            const YT_URL = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&q=${encodeURIComponent(query)} trailer&key=${YT_API_KEY}&maxResults=6`;
+            const ytRes = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&q=${encodeURIComponent(query)} trailer&key=${YT_API_KEY}&maxResults=4`);
+            const ytData = await ytRes.json();
 
-            const ytResponse = await fetch(YT_URL);
-            const ytData = await ytResponse.json();
+            const imgRes = await fetch(`https://www.googleapis.com/customsearch/v1?q=${encodeURIComponent(query)} movie poster&searchType=image&key=${GOOGLE_API_KEY}&cx=${CX}&num=4`);
+            const imgData = await imgRes.json();
 
             resultsDiv.innerHTML = '';
 
-            ytData.items.forEach((item, index) => {
-                const title = item.snippet.title;
-                const thumbnail = item.snippet.thumbnails.medium.url;
-                const videoUrl = `https://www.youtube.com/watch?v=${item.id.videoId}`;
+            ytData.items.forEach((item, idx) => {
+                const ytTitle = item.snippet.title;
+                const ytThumb = item.snippet.thumbnails.medium.url;
+                const ytLink = `https://www.youtube.com/watch?v=${item.id.videoId}`;
+
+                const imgItem = imgData.items && imgData.items[idx] ? imgData.items[idx].link : ytThumb;
 
                 resultsDiv.innerHTML += `
-                    <div class="col-md-4 movie-card">
+                    <div class="col-md-6 movie-card">
                         <div class="card shadow-sm">
-                            <img src="${thumbnail}" class="card-img-top" alt="${title}">
+                            <img src="${imgItem}" class="card-img-top" alt="${ytTitle}">
                             <div class="card-body">
-                                <h5 class="card-title">${title}</h5>
-                                <a href="${videoUrl}" target="_blank" class="btn btn-danger btn-sm">▶️ Watch on YouTube</a>
+                                <h5 class="card-title">${ytTitle}</h5>
+                                <a href="${ytLink}" target="_blank" class="btn btn-danger btn-sm">▶️ Watch Trailer</a>
                             </div>
                         </div>
                     </div>
                 `;
 
-                // Show ad after every 2 items
-                if ((index + 1) % 2 === 0) {
+                if ((idx + 1) % 2 === 0) {
                     resultsDiv.innerHTML += `
                         <div class="col-12 ad-banner">
-                            <!-- Monetag/Adsterra Banner Code Here -->
-                            <p>🔥 Sponsored: <a href="https://mannytag.com/your-affiliate-link" target="_blank">Earn Money with Monetag</a></p>
+                            <!-- Monetag/Adsterra Banner -->
+                            <p>🔥 Sponsored by <a href="https://mannytag.com/your-affiliate-link" target="_blank">Monetag</a></p>
                         </div>
                     `;
                 }
