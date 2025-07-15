@@ -3,34 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎬 Full Movie Search & Watch</title>
+    <title>🎬 Full Movie Search + Monetag + Affiliate</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body { background: #121212; color: white; }
-        .neon-btn {
-            background: transparent;
-            border: 2px solid #0ff;
-            color: #0ff;
-            border-radius: 5px;
-            transition: 0.3s;
-        }
-        .neon-btn:hover {
-            background: #0ff;
-            color: #000;
-        }
-        .glass-card {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid #0ff;
-            border-radius: 10px;
-            padding: 10px;
-            margin-bottom: 20px;
-        }
+        .neon-btn { background: transparent; border: 2px solid #0ff; color: #0ff; border-radius: 5px; transition: 0.3s; }
+        .neon-btn:hover { background: #0ff; color: #000; }
+        .glass-card { background: rgba(255,255,255,0.05); border: 1px solid #0ff; border-radius: 10px; padding: 10px; margin-bottom: 20px; }
+        .ad-banner { background: rgba(255,255,0,0.8); color: black; border-radius: 8px; padding: 10px; text-align: center; margin: 20px 0; }
     </style>
 </head>
 <body>
 
 <div class="container mt-5">
-    <h1 class="text-center mb-4">🎬 Full Movie Search & Watch</h1>
+    <h1 class="text-center mb-4">🎬 Full Movie Search & Watch + Earn</h1>
 
     <div class="input-group mb-4">
         <input type="text" id="searchInput" class="form-control" placeholder="🔎 Enter movie name...">
@@ -50,43 +36,39 @@
         const resultsDiv = document.getElementById('results');
         resultsDiv.innerHTML = 'Searching...';
 
-        try {
-            const ytRes = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&q=${encodeURIComponent(query)} full movie&key=${YT_API_KEY}&maxResults=4`);
-            const ytData = await ytRes.json();
+        const ytRes = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&q=${encodeURIComponent(query)} full movie&key=${YT_API_KEY}&maxResults=6`);
+        const ytData = await ytRes.json();
 
-            resultsDiv.innerHTML = '';
+        resultsDiv.innerHTML = '';
 
-            ytData.items.forEach(item => {
-                const ytTitle = item.snippet.title;
-                const videoId = item.id.videoId;
+        ytData.items.forEach((item, idx) => {
+            const ytTitle = item.snippet.title;
+            const videoId = item.id.videoId;
 
+            resultsDiv.innerHTML += `
+                <div class="col-md-6">
+                    <div class="glass-card">
+                        <iframe width="100%" height="250" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>
+                        <h5>${ytTitle}</h5>
+                        <button class="btn neon-btn btn-sm mt-2" onclick="triggerRewardedInterstitial()">🎥 Watch & Earn</button>
+                    </div>
+                </div>
+            `;
+
+            if ((idx + 1) % 2 === 0) {
                 resultsDiv.innerHTML += `
-                    <div class="col-md-6">
-                        <div class="glass-card">
-                            <iframe width="100%" height="250" src="https://www.youtube.com/embed/${videoId}" 
-                            frameborder="0" allowfullscreen></iframe>
-                            <h5>${ytTitle}</h5>
-                            <button class="btn neon-btn btn-sm mt-2" onclick="triggerRewardedInterstitial()">🎥 Watch & Earn</button>
-                        </div>
+                    <div class="col-12 ad-banner">
+                        🎯 Exclusive Offer: 
+                        <a href="https://your-affiliate-link.com" target="_blank" class="btn neon-btn btn-sm">🔗 Visit & Earn More!</a>
                     </div>
                 `;
-            });
-
-        } catch (err) {
-            alert('❌ Error fetching data. Please try again.');
-        }
-    }
-
-    // Monetag Rewarded Interstitial
-    function triggerRewardedInterstitial() {
-        show_9563904().then(() => {
-            alert('✅ Thanks! You watched the ad.');
-        }).catch(e => {
-            console.log('Ad Error:', e);
+            }
         });
     }
 
-    // Example Monetag In-App Interstitial config
+    // Monetag Ads Codes Provided by You:
+
+    // In-App Interstitial
     show_9563904({
         type: 'inApp',
         inAppSettings: {
@@ -97,10 +79,28 @@
             everyPage: false
         }
     });
+
+    // Rewarded Popup (optional call)
+    function triggerRewardedPopup() {
+        show_9563904('pop').then(() => {
+            alert('🎉 Thanks for watching the rewarded popup ad!');
+        }).catch(e => {
+            console.error('Popup Ad Error:', e);
+        });
+    }
+
+    // Rewarded Interstitial Ad on video watch
+    function triggerRewardedInterstitial() {
+        show_9563904().then(() => {
+            alert('✅ Thanks for watching the rewarded ad!');
+        }).catch(e => {
+            console.error('Rewarded Interstitial Error:', e);
+        });
+    }
 </script>
 
-<!-- Monetag JS -->
-<script src="https://example.monetag.com/base.js"></script>
+<!-- ✅ Monetag Base JS -->
+<script src='//libtl.com/sdk.js' data-zone='9563904' data-sdk='show_9563904'></script>
 
 </body>
 </html>
