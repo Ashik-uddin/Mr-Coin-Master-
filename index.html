@@ -1,9 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎬 Movie Search + Download + Ads</title>
+    <title>🎬 Movie Search + Download + Ads Control</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body { background: #121212; color: white; }
@@ -13,25 +12,19 @@
         .ad-banner { background: rgba(255,255,0,0.8); color: black; border-radius: 8px; padding: 10px; text-align: center; margin: 20px 0; }
     </style>
 </head>
-<body>
-
-<div class="container mt-5">
-    <h1 class="text-center mb-4">🎬 Full Movie Search, Download & Earn</h1>
-
-    <div class="input-group mb-4">
-        <input type="text" id="searchInput" class="form-control" placeholder="🔎 Enter movie name...">
-        <button class="btn neon-btn" onclick="search()">Search</button>
-    </div>
-
-    <div id="results" class="row"></div>
-
-    <div id="countdown" class="text-center mt-4"></div>
+<body><div class="container mt-5">
+    <h1 class="text-center mb-4">🎬 Full Movie Search, Download & Earn</h1><div class="input-group mb-4">
+    <input type="text" id="searchInput" class="form-control" placeholder="🔎 Enter movie name...">
+    <button class="btn neon-btn" onclick="search()">Search</button>
 </div>
 
-<script>
+<div id="results" class="row"></div>
+
+<div id="countdown" class="text-center mt-4"></div>
+
+</div><script>
     const YT_API_KEY = 'AIzaSyD4cw5u_vi9uBX8xUEsu03Pgf7_oDEXs0M';
-    const GOOGLE_API_KEY = 'AIzaSyAx4ZvLaNAVEj7wXjjt-711qr81d_D3GgY';
-    const CX = '7604e1aeabfdf4120';
+    let adInterval;
 
     async function search() {
         const query = document.getElementById('searchInput').value.trim();
@@ -43,12 +36,9 @@
         const ytRes = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&q=${encodeURIComponent(query)} full movie&key=${YT_API_KEY}&maxResults=2`);
         const ytData = await ytRes.json();
 
-        const siteRes = await fetch(`https://www.googleapis.com/customsearch/v1?q=${encodeURIComponent(query)} movie download site&key=${GOOGLE_API_KEY}&cx=${CX}&num=3`);
-        const siteData = await siteRes.json();
-
         resultsDiv.innerHTML = '';
 
-        ytData.items.forEach((item, idx) => {
+        ytData.items.forEach((item) => {
             const ytTitle = item.snippet.title;
             const videoId = item.id.videoId;
 
@@ -56,56 +46,66 @@
                 <div class="col-md-6 glass-card">
                     <iframe width="100%" height="250" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>
                     <h5>${ytTitle}</h5>
-                    <button class="btn neon-btn btn-sm mt-2" onclick="triggerRewardedInterstitial()">🎥 Watch & Earn</button>
-                    <button class="btn btn-success btn-sm mt-2" onclick="showAdThenDownload('${videoId}')">⬇ Download</button>
-                </div>
-            `;
-
-            if ((idx + 1) % 2 === 0) {
-                resultsDiv.innerHTML += `
-                    <div class="col-12 ad-banner row">
-                        <h5>🎯 Amazon Deals</h5>
-                        <div class="col-md-3"><img src="https://m.media-amazon.com/images/I/71v2jVh6nIL._AC_SY695_.jpg" class="img-fluid"/><br><a href="https://amzn.to/4ks5LDL" target="_blank" class="btn btn-warning btn-sm mt-1">Buy</a></div>
-                        <div class="col-md-3"><img src="https://m.media-amazon.com/images/I/71rM4qjRpgL._AC_SY695_.jpg" class="img-fluid"/><br><a href="https://amzn.to/4kRqwZq" target="_blank" class="btn btn-warning btn-sm mt-1">Buy</a></div>
-                        <div class="col-md-3"><img src="https://m.media-amazon.com/images/I/61Id6WJDWqL._AC_SY695_.jpg" class="img-fluid"/><br><a href="https://amzn.to/4jBhD50" target="_blank" class="btn btn-warning btn-sm mt-1">Buy</a></div>
-                        <div class="col-md-3"><img src="https://m.media-amazon.com/images/I/81wE+fs74XL._AC_SY695_.jpg" class="img-fluid"/><br><a href="https://www.amazon.com/dp/B0CKMCPDJ2?tag=yt075-20" target="_blank" class="btn btn-warning btn-sm mt-1">Buy</a></div>
-                    </div>
-                `;
-            }
-        });
-
-        siteData.items.forEach(site => {
-            resultsDiv.innerHTML += `
-                <div class="col-12 glass-card">
-                    <h5>🌐 ${site.title}</h5>
-                    <p>${site.snippet}</p>
-                    <a href="${site.link}" target="_blank" class="btn neon-btn btn-sm">Visit Site</a>
+                    <button id="watch-btn-${videoId}" class="btn neon-btn btn-sm mt-2" onclick="triggerRewardedInterstitial('${videoId}')">🎥 Watch & Earn</button>
+                    <button id="download-btn-${videoId}" class="btn btn-success btn-sm mt-2" onclick="showAdThenDownload('${videoId}')">⬇ Download</button>
+                    <div id="loader-${videoId}" style="display:none; color:yellow;">Loading Ad...</div>
                 </div>
             `;
         });
+
+        clearInterval(adInterval);
+        adInterval = setInterval(showCountdownAndAd, 600000);
     }
 
     function showAdThenDownload(videoId) {
+        if (!disableActions(videoId)) return;
+
+        document.getElementById(`loader-${videoId}`).style.display = 'block';
+
         show_9563904().then(() => {
+            enableActions(videoId);
+            document.getElementById(`loader-${videoId}`).style.display = 'none';
             window.open(`https://www.y2mate.com/youtube/${videoId}`, '_blank');
         }).catch(e => {
             console.error('Ad Error:', e);
+            enableActions(videoId);
+            document.getElementById(`loader-${videoId}`).style.display = 'none';
             window.open(`https://www.y2mate.com/youtube/${videoId}`, '_blank');
         });
     }
 
-    function triggerRewardedInterstitial() {
+    function triggerRewardedInterstitial(videoId) {
+        if (!disableActions(videoId)) return;
+
+        document.getElementById(`loader-${videoId}`).style.display = 'block';
+
         show_9563904().then(() => {
+            enableActions(videoId);
+            document.getElementById(`loader-${videoId}`).style.display = 'none';
             alert('✅ Ad watched, thank you!');
         }).catch(e => {
             console.error('Rewarded Interstitial Error:', e);
+            enableActions(videoId);
+            document.getElementById(`loader-${videoId}`).style.display = 'none';
         });
     }
 
-    // Auto Ads every 10 mins with 5s countdown
-    setInterval(() => {
-        showCountdownAndAd();
-    }, 600000); // 10 mins
+    function disableActions(videoId) {
+        const downloadBtn = document.getElementById(`download-btn-${videoId}`);
+        const watchBtn = document.getElementById(`watch-btn-${videoId}`);
+        if (!downloadBtn || !watchBtn) return false;
+
+        downloadBtn.disabled = true;
+        watchBtn.disabled = true;
+        return true;
+    }
+
+    function enableActions(videoId) {
+        const downloadBtn = document.getElementById(`download-btn-${videoId}`);
+        const watchBtn = document.getElementById(`watch-btn-${videoId}`);
+        if (downloadBtn) downloadBtn.disabled = false;
+        if (watchBtn) watchBtn.disabled = false;
+    }
 
     function showCountdownAndAd() {
         let seconds = 5;
@@ -122,9 +122,9 @@
             }
         }, 1000);
     }
-</script>
 
-<script src='//libtl.com/sdk.js' data-zone='9563904' data-sdk='show_9563904'></script>
-
-</body>
+    window.addEventListener('beforeunload', () => {
+        clearInterval(adInterval);
+    });
+</script><script src='//libtl.com/sdk.js' data-zone='9563904' data-sdk='show_9563904'></script></body>
 </html>
