@@ -2,131 +2,176 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎬 Movie Search + Download + Ads Control</title>
+    <title>Full Project - Movie Search, Income, Admin Panel</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { background: linear-gradient(135deg, #1f1c2c, #928dab); color: white; font-family: 'Arial', sans-serif; }
-        .neon-btn { background: transparent; border: 2px solid #0ff; color: #0ff; border-radius: 5px; transition: 0.3s; }
+        body { background: #121212; color: white; font-family: Arial, sans-serif; }
+        .glass-card { background: rgba(255,255,255,0.08); border: 1px solid #0ff; border-radius: 12px; padding: 15px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
+        .neon-btn { background: transparent; border: 2px solid #0ff; color: #0ff; border-radius: 5px; }
         .neon-btn:hover { background: #0ff; color: #000; }
-        .glass-card { background: rgba(255,255,255,0.08); border: 1px solid #0ff; border-radius: 12px; padding: 15px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); transition: transform 0.3s; }
-        .glass-card:hover { transform: scale(1.02); }
-        .ad-banner { background: rgba(255,255,0,0.85); color: black; border-radius: 12px; padding: 15px; text-align: center; margin: 20px 0; }
-        #countdown { font-size: 1.2rem; color: #0ff; }
     </style>
 </head>
 <body><div class="container mt-5">
-    <h1 class="text-center mb-4">🎬 Full Movie Search, Download & Earn</h1><div class="input-group mb-4">
-    <input type="text" id="searchInput" class="form-control" placeholder="🔎 Enter movie name...">
-    <button class="btn neon-btn" onclick="search()">Search</button>
+    <h1 class="text-center">Full Project: Movie Search, Earn, Admin Panel</h1><div class="glass-card">
+    <h4>🎯 Your Points: <span id="userPoints">0</span></h4>
+    <h5>Equivalent: $<span id="userDollar">0.00</span></h5>
+    <button class="btn neon-btn btn-sm mt-2" onclick="convertPoints()">Convert Points to USD</button>
+
+    <h5 class="mt-3">Withdraw</h5>
+    <select id="method" class="form-select mb-2">
+        <option value="binance">Binance</option>
+        <option value="telegram">Telegram</option>
+    </select>
+    <input type="text" id="wallet" class="form-control mb-2" placeholder="Enter Wallet ID or Telegram Username">
+    <button class="btn btn-success btn-sm" onclick="requestWithdraw()">Request Withdraw</button>
+
+    <p id="withdrawMsg" class="mt-2"></p>
 </div>
 
-<div id="results" class="row"></div>
+<div class="glass-card">
+    <h4>Movie Search</h4>
+    <input type="text" id="searchInput" class="form-control mb-2" placeholder="Enter movie name...">
+    <button class="btn neon-btn" onclick="search()">Search</button>
+    <div id="results" class="mt-3"></div>
+</div>
 
-<div id="countdown" class="text-center mt-4"></div>
+<div class="glass-card">
+    <h4>Admin Panel</h4>
+    <h5>Withdraw Requests</h5>
+    <div id="withdrawRequests"></div>
 
-</div><script>
-    const YT_API_KEY = 'AIzaSyD4cw5u_vi9uBX8xUEsu03Pgf7_oDEXs0M';
-    let adInterval;
+    <h5 class="mt-3">All Users & Points</h5>
+    <div id="userPointsList"></div>
+</div>
+
+</div><script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+    import { getDatabase, ref, onValue, push, update } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyBdUOmQQlRfpNkHpDdMpiAOrsAehqKEdt4",
+        authDomain: "mr-coin-mastar.firebaseapp.com",
+        databaseURL: "https://mr-coin-mastar-default-rtdb.firebaseio.com",
+        projectId: "mr-coin-mastar",
+        storageBucket: "mr-coin-mastar.firebasestorage.app",
+        messagingSenderId: "275029670605",
+        appId: "1:275029670605:android:e42bb40e9b26314367c784"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    let userPoints = 0;
+
+    function updateDisplay() {
+        document.getElementById('userPoints').innerText = userPoints;
+        document.getElementById('userDollar').innerText = (userPoints / 20000).toFixed(2);
+    }
+
+    function convertPoints() {
+        alert(`You have $${(userPoints / 20000).toFixed(2)} equivalent.`);
+    }
+
+    function requestWithdraw() {
+        const method = document.getElementById('method').value;
+        const wallet = document.getElementById('wallet').value;
+        const dollar = (userPoints / 20000).toFixed(2);
+
+        if (dollar < 3) {
+            document.getElementById('withdrawMsg').innerText = "❌ Minimum $3 required to withdraw.";
+            return;
+        }
+        if (!wallet) {
+            document.getElementById('withdrawMsg').innerText = "❌ Provide Wallet ID/Username.";
+            return;
+        }
+
+        push(ref(db, 'withdrawRequests'), {
+            wallet: wallet,
+            method: method,
+            amount: dollar,
+            status: 'Pending'
+        });
+
+        document.getElementById('withdrawMsg').innerText = `✅ Withdraw request of $${dollar} via ${method} submitted.`;
+    }
 
     async function search() {
         const query = document.getElementById('searchInput').value.trim();
-        if (!query) return alert('❌ Enter a movie name.');
+        if (!query) return alert('Enter movie name.');
 
-        const resultsDiv = document.getElementById('results');
-        resultsDiv.innerHTML = '<p class="text-center">🔎 Searching for movies...</p>';
+        const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&key=AIzaSyD4cw5u_vi9uBX8xUEsu03Pgf7_oDEXs0M&maxResults=3&type=video`);
+        const data = await res.json();
 
-        const ytRes = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&q=${encodeURIComponent(query)} full movie&key=${YT_API_KEY}&maxResults=2`);
-        const ytData = await ytRes.json();
+        const results = document.getElementById('results');
+        results.innerHTML = '';
 
-        resultsDiv.innerHTML = '';
-
-        ytData.items.forEach((item) => {
-            const ytTitle = item.snippet.title;
+        data.items.forEach(item => {
             const videoId = item.id.videoId;
-
-            resultsDiv.innerHTML += `
-                <div class="col-md-6 glass-card">
+            results.innerHTML += `
+                <div class="glass-card">
+                    <h5>${item.snippet.title}</h5>
                     <iframe width="100%" height="250" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>
-                    <h5 class="mt-2">${ytTitle}</h5>
-                    <button id="watch-btn-${videoId}" class="btn neon-btn btn-sm mt-2" onclick="triggerRewardedInterstitial('${videoId}')">🎥 Watch & Earn</button>
-                    <button id="download-btn-${videoId}" class="btn btn-success btn-sm mt-2" onclick="showAdThenDownload('${videoId}')">⬇ Download</button>
-                    <div id="loader-${videoId}" style="display:none; color:yellow;">Loading Ad...</div>
+                    <button class="btn btn-success btn-sm mt-2" onclick="earnPoints(5)">🎥 Earn 5 Points</button>
                 </div>
             `;
         });
-
-        clearInterval(adInterval);
-        adInterval = setInterval(showCountdownAndAd, 600000);
     }
 
-    function showAdThenDownload(videoId) {
-        if (!disableActions(videoId)) return;
-
-        document.getElementById(`loader-${videoId}`).style.display = 'block';
-
-        show_9563904().then(() => {
-            enableActions(videoId);
-            document.getElementById(`loader-${videoId}`).style.display = 'none';
-            window.open(`https://www.y2mate.com/youtube/${videoId}`, '_blank');
-        }).catch(e => {
-            console.error('Ad Error:', e);
-            enableActions(videoId);
-            document.getElementById(`loader-${videoId}`).style.display = 'none';
-            window.open(`https://www.y2mate.com/youtube/${videoId}`, '_blank');
-        });
+    window.earnPoints = function(amount) {
+        userPoints += amount;
+        updateDisplay();
+        alert(`You earned ${amount} points!`);
     }
 
-    function triggerRewardedInterstitial(videoId) {
-        if (!disableActions(videoId)) return;
-
-        document.getElementById(`loader-${videoId}`).style.display = 'block';
-
-        show_9563904().then(() => {
-            enableActions(videoId);
-            document.getElementById(`loader-${videoId}`).style.display = 'none';
-            alert('✅ Ad watched, thank you!');
-        }).catch(e => {
-            console.error('Rewarded Interstitial Error:', e);
-            enableActions(videoId);
-            document.getElementById(`loader-${videoId}`).style.display = 'none';
-        });
+    window.confirmAction = function(id, status) {
+        if (confirm(`Mark as ${status}?`)) {
+            const updates = {};
+            updates['/withdrawRequests/' + id + '/status'] = status;
+            update(ref(db), updates);
+            alert('Request marked as ' + status);
+        }
     }
 
-    function disableActions(videoId) {
-        const downloadBtn = document.getElementById(`download-btn-${videoId}`);
-        const watchBtn = document.getElementById(`watch-btn-${videoId}`);
-        if (!downloadBtn || !watchBtn) return false;
-
-        downloadBtn.disabled = true;
-        watchBtn.disabled = true;
-        return true;
-    }
-
-    function enableActions(videoId) {
-        const downloadBtn = document.getElementById(`download-btn-${videoId}`);
-        const watchBtn = document.getElementById(`watch-btn-${videoId}`);
-        if (downloadBtn) downloadBtn.disabled = false;
-        if (watchBtn) watchBtn.disabled = false;
-    }
-
-    function showCountdownAndAd() {
-        let seconds = 5;
-        const countdownDiv = document.getElementById('countdown');
-        countdownDiv.innerHTML = `⏳ Ad loading in ${seconds} seconds...`;
-
-        const timer = setInterval(() => {
-            seconds--;
-            countdownDiv.innerHTML = `⏳ Ad loading in ${seconds} seconds...`;
-            if (seconds <= 0) {
-                clearInterval(timer);
-                countdownDiv.innerHTML = '';
-                show_9563904();
+    function loadWithdrawRequests() {
+        const withdrawRef = ref(db, 'withdrawRequests/');
+        onValue(withdrawRef, (snapshot) => {
+            const data = snapshot.val();
+            const container = document.getElementById('withdrawRequests');
+            container.innerHTML = '';
+            for (let id in data) {
+                const req = data[id];
+                container.innerHTML += `
+                    <div class="glass-card">
+                        <p>User: ${req.wallet}</p>
+                        <p>Method: ${req.method}</p>
+                        <p>Amount: $${req.amount}</p>
+                        <p>Status: ${req.status}</p>
+                        <button class="btn btn-success btn-sm" onclick="confirmAction('${id}', 'Completed')">✅ Approve</button>
+                        <button class="btn btn-danger btn-sm" onclick="confirmAction('${id}', 'Rejected')">❌ Reject</button>
+                    </div>
+                `;
             }
-        }, 1000);
+        });
     }
 
-    window.addEventListener('beforeunload', () => {
-        clearInterval(adInterval);
-    });
-</script><script src='//libtl.com/sdk.js' data-zone='9563904' data-sdk='show_9563904'></script></body>
-</html>
+    function loadUserPoints() {
+        const pointsRef = ref(db, 'users/');
+        onValue(pointsRef, (snapshot) => {
+            const data = snapshot.val();
+            const container = document.getElementById('userPointsList');
+            container.innerHTML = '';
+            if (data) {
+                const sorted = Object.entries(data).sort((a,b) => b[1].points - a[1].points);
+                sorted.forEach(([uid, user]) => {
+                    container.innerHTML += `<p>${uid}: ${user.points} Points</p>`;
+                });
+            }
+        });
+    }
+
+    updateDisplay();
+    loadWithdrawRequests();
+    loadUserPoints();
+</script></body>
+    </html>
