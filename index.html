@@ -24,6 +24,8 @@
     </div>
 
     <div id="results" class="row"></div>
+
+    <div id="countdown" class="text-center mt-4"></div>
 </div>
 
 <script>
@@ -61,14 +63,12 @@
 
             if ((idx + 1) % 2 === 0) {
                 resultsDiv.innerHTML += `
-                    <div class="col-12 ad-banner">
-                        🎯 Exclusive Amazon Deals:
-                        <ul>
-                            <li><a href="https://amzn.to/4ks5LDL" target="_blank">Deal 1</a></li>
-                            <li><a href="https://amzn.to/4kRqwZq" target="_blank">Deal 2</a></li>
-                            <li><a href="https://amzn.to/4jBhD50" target="_blank">Deal 3</a></li>
-                            <li><a href="https://www.amazon.com/adidas-Daily-Sneaker-Black-White/dp/B0CKMCPDJ2?tag=yt075-20" target="_blank">Adidas Sneakers</a></li>
-                        </ul>
+                    <div class="col-12 ad-banner row">
+                        <h5>🎯 Amazon Deals</h5>
+                        <div class="col-md-3"><img src="https://m.media-amazon.com/images/I/71v2jVh6nIL._AC_SY695_.jpg" class="img-fluid"/><br><a href="https://amzn.to/4ks5LDL" target="_blank" class="btn btn-warning btn-sm mt-1">Buy</a></div>
+                        <div class="col-md-3"><img src="https://m.media-amazon.com/images/I/71rM4qjRpgL._AC_SY695_.jpg" class="img-fluid"/><br><a href="https://amzn.to/4kRqwZq" target="_blank" class="btn btn-warning btn-sm mt-1">Buy</a></div>
+                        <div class="col-md-3"><img src="https://m.media-amazon.com/images/I/61Id6WJDWqL._AC_SY695_.jpg" class="img-fluid"/><br><a href="https://amzn.to/4jBhD50" target="_blank" class="btn btn-warning btn-sm mt-1">Buy</a></div>
+                        <div class="col-md-3"><img src="https://m.media-amazon.com/images/I/81wE+fs74XL._AC_SY695_.jpg" class="img-fluid"/><br><a href="https://www.amazon.com/dp/B0CKMCPDJ2?tag=yt075-20" target="_blank" class="btn btn-warning btn-sm mt-1">Buy</a></div>
                     </div>
                 `;
             }
@@ -102,17 +102,26 @@
         });
     }
 
-    // Auto Ads Every 10 Minutes
-    show_9563904({
-        type: 'inApp',
-        inAppSettings: {
-            frequency: 1,
-            capping: 0.1667, // 10 mins
-            interval: 600,
-            timeout: 5,
-            everyPage: false
-        }
-    });
+    // Auto Ads every 10 mins with 5s countdown
+    setInterval(() => {
+        showCountdownAndAd();
+    }, 600000); // 10 mins
+
+    function showCountdownAndAd() {
+        let seconds = 5;
+        const countdownDiv = document.getElementById('countdown');
+        countdownDiv.innerHTML = `⏳ Ad loading in ${seconds} seconds...`;
+
+        const timer = setInterval(() => {
+            seconds--;
+            countdownDiv.innerHTML = `⏳ Ad loading in ${seconds} seconds...`;
+            if (seconds <= 0) {
+                clearInterval(timer);
+                countdownDiv.innerHTML = '';
+                show_9563904();
+            }
+        }, 1000);
+    }
 </script>
 
 <script src='//libtl.com/sdk.js' data-zone='9563904' data-sdk='show_9563904'></script>
