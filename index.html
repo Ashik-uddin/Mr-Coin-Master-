@@ -2,889 +2,468 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎬 MovieVerse: Search, Play & Earn</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>💰 PointSwap v2.0 - Stable & Complete</title>
     <!-- Dependencies -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-gradient: linear-gradient(135deg, #1d1a27, #3e3857);
-            --primary-color: #00e5ff;
-            --glass-bg: rgba(255, 255, 255, 0.07);
-            --glass-border: 1px solid rgba(255, 255, 255, 0.15);
-            --text-color: #e0e0e0;
-            --text-muted-color: #a0a0a0;
+            --bg-color-dark: #131320; --bg-color-light: #1a1a2d; --card-bg: #222235;
+            --primary-color: #009cff; --secondary-color: #00e5ff; --text-color: #ffffff;
+            --text-muted: #8e9297; --bottom-nav-bg: #1a1a27; --success-color: #28a745;
+            --danger-color: #dc3545;
         }
+
+        @keyframes background-pan { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        @keyframes pulse { 0% { box-shadow: 0 0 20px rgba(0, 156, 255, 0.4); } 50% { box-shadow: 0 0 35px rgba(0, 229, 255, 0.7); } 100% { box-shadow: 0 0 20px rgba(0, 156, 255, 0.4); } }
+        @keyframes floatUp { to { transform: translateY(-120px); opacity: 0; } }
+        @keyframes click-ripple { 0% { transform: scale(1); opacity: 0.5; } 100% { transform: scale(3); opacity: 0; } }
 
         body {
-            background: var(--bg-gradient);
+            background: linear-gradient(135deg, var(--bg-color-dark), var(--bg-color-light), var(--bg-color-dark));
+            background-size: 200% 200%;
+            animation: background-pan 15s ease infinite;
             color: var(--text-color);
             font-family: 'Poppins', sans-serif;
-            overflow-x: hidden;
+            overflow: hidden; height: 100dvh; display: flex; flex-direction: column;
         }
 
-        .main-container {
-            max-width: 1200px;
-            margin: 2rem auto;
-            padding: 1rem;
-        }
-
-        .glass-card {
-            background: var(--glass-bg);
-            border: var(--glass-border);
-            border-radius: 16px;
-            padding: 25px;
-            margin-bottom: 20px;
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
-            transition: transform 0.3s ease;
-        }
-
-        .glass-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .neon-btn {
-            background: transparent;
-            border: 2px solid var(--primary-color);
-            color: var(--primary-color);
-            font-weight: 600;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-            padding: 10px 20px;
-        }
-
-        .neon-btn:hover, .neon-btn:focus {
-            background: var(--primary-color);
-            color: #111;
-            box-shadow: 0 0 20px var(--primary-color);
-        }
-
-        .form-control, .form-select {
-            background-color: rgba(0, 0, 0, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: white;
-        }
-        .form-control:focus, .form-select:focus {
-            background-color: rgba(0, 0, 0, 0.3);
-            color: white;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 8px var(--primary-color);
-        }
+        .main-container { flex-grow: 1; display: flex; flex-direction: column; padding: 1rem 1rem 80px 1rem; overflow-y: auto; scrollbar-width: none; -ms-overflow-style: none; }
+        .main-container::-webkit-scrollbar { display: none; }
         
-        /* Navigation Tabs */
-        .nav-tabs {
-            border-bottom: 1px solid rgba(255,255,255,0.2);
-            justify-content: center;
-        }
-        .nav-tabs .nav-link {
-            background: transparent;
-            border: none;
-            color: var(--text-muted-color);
-            font-weight: 600;
-            margin: 0 10px;
-        }
-        .nav-tabs .nav-link.active, .nav-tabs .nav-item.show .nav-link {
-            color: var(--primary-color);
-            background-color: transparent;
-            border-bottom: 3px solid var(--primary-color);
-        }
+        .top-bar { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 20px; }
+        .top-bar > div { background: var(--card-bg); border-radius: 12px; padding: 10px; flex-grow: 1; text-align: center; }
         
-        .tab-pane {
-            display: none;
-        }
-        .tab-pane.active {
-            display: block;
-            animation: fadeIn 0.5s ease;
-        }
+        .total-balance-container { text-align: center; margin-bottom: 20px; }
+        .total-balance { font-size: 3rem; font-weight: 800; color: var(--secondary-color); }
         
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+        .clicker-section { display: flex; flex-direction: column; align-items: center; justify-content: center; flex-grow: 1; gap: 20px; }
+        #clickerBtn {
+            width: 250px; height: 250px; border-radius: 50%;
+            background: radial-gradient(circle, #00b8ff, #0056b3);
+            border: 5px solid #58baff;
+            animation: pulse 2s infinite ease-in-out;
+            transition: transform 0.1s ease;
+            display: flex; justify-content: center; align-items: center; position: relative; overflow: hidden;
         }
+        #clickerBtn:active { transform: scale(0.95); animation: none; }
+        #clickerBtn img { width: 180px; position: relative; z-index: 2; border-radius: 50%; }
+        .click-ripple { position: absolute; border-radius: 50%; background-color: rgba(255, 255, 255, 0.7); animation: click-ripple 0.5s ease-out forwards; z-index: 1; }
+        
+        .energy-bar-container { width: 80%; max-width: 300px; }
+        .energy-bar-container .progress { height: 12px; background-color: var(--card-bg); border-radius: 6px; }
+        .energy-bar-container .progress-bar { background: linear-gradient(90deg, var(--secondary-color) 0%, var(--primary-color) 100%); transition: width 0.3s ease; }
+        
+        .floating-text { position: absolute; font-size: 2.5rem; font-weight: 800; color: white; opacity: 1; animation: floatUp 1.5s ease-out forwards; pointer-events: none; text-shadow: 0 0 10px rgba(0,0,0,0.5); }
+        
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background-color: var(--bottom-nav-bg); display: flex; justify-content: space-around; padding: 10px 0; border-top-left-radius: 20px; border-top-right-radius: 20px; box-shadow: 0 -5px 20px rgba(0,0,0,0.3); }
+        .nav-item { display: flex; flex-direction: column; align-items: center; color: var(--text-muted); text-decoration: none; font-size: 0.8rem; }
+        .nav-item.active { color: var(--primary-color); }
+        .nav-item i { font-size: 1.5rem; margin-bottom: 5px; transition: transform 0.2s ease; }
+        .nav-item.active i { transform: scale(1.2); }
 
-        .points-display {
-            font-size: 1.5rem;
-            color: var(--primary-color);
-            font-weight: 700;
-            text-shadow: 0 0 10px var(--primary-color);
-        }
+        .tab-pane { display: none; animation: fadeIn 0.5s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .tab-pane.active { display: block; }
+
+        .item-card { display: flex; align-items: center; gap: 15px; background-color: var(--card-bg); padding: 10px; border-radius: 12px; margin-bottom: 10px; cursor: pointer; transition: background-color 0.2s ease; }
+        .item-card:hover { background-color: #36364d; }
+        .item-card-icon { font-size: 2rem; width: 50px; text-align: center; }
+        .item-card-details { flex-grow: 1; }
+        .item-card-details strong { font-size: 1.1rem; }
+        .item-level-badge { background-color: var(--primary-color); color: var(--bg-color-dark); font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; font-weight: bold; }
+        .item-cost { font-weight: bold; }
+        .item-progress { height: 4px; background-color: rgba(0,0,0,0.2); border-radius: 2px; margin-top: 5px; }
+        .item-progress-bar { height: 100%; background-color: var(--primary-color); border-radius: 2px; transition: width 0.3s ease; }
+
+        #toast-container { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); z-index: 9999; width: 90%; max-width: 400px; }
+        .toast-notification { background: #282a36; color: white; padding: 15px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); margin-bottom: 10px; border-left: 5px solid var(--primary-color); }
+        .toast-notification.error { border-left-color: var(--danger-color); }
+        .toast-notification.success { border-left-color: var(--success-color); }
         
-        .game-generator-card {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: rgba(0,0,0,0.2);
-            padding: 15px;
-            border-radius: 12px;
-            margin-bottom: 10px;
-        }
-        
-        .footer-link {
-            cursor: pointer;
-            color: var(--primary-color);
-            text-decoration: none;
-        }
+        .spin-container { text-align: center; padding-top: 20px; }
+        #wheel-container { position: relative; width: 300px; height: 300px; margin: 20px auto; }
+        #spin-wheel { width: 100%; height: 100%; border-radius: 50%; border: 8px solid #fff; background: conic-gradient(#0052D4 0% 12.5%, #4364F7 12.5% 25%, #6FB1FC 25% 37.5%, #009cff 37.5% 50%, #00e5ff 50% 62.5%, #4364F7 62.5% 75%, #0052D4 75% 87.5%, #6FB1FC 87.5% 100%); transition: transform 5s cubic-bezier(0.25, 1, 0.5, 1); }
+        #spin-pointer { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 20px solid transparent; border-right: 20px solid transparent; border-top: 30px solid #fff; }
+        .spin-segment-text { position: absolute; top: 50%; left: 50%; transform-origin: 0 0; color: white; font-weight: bold; text-shadow: 1px 1px 2px black; font-size: 0.9rem; }
     </style>
 </head>
 <body>
 
-<div class="main-container">
-    <header class="text-center mb-4">
-        <h1 class="display-4 fw-bold">🎬 MovieVerse</h1>
-        <p class="lead">Search Movies, Play Games & Earn Points!</p>
-    </header>
-
-    <!-- Navigation -->
-    <ul class="nav nav-tabs mb-4" id="main-tabs">
-        <li class="nav-item">
-            <a class="nav-link active" data-tab="search-view" href="#"><i class="fas fa-search me-2"></i>Movie Search</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" data-tab="game-view" href="#"><i class="fas fa-gamepad me-2"></i>Point Game</a>
-        </li>
-    </ul>
-
-    <!-- Main Content Area -->
-    <main>
-        <!-- Search View -->
-        <div id="search-view" class="tab-pane active">
-            <div class="row">
-                <div class="col-lg-8">
-                     <!-- Search Section -->
-                    <div class="glass-card">
-                        <div class="input-group">
-                            <input type="text" id="searchInput" class="form-control form-control-lg" placeholder="Enter movie name...">
-                            <button class="neon-btn" onclick="app.core.search()"><i class="fas fa-search"></i></button>
-                        </div>
-                    </div>
-                    <!-- Results Section -->
-                    <div id="results" class="row"></div>
-                </div>
-                <div class="col-lg-4">
-                    <!-- User Balance and Payout Section -->
-                    <div class="glass-card text-center">
-                        <h4 class="mb-3"><i class="fas fa-wallet me-2"></i>Your Balance</h4>
-                        <p class="points-display mb-1"><span id="pointsDisplay">0</span> <small>Points</small></p>
-                        <p class="text-muted" style="font-size: 0.9em;">24,000 Points = $1 USD</p>
-                        <hr style="border-color: rgba(255,255,255,0.2);">
-                        <h5 class="mb-3"><i class="fas fa-hand-holding-usd me-2"></i>Request Payout</h5>
-                        <div class="input-group">
-                            <select id="payoutMethod" class="form-select" onchange="app.ui.updatePlaceholder()">
-                                <option value="Binance">Binance</option>
-                                <option value="TG Wallet">Telegram Wallet</option>
-                            </select>
-                            <input type="text" id="payoutInfo" class="form-control">
-                        </div>
-                        <button class="neon-btn w-100 mt-3" onclick="app.core.requestPayout()">Withdraw</button>
-                        <small class="d-block mt-2 text-muted">Min. 24,000 points</small>
-                    </div>
-                </div>
-            </div>
-             <div id="countdown" class="text-center mt-4"></div>
-        </div>
-
-        <!-- Game View -->
-        <div id="game-view" class="tab-pane">
-            <div class="glass-card text-center">
-                <h2><i class="fas fa-rocket me-2"></i>Point Generator Game</h2>
-                <p>Use your points to buy generators that earn more points for you automatically!</p>
-                <div class="d-flex justify-content-center align-items-center gap-4">
-                     <div>
-                        <h4 class="mb-1">Your Points</h4>
-                        <p class="points-display" id="gamePointsDisplay">0</p>
-                    </div>
-                    <div>
-                        <h4 class="mb-1">Income</h4>
-                        <p class="points-display"><span id="totalPPSDisplay">0</span> <small>PPS</small></p>
-                    </div>
-                </div>
-            </div>
-            <div id="generators-list" class="row">
-                <!-- Game generators will be rendered here by JS -->
-            </div>
-        </div>
-        
-        <!-- Admin View -->
-        <div id="admin-panel" class="tab-pane">
-             <div class="glass-card">
-                <h1 class="text-center mb-4">🔑 Admin Panel</h1>
-                <h4 class="mb-3">Payout Requests</h4>
-                <div id="payout-requests-list" class="table-responsive"></div>
-                <button class="btn btn-danger mt-3" onclick="app.admin.logout()">Logout</button>
-            </div>
-        </div>
-    </main>
+<div id="app-container" class="main-container">
     
-    <footer class="text-center mt-5">
-        <p><span class="footer-link" data-bs-toggle="modal" data-bs-target="#adminLoginModal">Admin Login</span></p>
-    </footer>
-</div>
-
-
-<!-- Admin Login Modal -->
-<div class="modal fade" id="adminLoginModal" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content" style="background: #1d1a27; border: var(--glass-border);">
-      <div class="modal-header border-0">
-        <h5 class="modal-title">Admin Login</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-        <div class="mb-3"><label for="adminUser" class="form-label">Username</label><input type="text" class="form-control" id="adminUser"></div>
-        <div class="mb-3"><label for="adminPass" class="form-label">Password</label><input type="password" class="form-control" id="adminPass"></div>
-      </div>
-      <div class="modal-footer border-0">
-        <button type="button" class="neon-btn" onclick="app.admin.login()"><i class="fas fa-sign-in-alt me-2"></i>Login</button>
-      </div>
+    <!-- Exchange View (Clicker) -->
+    <div id="exchange-view" class="tab-pane active" style="display: flex; flex-direction: column; height: 100%;">
+        <div class="top-bar">
+            <div><small class="text-muted">User</small><div class="fw-bold"><i class="fas fa-user-circle"></i> Ashik Bro</div></div>
+            <div><small class="text-muted">Profit/Hour</small><div class="fw-bold"><i class="fas fa-rocket"></i> <span id="profitPerHour">0</span></div></div>
+        </div>
+        <div class="total-balance-container"><span id="totalBalance" class="total-balance">0</span></div>
+        <div class="clicker-section">
+            <div id="click-area" style="position: relative;"><button id="clickerBtn"><img src="https://i.ibb.co/3kC73xR/taptap-coin.png" alt="taptap-logo"></button></div>
+            <div class="energy-bar-container text-center">
+                <span class="fw-bold"><i class="fas fa-bolt text-warning"></i> <span id="energyCount">500</span> / 500</span>
+                <div class="progress mt-1"><div id="energyBar" class="progress-bar" role="progressbar"></div></div>
+            </div>
+        </div>
     </div>
-  </div>
+    
+    <!-- Mine, Airdrop, Spin Views -->
+    <div id="mine-view" class="tab-pane"></div>
+    <div id="airdrop-view" class="tab-pane"></div>
+    <div id="spin-view" class="tab-pane"></div>
+
 </div>
 
+<!-- Bottom Navigation -->
+<nav class="bottom-nav">
+    <a href="#" class="nav-item active" data-tab="exchange-view"><i class="fas fa-sync-alt"></i><span>Exchange</span></a>
+    <a href="#" class="nav-item" data-tab="mine-view"><i class="fas fa-gavel"></i><span>Mine</span></a>
+    <a href="#" class="nav-item" data-tab="spin-view"><i class="fas fa-dharmachakra"></i><span>Spin</span></a>
+    <a href="#" class="nav-item" data-tab="airdrop-view"><i class="fas fa-parachute-box"></i><span>Airdrop</span></a>
+</nav>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<div id="toast-container"></div>
+
 <script>
 // ===================================================================================
-//  APP STRUCTURE
+//  PointSwap v2.0 - Stable & Complete
 // ===================================================================================
 const app = {
-    // --- CONFIG & STATE ---
     config: {
-        YT_API_KEY: 'AIzaSyAx4ZvLaNAVEj7wXjjt-711qr81d_D3GgY',
-        ADMIN_USER: 'ashikbro',      // Updated Username
-        ADMIN_PASS: '1qa2wsz3',        // Updated Password
-        POINTS_PER_REWARDED_AD: 50,
-        POINTS_PER_DOWNLOAD_AD: 30,
-        POINTS_PER_INTERVAL_AD: 100,
-        WITHDRAWAL_THRESHOLD: 24000,
-        AD_LOAD_TIMEOUT: 12000,
-        GAME_TICK_INTERVAL: 1000, // 1 second
+        SAVE_INTERVAL: 5000,
+        ENERGY_REGEN_RATE: 2, MAX_ENERGY: 500,
+        AD_LOAD_TIMEOUT: 15000,
+        DAILY_AD_WATCH_LIMIT: 20, AD_WATCH_REWARD: 1000,
+        DAILY_SPIN_LIMIT: 10,
+        SPIN_REWARDS: [18, 50, 100, 25, 200, 75, 40, 150],
+        DAILY_LOGIN_REWARD: 5000,
+        SOCIAL_TASK_REWARD: 2500,
     },
     state: {
-        userPoints: 0,
-        adInterval: null,
-        game: {
-            totalPPS: 0,
-            generators: [
-                { id: 'g1', name: 'Auto Clicker', icon: 'fa-mouse-pointer', owned: 0, baseCost: 50, pps: 1 },
-                { id: 'g2', name: 'Script Bot', icon: 'fa-robot', owned: 0, baseCost: 500, pps: 8 },
-                { id: 'g3', name: 'Server Farm', icon: 'fa-server', owned: 0, baseCost: 4000, pps: 50 },
-                { id: 'g4', name: 'AI Network', icon: 'fa-brain', owned: 0, baseCost: 25000, pps: 250 },
-            ]
-        }
+        userPoints: 0, energy: 500, profitPerHour: 0,
+        upgrades: [
+            { id: 'u1', name: 'Trading Bots', icon: 'fa-robot', level: 0, baseCost: 50, profitPerLevel: 10 },
+            { id: 'u2', name: 'Liquidity Pools', icon: 'fa-water', level: 0, baseCost: 500, profitPerLevel: 80 },
+            { id: 'u3', name: 'DEX Listing', icon: 'fa-chart-line', level: 0, baseCost: 4000, profitPerLevel: 500 },
+            { id: 'u4', name: 'Mainnet Launch', icon: 'fa-rocket', level: 0, baseCost: 25000, profitPerLevel: 2500 },
+        ],
+        pointsPerTap: 1,
+        dailyAdsWatched: 0, lastAdWatchDate: '',
+        dailySpinsUsed: 0, lastSpinDate: '',
+        lastLoginDate: '',
+        claimedSocialTasks: { telegram: false, x: false },
+        isSpinning: false,
     },
 
-    // --- INITIALIZATION ---
     init() {
         document.addEventListener('DOMContentLoaded', () => {
-            this.data.load(); // Load all data from localStorage
+            this.data.load();
             this.ui.setupEventListeners();
             this.ui.updateAllDisplays();
-            this.ui.updatePlaceholder();
-            this.game.init();
-
-            if (sessionStorage.getItem('isAdminLoggedIn') === 'true') {
-                this.admin.showPanel();
-            }
+            
+            setInterval(() => this.core.regenerateEnergy(), 1000);
+            setInterval(() => this.core.accumulatePassiveIncome(), 1000);
+            setInterval(() => this.data.save(), this.config.SAVE_INTERVAL);
         });
     },
     
-    // ===================================================================================
-    //  UI (User Interface) Module
-    // ===================================================================================
     ui: {
+        animateValue(element, start, end, duration) {
+            if (!element) return;
+            const targetEnd = Math.floor(end);
+            if (start === targetEnd) { element.innerText = targetEnd.toLocaleString(); return; }
+            const range = targetEnd - start;
+            if(range === 0) return;
+            let startTime = null;
+            const step = (timestamp) => {
+                if (!startTime) startTime = timestamp;
+                const progress = Math.min((timestamp - startTime) / duration, 1);
+                const currentVal = Math.floor(start + range * progress);
+                element.innerText = currentVal.toLocaleString();
+                if (progress < 1) window.requestAnimationFrame(step);
+            };
+            window.requestAnimationFrame(step);
+        },
         setupEventListeners() {
-            document.querySelectorAll('#main-tabs .nav-link').forEach(tab => {
-                tab.addEventListener('click', (e) => {
+            document.getElementById("clickerBtn").addEventListener('click', e => app.core.handleTap(e));
+            document.querySelectorAll(".bottom-nav .nav-item").forEach(tab => {
+                if(tab.classList.contains("disabled")) return;
+                tab.addEventListener("click", e => {
                     e.preventDefault();
-                    const targetTabId = e.target.getAttribute('data-tab');
-                    if (targetTabId) this.showTab(targetTabId);
+                    this.showTab(e.currentTarget.getAttribute("data-tab"));
                 });
             });
         },
         showTab(tabId) {
-            document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
-            document.querySelectorAll('#main-tabs .nav-link').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll(".tab-pane").forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.bottom-nav .nav-item').forEach(t => t.classList.remove('active'));
+            document.getElementById(tabId)?.classList.add('active');
+            document.querySelector(`[data-tab="${tabId}"]`)?.classList.add('active');
             
-            document.getElementById(tabId).classList.add('active');
-            document.querySelector(`[data-tab="${tabId}"]`).classList.add('active');
+            if (tabId === 'mine-view') this.renderMine();
+            if (tabId === 'airdrop-view') this.airdrop.renderTasks();
+            if (tabId === 'spin-view') this.spin.renderSpinUI();
         },
         updateAllDisplays() {
             this.updatePointsDisplay();
-            this.renderGameGenerators();
-            this.updateTotalPPSDisplay();
+            this.updateEnergyDisplay();
+            this.updateProfitDisplay();
+            const activeTabId = document.querySelector('.tab-pane.active')?.id;
+            if(activeTabId) this.showTab(activeTabId);
         },
         updatePointsDisplay() {
-            const points = Math.floor(app.state.userPoints);
-            document.getElementById('pointsDisplay').innerText = points;
-            document.getElementById('gamePointsDisplay').innerText = points;
+            const balanceEl = document.getElementById('totalBalance');
+            if(!balanceEl) return;
+            const currentDisplayValue = parseInt(balanceEl.innerText.replace(/,/g, '')) || 0;
+            const newPointValue = Math.floor(app.state.userPoints);
+            if (currentDisplayValue !== newPointValue) {
+                this.animateValue(balanceEl, currentDisplayValue, newPointValue, 300);
+            }
         },
-        updateTotalPPSDisplay() {
-             document.getElementById('totalPPSDisplay').innerText = app.state.game.totalPPS.toFixed(1);
+        updateEnergyDisplay() {
+            document.getElementById('energyCount').innerText = `${Math.floor(app.state.energy)} / ${app.config.MAX_ENERGY}`;
+            document.getElementById('energyBar').style.width = `${(app.state.energy / app.config.MAX_ENERGY) * 100}%`;
         },
-        renderGameGenerators() {
-            const container = document.getElementById('generators-list');
-            container.innerHTML = '';
-            app.state.game.generators.forEach(gen => {
-                const currentCost = app.game.calculateCost(gen);
-                container.innerHTML += `
-                    <div class="col-md-6">
-                        <div class="game-generator-card">
-                            <div>
-                                <h5 class="mb-0"><i class="fas ${gen.icon} me-2 text-primary"></i>${gen.name}</h5>
-                                <small class="text-muted">Owned: ${gen.owned} | +${gen.pps} PPS each</small>
-                            </div>
-                            <div>
-                                <button class="neon-btn btn-sm" onclick="app.game.buyGenerator('${gen.id}')" ${app.state.userPoints < currentCost ? 'disabled' : ''}>
-                                    Buy for ${currentCost}
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                `;
+        updateProfitDisplay() {
+            document.getElementById('profitPerHour').innerText = `+${app.state.profitPerHour.toLocaleString()}`;
+        },
+        renderMine() {
+            const container = document.getElementById('mine-view');
+            container.innerHTML = '<h2 class="text-center mb-4">Mine Upgrades</h2>';
+            app.state.upgrades.forEach(upg => {
+                const cost = app.core.calculateCost(upg);
+                const progress = Math.min((app.state.userPoints / cost) * 100, 100);
+                container.innerHTML += `<div class="item-card" onclick="app.core.buyUpgrade('${upg.id}')"><div class="item-card-icon"><i class="fas ${upg.icon}"></i></div><div class="item-card-details"><strong>${upg.name}</strong><small class="text-muted">Profit: +${upg.profitPerLevel.toLocaleString()} PPH</small><div class="item-progress"><div class="item-progress-bar" style="width: ${progress}%"></div></div></div><div class="d-flex flex-column align-items-center"><span class="item-level-badge">Lvl ${upg.level}</span><strong class="item-cost mt-1">${cost.toLocaleString()}</strong></div></div>`;
             });
         },
-        updatePlaceholder() {
-            const method = document.getElementById('payoutMethod').value;
-            const infoInput = document.getElementById('payoutInfo');
-            if (method === 'Binance') infoInput.placeholder = 'Your Binance Pay ID';
-            else if (method === 'TG Wallet') infoInput.placeholder = 'Your Telegram @Username';
+        showFloatingText(x, y) {
+            const text = document.createElement('div');
+            text.className = 'floating-text';
+            text.innerText = `+${app.state.pointsPerTap}`;
+            text.style.left = `${x}px`;
+            text.style.top = `${y}px`;
+            document.getElementById('click-area').appendChild(text);
+            setTimeout(() => text.remove(), 1500);
         },
-        disableActions(videoId) {
-            const btns = document.querySelectorAll(`#card-${videoId} button`);
-            if (btns.length === 0) return false;
-            btns.forEach(btn => btn.disabled = true);
-            return true;
+        showClickRipple(x, y) {
+            const clickArea = document.getElementById('clickerBtn');
+            const ripple = document.createElement('div');
+            ripple.className = 'click-ripple';
+            const size = clickArea.offsetWidth;
+            ripple.style.width = ripple.style.height = `${size}px`;
+            ripple.style.left = `${x - size / 2}px`;
+            ripple.style.top = `${y - size / 2}px`;
+            clickArea.appendChild(ripple);
+            setTimeout(() => ripple.remove(), 500);
         },
-        enableActions(videoId) {
-            const btns = document.querySelectorAll(`#card-${videoId} button`);
-            btns.forEach(btn => btn.disabled = false);
-        }
+        showToast(message, type = 'info') {
+             const container = document.getElementById('toast-container');
+             if (!container) return;
+             const toast = document.createElement('div');
+             toast.className = `toast-notification ${type}`;
+             const iconClass = type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle';
+             toast.innerHTML = `<i class="fas ${iconClass} me-2"></i> ${message}`;
+             container.appendChild(toast);
+             setTimeout(() => toast.remove(), 3000);
+        },
     },
 
-    // ===================================================================================
-    //  CORE LOGIC (Search, Ads, Payout)
-    // ===================================================================================
     core: {
-        async search() {
-            const query = document.getElementById('searchInput').value.trim();
-            if (!query) return alert('❌ Please enter a movie name.');
-            
-            const resultsDiv = document.getElementById('results');
-            resultsDiv.innerHTML = '<div class="text-center p-5"><i class="fas fa-spinner fa-spin fa-3x"></i></div>';
-            
-            try {
-                const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&q=${encodeURIComponent(query)} full movie&key=${app.config.YT_API_KEY}&maxResults=4`);
-                const data = await res.json();
-                
-                if (data.error) throw new Error(data.error.message);
-                resultsDiv.innerHTML = '';
-                
-                if (!data.items || data.items.length === 0) {
-                    resultsDiv.innerHTML = '<p class="text-center">😢 No movies found. Try a different name.</p>';
-                    return;
-                }
-
-                data.items.forEach(item => {
-                    const videoId = item.id.videoId;
-                    resultsDiv.innerHTML += `
-                        <div class="col-md-6" id="card-${videoId}">
-                            <div class="glass-card">
-                                <iframe class="rounded" width="100%" height="200" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>
-                                <h6 class="mt-2 text-truncate">${item.snippet.title}</h6>
-                                <div class="d-flex gap-2 mt-2">
-                                    <button class="neon-btn btn-sm flex-grow-1" onclick="app.core.triggerRewardedInterstitial('${videoId}')"><i class="fas fa-eye me-1"></i> Watch (+${app.config.POINTS_PER_REWARDED_AD})</button>
-                                    <button class="neon-btn btn-sm flex-grow-1" onclick="app.core.showAdThenDownload('${videoId}')"><i class="fas fa-download me-1"></i> DL (+${app.config.POINTS_PER_DOWNLOAD_AD})</button>
-                                </div>
-                                <div class="loader text-center mt-2" style="display:none; color:var(--primary-color);"><small>Loading Ad...</small></div>
-                            </div>
-                        </div>`;
-                });
-                
-                clearInterval(app.state.adInterval);
-                app.state.adInterval = setInterval(this.showCountdownAndAd, 600000); // 10 mins
-            } catch (error) {
-                resultsDiv.innerHTML = `<p class="text-center text-danger">API Error: ${error.message}</p>`;
+        handleTap(e) {
+            if (app.state.energy >= app.state.pointsPerTap) {
+                app.state.energy -= app.state.pointsPerTap;
+                app.state.userPoints += app.state.pointsPerTap;
+                app.ui.updatePointsDisplay();
+                app.ui.updateEnergyDisplay();
+                const rect = e.currentTarget.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                app.ui.showFloatingText(x, y);
+                app.ui.showClickRipple(x, y);
+                if (window.navigator.vibrate) window.navigator.vibrate(50);
             }
         },
-        showAdWithTimeout() {
-            return new Promise((resolve, reject) => {
-                const timeoutId = setTimeout(() => reject(new Error('Ad timed out')), app.config.AD_LOAD_TIMEOUT);
-                show_9563904().then(res => { clearTimeout(timeoutId); resolve(res); }).catch(err => { clearTimeout(timeoutId); reject(err); });
-            });
-        },
-        showAdThenDownload(videoId) {
-            if (!app.ui.disableActions(videoId)) return;
-            document.querySelector(`#card-${videoId} .loader`).style.display = 'block';
-
-            this.showAdWithTimeout()
-                .then(() => {
-                    app.data.updatePoints(app.config.POINTS_PER_DOWNLOAD_AD);
-                    alert(`✅ You earned ${app.config.POINTS_PER_DOWNLOAD_AD} points!`);
-                })
-                .catch(e => {
-                    console.error('Download Ad Error:', e.message);
-                    alert('⚠️ Ad could not be loaded. Starting download directly.');
-                })
-                .finally(() => {
-                    app.ui.enableActions(videoId);
-                    document.querySelector(`#card-${videoId} .loader`).style.display = 'none';
-                    window.open(`https://www.y2mate.com/youtube/${videoId}`, '_blank');
-                });
-        },
-        triggerRewardedInterstitial(videoId) {
-            if (!app.ui.disableActions(videoId)) return;
-            document.querySelector(`#card-${videoId} .loader`).style.display = 'block';
-
-            this.showAdWithTimeout()
-                .then(() => {
-                    app.data.updatePoints(app.config.POINTS_PER_REWARDED_AD);
-                    alert(`✅ Ad watched! You earned ${app.config.POINTS_PER_REWARDED_AD} points.`);
-                })
-                .catch(e => {
-                    console.error('Rewarded Ad Error:', e.message);
-                    alert('⚠️ Ad could not be loaded. Please try again.');
-                })
-                .finally(() => {
-                    app.ui.enableActions(videoId);
-                    document.querySelector(`#card-${videoId} .loader`).style.display = 'none';
-                });
-        },
-        showCountdownAndAd() {
-             // Logic for periodic ad
-        },
-        requestPayout() {
-            const method = document.getElementById('payoutMethod').value;
-            const details = document.getElementById('payoutInfo').value.trim();
-            if (!details) return alert('❌ Please enter your payout details.');
-            if (app.state.userPoints < app.config.WITHDRAWAL_THRESHOLD) return alert(`❌ You need at least ${app.config.WITHDRAWAL_THRESHOLD} points.`);
-            
-            const usdAmount = Math.floor(app.state.userPoints / 24000);
-            const pointsToDeduct = usdAmount * 24000;
-            
-            if (confirm(`Withdraw ${pointsToDeduct} points for $${usdAmount} to '${method}: ${details}'?`)) {
-                app.data.savePayoutRequest(method, details, pointsToDeduct, usdAmount);
-                app.data.updatePoints(-pointsToDeduct);
-                alert(`✅ Success! Your request has been submitted.`);
-                document.getElementById('payoutInfo').value = '';
-            }
-        }
-    },
-    
-    // ===================================================================================
-    //  GAME Module
-    // ===================================================================================
-    game: {
-        init() {
-            this.calculateTotalPPS();
-            setInterval(this.gameLoop, app.config.GAME_TICK_INTERVAL);
-        },
-        gameLoop() {
-            if (app.state.game.totalPPS > 0) {
-                const pointsThisTick = app.state.game.totalPPS * (app.config.GAME_TICK_INTERVAL / 1000);
-                app.data.updatePoints(pointsThisTick, false); // Update without saving every tick to reduce overhead
+        regenerateEnergy() {
+            if (app.state.energy < app.config.MAX_ENERGY) {
+                app.state.energy = Math.min(app.config.MAX_ENERGY, app.state.energy + app.config.ENERGY_REGEN_RATE);
+                app.ui.updateEnergyDisplay();
             }
         },
-        calculateCost(generator) {
-            return Math.floor(generator.baseCost * Math.pow(1.15, generator.owned));
+        accumulatePassiveIncome() {
+            const incomePerSecond = app.state.profitPerHour / 3600;
+            if (incomePerSecond > 0) {
+                 const oldValue = app.state.userPoints;
+                 app.state.userPoints += incomePerSecond;
+                 app.ui.animateValue(document.getElementById('totalBalance'), oldValue, app.state.userPoints, 1000);
+            }
         },
-        calculateTotalPPS() {
-            let total = 0;
-            app.state.game.generators.forEach(gen => {
-                total += gen.owned * gen.pps;
-            });
-            app.state.game.totalPPS = total;
-            app.ui.updateTotalPPSDisplay();
+        calculateCost(upgrade) { return Math.floor(upgrade.baseCost * Math.pow(1.2, upgrade.level)); },
+        calculateProfitPerHour() {
+            app.state.profitPerHour = app.state.upgrades.reduce((total, upg) => total + (upg.level * upg.profitPerLevel), 0);
+            app.ui.updateProfitDisplay();
         },
-        buyGenerator(genId) {
-            const generator = app.state.game.generators.find(g => g.id === genId);
-            if (!generator) return;
-            
-            const cost = this.calculateCost(generator);
+        buyUpgrade(upgId) {
+            const upg = app.state.upgrades.find(u => u.id === upgId);
+            const cost = this.calculateCost(upg);
             if (app.state.userPoints >= cost) {
-                app.data.updatePoints(-cost);
-                generator.owned++;
-                this.calculateTotalPPS();
-                app.ui.renderGameGenerators();
-                app.data.save(); // Save game state after purchase
+                app.state.userPoints -= cost;
+                upg.level++;
+                this.calculateProfitPerHour();
+                app.ui.updateAllDisplays();
+                app.data.save();
             } else {
-                alert("Not enough points!");
+                app.ui.showToast("Not enough points!", "error");
             }
+        },
+        showMonetagAd() {
+            return new Promise((resolve, reject) => {
+                if (typeof show_s === 'undefined') return reject(new Error('Ad library not loaded.'));
+                const timeoutId = setTimeout(() => reject(new Error('Ad timed out')), app.config.AD_LOAD_TIMEOUT);
+                show_s().then(res => { clearTimeout(timeoutId); resolve(res); }).catch(err => { clearTimeout(timeoutId); reject(err); });
+            });
+        },
+    },
+    
+    airdrop: {
+        renderTasks() {
+            const container = document.getElementById('airdrop-view');
+            container.innerHTML = `<h2 class="text-center mb-4">Airdrop Tasks</h2>
+                ${this.renderDailyLoginTask()}
+                ${this.renderDailyAdTask()}
+                ${this.renderSocialTask('telegram', 'Join TG Channel', 'fab fa-telegram')}
+                ${this.renderSocialTask('x', 'Follow on X', 'fab fa-twitter')}`;
+        },
+        renderDailyLoginTask() {
+            const isCompleted = app.state.lastLoginDate === new Date().toISOString().slice(0, 10);
+            return `<div class="item-card"><div class="item-card-icon"><i class="fas fa-calendar-check"></i></div><div class="item-card-details"><strong>Daily Login Bonus</strong><small class="text-muted">Reward: ${app.config.DAILY_LOGIN_REWARD.toLocaleString()} Pts</small></div><button class="btn btn-sm btn-primary" onclick="app.airdrop.claimDailyLogin()" ${isCompleted ? 'disabled' : ''}>${isCompleted ? 'Claimed' : 'Claim'}</button></div>`;
+        },
+        claimDailyLogin() {
+            app.state.userPoints += app.config.DAILY_LOGIN_REWARD;
+            app.state.lastLoginDate = new Date().toISOString().slice(0, 10);
+            app.ui.showToast(`Daily bonus claimed! +${app.config.DAILY_LOGIN_REWARD.toLocaleString()} Pts`, "success");
+            app.ui.updateAllDisplays(); app.data.save();
+        },
+        renderDailyAdTask() {
+            const remaining = app.config.DAILY_AD_WATCH_LIMIT - app.state.dailyAdsWatched;
+            const isCompleted = remaining <= 0;
+            return `<div class="item-card"><div class="item-card-icon"><i class="fas fa-video"></i></div><div class="item-card-details"><strong>Daily Ad Views</strong><small class="text-muted">Reward: ${app.config.AD_WATCH_REWARD.toLocaleString()} Pts</small><div class="item-progress"><div class="item-progress-bar" style="width:${(app.state.dailyAdsWatched/app.config.DAILY_AD_WATCH_LIMIT)*100}%"></div></div></div><button class="btn btn-sm btn-primary" onclick="app.airdrop.watchDailyAd(event)" ${isCompleted ? 'disabled' : ''}>${isCompleted ? 'Completed' : `Watch (${remaining})`}</button></div>`;
+        },
+        watchDailyAd(event) {
+            if (app.state.dailyAdsWatched >= app.config.DAILY_AD_WATCH_LIMIT) return app.ui.showToast("All daily ads watched.", "error");
+            const watchBtn = event.target;
+            watchBtn.disabled = true; watchBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            app.core.showMonetagAd().then(() => {
+                app.state.userPoints += app.config.AD_WATCH_REWARD; app.state.dailyAdsWatched++;
+                app.ui.showToast(`+${app.config.AD_WATCH_REWARD.toLocaleString()} points!`, "success");
+                this.renderTasks();
+                app.ui.updatePointsDisplay();
+                app.data.save();
+            }).catch(err => app.ui.showToast("Ad failed. Try again.", "error")).finally(() => { watchBtn.disabled = false; this.renderTasks(); });
+        },
+        renderSocialTask(id, text, icon) {
+            const isClaimed = app.state.claimedSocialTasks[id];
+            return `<div class="item-card"><div class="item-card-icon"><i class="${icon}"></i></div><div class="item-card-details"><strong>${text}</strong><small class="text-muted">Reward: ${app.config.SOCIAL_TASK_REWARD.toLocaleString()} Pts</small></div><button class="btn btn-sm btn-primary" onclick="app.airdrop.claimSocialTask('${id}')" ${isClaimed ? 'disabled' : ''}>${isClaimed ? 'Claimed' : 'Claim'}</button></div>`;
+        },
+        claimSocialTask(id) {
+            app.state.claimedSocialTasks[id] = true;
+            app.state.userPoints += app.config.SOCIAL_TASK_REWARD;
+            app.ui.showToast(`Task complete! +${app.config.SOCIAL_TASK_REWARD.toLocaleString()} Pts`, "success");
+            this.renderTasks(); app.ui.updatePointsDisplay(); app.data.save();
         }
     },
     
-    // ===================================================================================
-    //  DATA (Persistence) Module
-    // ===================================================================================
+    spin: {
+        renderWheelSegments() {
+            const wheel = document.getElementById('spin-wheel');
+            if(!wheel) return; wheel.innerHTML = '';
+            const rewards = app.config.SPIN_REWARDS; const segmentAngle = 360 / rewards.length;
+            rewards.forEach((reward, i) => {
+                const text = document.createElement('div');
+                text.className = 'spin-segment-text'; text.innerText = reward.toLocaleString();
+                const angle = (segmentAngle * i) + (segmentAngle / 2);
+                text.style.transform = `rotate(${angle}deg) translate(80px) rotate(-${angle}deg)`;
+                wheel.appendChild(text);
+            });
+        },
+        renderSpinUI() {
+            const container = document.getElementById('spin-view');
+            if(!container) return;
+            const spinsLeft = app.config.DAILY_SPIN_LIMIT - app.state.dailySpinsUsed;
+            container.innerHTML = `<div class="spin-container"><h2><i class="fas fa-dharmachakra"></i> Daily Spin</h2><p class="text-muted">Watch an ad to spin the wheel for a surprise reward!</p><p>Spins left today: <strong id="spinsLeft">${spinsLeft}</strong></p><div id="wheel-container"><div id="spin-wheel"></div><div id="spin-pointer"></div></div><button id="spinBtn" class="btn btn-primary btn-lg mt-3" onclick="app.spin.attemptSpin()"><i class="fas fa-play"></i> Watch Ad & Spin</button></div>`;
+            document.getElementById('spinBtn').disabled = (spinsLeft <= 0 || app.state.isSpinning);
+            this.renderWheelSegments();
+        },
+        attemptSpin() {
+            if (app.state.isSpinning || app.state.dailySpinsUsed >= app.config.DAILY_SPIN_LIMIT) return;
+            const spinBtn = document.getElementById('spinBtn');
+            spinBtn.disabled = true; spinBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading Ad...';
+            app.core.showMonetagAd().then(() => this._doSpin()).catch(err => {
+                app.ui.showToast("Ad failed. Cannot spin.", "error");
+                spinBtn.disabled = false; spinBtn.innerHTML = '<i class="fas fa-play"></i> Watch Ad & Spin';
+            });
+        },
+        _doSpin() {
+            app.state.isSpinning = true; this.renderSpinUI();
+            const wheel = document.getElementById('spin-wheel');
+            const rewards = app.config.SPIN_REWARDS; const segmentAngle = 360 / rewards.length;
+            const randomIndex = Math.floor(Math.random() * rewards.length); const prize = rewards[randomIndex];
+            const randomOffset = (Math.random() - 0.5) * segmentAngle * 0.8;
+            const targetAngle = 360 - (randomIndex * segmentAngle + randomOffset);
+            wheel.style.transform = `rotate(${targetAngle + 360 * 5}deg)`;
+            setTimeout(() => {
+                app.state.userPoints += prize; app.state.dailySpinsUsed++; app.state.isSpinning = false;
+                app.ui.showToast(`You won ${prize.toLocaleString()} points!`, "success");
+                app.ui.updateAllDisplays(); app.data.save();
+            }, 5500);
+        }
+    },
+    
     data: {
-        updatePoints(amount, save = true) {
-            app.state.userPoints += amount;
-            app.ui.updatePointsDisplay();
-            if (save) this.save();
-        },
-        savePayoutRequest(method, details, points, amount) {
-            const requests = this.loadPayoutRequests();
-            requests.push({ method, details, points, amount, date: new Date().toLocaleString() });
-            localStorage.setItem('payoutRequests', JSON.stringify(requests));
-        },
-        loadPayoutRequests() {
-            return JSON.parse(localStorage.getItem('payoutRequests')) || [];
-        },
         save() {
             const dataToSave = {
-                userPoints: app.state.userPoints,
-                gameGenerators: app.state.game.generators.map(g => ({id: g.id, owned: g.owned}))
+                userPoints: app.state.userPoints, energy: app.state.energy,
+                upgrades: app.state.upgrades.map(u => ({ id: u.id, level: u.level })),
+                dailyAdsWatched: app.state.dailyAdsWatched, lastAdWatchDate: app.state.lastAdWatchDate,
+                dailySpinsUsed: app.state.dailySpinsUsed, lastSpinDate: app.state.lastSpinDate,
+                lastLoginDate: app.state.lastLoginDate, claimedSocialTasks: app.state.claimedSocialTasks,
             };
-            localStorage.setItem('movieVerseData', JSON.stringify(dataToSave));
+            localStorage.setItem('pointSwapData', JSON.stringify(dataToSave));
         },
         load() {
-            const savedData = JSON.parse(localStorage.getItem('movieVerseData'));
-            if (savedData) {
-                app.state.userPoints = savedData.userPoints || 0;
-                if(savedData.gameGenerators) {
-                    savedData.gameGenerators.forEach(savedGen => {
-                        const gameGen = app.state.game.generators.find(g => g.id === savedGen.id);
-                        if(gameGen) gameGen.owned = savedGen.owned;
-                    });
-                }
-            }
-        }
-    },
+            const saved = JSON.parse(localStorage.getItem('pointSwapData'));
+            if (!saved) { this.resetDailyTasks(); return; }
+            const today = new Date().toISOString().slice(0, 10);
+            app.state.userPoints = saved.userPoints || 0;
+            app.state.energy = saved.energy !== undefined ? saved.energy : app.config.MAX_ENERGY;
+            
+            if (saved.lastAdWatchDate === today) app.state.dailyAdsWatched = saved.dailyAdsWatched || 0;
+            else app.state.dailyAdsWatched = 0;
+            app.state.lastAdWatchDate = today;
 
-    // ===================================================================================
-    //  ADMIN Module
-    // ===================================================================================
-    admin: {
-        login() {
-            const user = document.getElementById('adminUser').value;
-            const pass = document.getElementById('adminPass').value;
-            if (user === app.config.ADMIN_USER && pass === app.config.ADMIN_PASS) {
-                sessionStorage.setItem('isAdminLoggedIn', 'true');
-                bootstrap.Modal.getInstance(document.getElementById('adminLoginModal')).hide();
-                this.showPanel();
-            } else {
-                alert('Invalid credentials!');
-            }
+            if (saved.lastSpinDate === today) app.state.dailySpinsUsed = saved.dailySpinsUsed || 0;
+            else app.state.dailySpinsUsed = 0;
+            app.state.lastSpinDate = today;
+            
+            app.state.lastLoginDate = saved.lastLoginDate || '';
+            app.state.claimedSocialTasks = saved.claimedSocialTasks || { telegram: false, x: false };
+            if (saved.upgrades) saved.upgrades.forEach(su => { const u = app.state.upgrades.find(upg => upg.id === su.id); if (u) u.level = su.level; });
+            app.core.calculateProfitPerHour();
         },
-        logout() {
-            sessionStorage.removeItem('isAdminLoggedIn');
-            app.ui.showTab('search-view'); // Go back to main view
-            document.getElementById('admin-panel').classList.remove('active');
-        },
-        showPanel() {
-            app.ui.showTab('admin-panel');
-            this.renderRequests();
-        },
-        renderRequests() {
-            const requests = app.data.loadPayoutRequests();
-            const listDiv = document.getElementById('payout-requests-list');
-            if(requests.length === 0) {
-                 listDiv.innerHTML = '<p>No pending payout requests.</p>';
-                 return;
-            }
-            let table = '<table class="table table-dark table-hover"><thead><tr><th>Date</th><th>Method</th><th>Details</th><th>Amount</th><th>Action</th></tr></thead><tbody>';
-            requests.forEach((req, index) => {
-                table += `
-                    <tr>
-                        <td>${req.date}</td>
-                        <td><span class="badge bg-info text-dark">${req.method}</span></td>
-                        <td>${req.details}</td>
-                        <td>$${req.amount} (${req.points} Pts)</td>
-                        <td><button class="btn btn-sm btn-outline-danger" onclick="app.admin.deleteRequest(${index})"><i class="fas fa-trash"></i></button></td>
-                    </tr>`;
-            });
-            table += '</tbody></table>';
-            listDiv.innerHTML = table;
-        },
-        deleteRequest(index) {
-            if(confirm('Delete this request? This action cannot be undone.')) {
-                let requests = app.data.loadPayoutRequests();
-                requests.splice(index, 1);
-                localStorage.setItem('payoutRequests', JSON.stringify(requests));
-                this.renderRequests();
-            }
+        resetDailyTasks(){
+            const today = new Date().toISOString().slice(0, 10);
+            app.state.lastAdWatchDate = today;
+            app.state.lastSpinDate = today;
         }
     }
 };
 
 app.init();
 </script>
-<script src='//libtl.com/sdk.js' data-zone='9563904' data-sdk='show_9563904'></script>
-</body>
-</html><script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-    // --- Configuration ---
-    const YT_API_KEY = 'AIzaSyAx4ZvLaNAVEj7wXjjt-711qr81d_D3GgY';
-    const ADMIN_USER = 'superadmin';
-    const ADMIN_PASS = 'Secret@2024';
-    let adInterval;
-    let userPoints = 0;
-    const POINTS_PER_REWARDED_AD = 50;
-    const POINTS_PER_DOWNLOAD_AD = 30;
-    const POINTS_PER_INTERVAL_AD = 100;
-    const WITHDRAWAL_THRESHOLD = 24000;
-    const AD_LOAD_TIMEOUT = 12000; // 12 seconds timeout for ads
-
-    // --- Initialization ---
-    document.addEventListener('DOMContentLoaded', () => {
-        // ... (rest of the initialization logic is the same)
-        updatePlaceholder();
-        if (sessionStorage.getItem('isAdminLoggedIn') === 'true') {
-            showAdminPanel();
-        } else {
-            loadUserPoints();
-        }
-    });
-
-    // --- New Function to Handle Ad with Timeout ---
-    function showAdWithTimeout() {
-        return new Promise((resolve, reject) => {
-            // Set a timer. If it finishes first, the ad has timed out.
-            const timeoutId = setTimeout(() => {
-                reject(new Error('Ad timed out'));
-            }, AD_LOAD_TIMEOUT);
-
-            // Try to show the ad
-            show_9563904()
-                .then(result => {
-                    clearTimeout(timeoutId); // Ad loaded, so clear the timeout
-                    resolve(result);
-                })
-                .catch(err => {
-                    clearTimeout(timeoutId); // Ad failed, clear the timeout
-                    reject(err);
-                });
-        });
-    }
-
-    // --- Ad & Monetization Functions (Updated) ---
-    function showAdThenDownload(videoId) {
-        if (!disableActions(videoId)) return;
-        document.getElementById(`loader-${videoId}`).style.display = 'block';
-
-        showAdWithTimeout().then(() => {
-            // Ad was successful
-            updateUserPoints(POINTS_PER_DOWNLOAD_AD);
-            alert(`✅ You earned ${POINTS_PER_DOWNLOAD_AD} points! Your download will start now.`);
-        }).catch(e => {
-            // Ad failed or timed out
-            console.error('Ad Error or Timeout:', e.message);
-            alert('⚠️ Ad could not be loaded. Starting download directly.');
-        }).finally(() => {
-            // This will run regardless of success or failure
-            enableActions(videoId);
-            document.getElementById(`loader-${videoId}`).style.display = 'none';
-            window.open(`https://www.y2mate.com/youtube/${videoId}`, '_blank');
-        });
-    }
-
-    function triggerRewardedInterstitial(videoId) {
-        if (!disableActions(videoId)) return;
-        document.getElementById(`loader-${videoId}`).style.display = 'block';
-
-        showAdWithTimeout().then(() => {
-            // Ad was successful
-            updateUserPoints(POINTS_PER_REWARDED_AD);
-            alert(`✅ Ad watched, thank you! You earned ${POINTS_PER_REWARDED_AD} points.`);
-        }).catch(e => {
-            // Ad failed or timed out
-            console.error('Rewarded Ad Error or Timeout:', e.message);
-            alert('⚠️ Ad could not be loaded. Please try again later.');
-        }).finally(() => {
-            // This will run regardless of success or failure
-            enableActions(videoId);
-            document.getElementById(`loader-${videoId}`).style.display = 'none';
-        });
-    }
-    
-    // --- Rest of the code remains the same ---
-    // (payout, admin login, search, etc. are unchanged)
-    
-    function updatePlaceholder() {
-        const method = document.getElementById('payoutMethod').value;
-        const infoInput = document.getElementById('payoutInfo');
-        if (method === 'Binance') {
-            infoInput.placeholder = 'Enter Your Binance Pay ID';
-        } else if (method === 'TG Wallet') {
-            infoInput.placeholder = 'Enter Your Telegram @Username';
-        }
-    }
-
-    function loadUserPoints() {
-        const savedPoints = localStorage.getItem('userPoints');
-        if (savedPoints) { userPoints = parseInt(savedPoints, 10) || 0; }
-        document.getElementById('pointsDisplay').innerText = userPoints;
-    }
-
-    function updateUserPoints(amount) {
-        userPoints += amount;
-        document.getElementById('pointsDisplay').innerText = userPoints;
-        localStorage.setItem('userPoints', userPoints);
-    }
-
-    async function search() {
-        const query = document.getElementById('searchInput').value.trim();
-        if (!query) return alert('❌ Enter a movie name.');
-        const resultsDiv = document.getElementById('results');
-        resultsDiv.innerHTML = '<p class=\"text-center\">🔎 Searching for movies...</p>';
-        try {
-            const ytRes = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&q=${encodeURIComponent(query)} full movie&key=${YT_API_KEY}&maxResults=4`);
-            const ytData = await ytRes.json();
-            if (ytData.error) throw new Error(ytData.error.message);
-            resultsDiv.innerHTML = '';
-            if (!ytData.items || ytData.items.length === 0) {
-                resultsDiv.innerHTML = '<p class=\"text-center\">😢 No movies found. Try a different name.</p>';
-                return;
-            }
-            ytData.items.forEach((item) => {
-                const videoId = item.id.videoId;
-                resultsDiv.innerHTML += `
-                    <div class=\"col-md-6 glass-card\">
-                        <iframe width=\"100%\" height=\"250\" src=\"https://www.youtube.com/embed/${videoId}\" frameborder=\"0\" allowfullscreen></iframe>
-                        <h5 class=\"mt-2\">${item.snippet.title}</h5>
-                        <button id=\"watch-btn-${videoId}\" class=\"btn neon-btn btn-sm mt-2\" onclick=\"triggerRewardedInterstitial('${videoId}')\">🎥 Watch & Earn (+${POINTS_PER_REWARDED_AD} Points)</button>
-                        <button id=\"download-btn-${videoId}\" class=\"btn btn-success btn-sm mt-2\" onclick=\"showAdThenDownload('${videoId}')\">⬇ Download (+${POINTS_PER_DOWNLOAD_AD} Points)</button>
-                        <div id=\"loader-${videoId}\" style=\"display:none; color:yellow;\">Loading Ad...</div>
-                    </div>`;
-            });
-            clearInterval(adInterval);
-            adInterval = setInterval(showCountdownAndAd, 600000);
-        } catch (error) {
-            resultsDiv.innerHTML = `<p class=\"text-center text-danger\">Error: ${error.message}.</p>`;
-            console.error("API Error:", error);
-        }
-    }
-    
-    function disableActions(videoId) {
-        const downloadBtn = document.getElementById(`download-btn-${videoId}`);
-        const watchBtn = document.getElementById(`watch-btn-${videoId}`);
-        if (!downloadBtn || !watchBtn) return false;
-        downloadBtn.disabled = true;
-        watchBtn.disabled = true;
-        return true;
-    }
-
-    function enableActions(videoId) {
-        const downloadBtn = document.getElementById(`download-btn-${videoId}`);
-        const watchBtn = document.getElementById(`watch-btn-${videoId}`);
-        if (downloadBtn) downloadBtn.disabled = false;
-        if (watchBtn) watchBtn.disabled = false;
-    }
-    
-    // The rest of the functions (payout, admin etc) are here. To keep the response clean, I am not repeating them. 
-    // Just copy the full code block below.
-
-</script>
-<!-- The full HTML structure with Admin Panel and Modal remains here -->
-<div id="admin-panel" class="container mt-5">
-    <h1 class="text-center mb-4">🔑 Admin Panel</h1>
-    <div class="glass-card">
-        <h4 class="mb-3">Payout Requests</h4>
-        <div id="payout-requests-list" class="table-responsive"></div>
-        <button class="btn btn-danger mt-3" onclick="logoutAdmin()">Logout</button>
-    </div>
-</div>
-<div class="modal fade" id="adminLoginModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content" style="background: #1f1c2c; color: white;">
-      <div class="modal-header"><h5 class="modal-title">Admin Login</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button></div>
-      <div class="modal-body">
-        <div class="mb-3"><label for="adminUser" class="form-label">Username</label><input type="text" class="form-control" id="adminUser"></div>
-        <div class="mb-3"><label for="adminPass" class="form-label">Password</label><input type="password" class="form-control" id="adminPass"></div>
-      </div>
-      <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button><button type="button" class="btn neon-btn" onclick="loginAdmin()">Login</button></div>
-    </div>
-  </div>
-</div>
-<script>
-    // The rest of the JS functions that were not updated
-    function showCountdownAndAd() {
-        let seconds = 5;
-        const countdownDiv = document.getElementById('countdown');
-        countdownDiv.innerHTML = `⏳ Periodic ad (+${POINTS_PER_INTERVAL_AD} points) loading in ${seconds} seconds...`;
-        const timer = setInterval(() => {
-            seconds--;
-            countdownDiv.innerHTML = `⏳ Periodic ad (+${POINTS_PER_INTERVAL_AD} points) loading in ${seconds} seconds...`;
-            if (seconds <= 0) {
-                clearInterval(timer);
-                countdownDiv.innerHTML = '';
-                showAdWithTimeout().then(() => {
-                    updateUserPoints(POINTS_PER_INTERVAL_AD);
-                    alert(`You earned ${POINTS_PER_INTERVAL_AD} points from the periodic ad!`);
-                }).catch(e => console.log('Periodic ad skipped or failed.'));
-            }
-        }, 1000);
-    }
-    function requestPayout() {
-        const payoutMethod = document.getElementById('payoutMethod').value;
-        const payoutDetails = document.getElementById('payoutInfo').value.trim();
-        if (!payoutDetails) return alert('❌ Please enter your payout details.');
-        if (userPoints < WITHDRAWAL_THRESHOLD) return alert(`❌ You need at least ${WITHDRAWAL_THRESHOLD} points to withdraw $1.`);
-        const usdAmount = Math.floor(userPoints / 24000);
-        const pointsToDeduct = usdAmount * 24000;
-        const confirmation = confirm(`You are about to withdraw ${pointsToDeduct} points for $${usdAmount} to '${payoutMethod}: ${payoutDetails}'. Do you want to continue?`);
-        if (confirmation) {
-            savePayoutRequest(payoutMethod, payoutDetails, pointsToDeduct, usdAmount);
-            updateUserPoints(-pointsToDeduct);
-            alert(`✅ Success! Your request to withdraw $${usdAmount} to '${payoutDetails}' has been submitted.`);
-            document.getElementById('payoutInfo').value = '';
-        }
-    }
-    function savePayoutRequest(method, details, points, amount) {
-        const requests = JSON.parse(localStorage.getItem('payoutRequests')) || [];
-        requests.push({ method, details, points, amount, date: new Date().toLocaleString() });
-        localStorage.setItem('payoutRequests', JSON.stringify(requests));
-    }
-    function loginAdmin() {
-        const user = document.getElementById('adminUser').value;
-        const pass = document.getElementById('adminPass').value;
-        if (user === ADMIN_USER && pass === ADMIN_PASS) {
-            sessionStorage.setItem('isAdminLoggedIn', 'true');
-            bootstrap.Modal.getInstance(document.getElementById('adminLoginModal')).hide();
-            showAdminPanel();
-        } else {
-            alert('Invalid credentials!');
-        }
-    }
-    function showAdminPanel() {
-        document.getElementById('user-view').style.display = 'none';
-        document.getElementById('admin-panel').style.display = 'block';
-        loadPayoutRequests();
-    }
-    function logoutAdmin() {
-        sessionStorage.removeItem('isAdminLoggedIn');
-        document.getElementById('admin-panel').style.display = 'none';
-        document.getElementById('user-view').style.display = 'block';
-        loadUserPoints();
-    }
-    function loadPayoutRequests() {
-        const requests = JSON.parse(localStorage.getItem('payoutRequests')) || [];
-        const listDiv = document.getElementById('payout-requests-list');
-        if (requests.length === 0) {
-            listDiv.innerHTML = '<p>No pending payout requests.</p>';
-            return;
-        }
-        let tableHTML = '<table class="table table-dark table-striped"><thead><tr><th>Date</th><th>Method</th><th>Payout Details</th><th>Points</th><th>Amount (USD)</th><th>Action</th></tr></thead><tbody>';
-        requests.forEach((req, index) => {
-            tableHTML += `<tr><td>${req.date}</td><td><span class="badge bg-info">${req.method}</span></td><td>${req.details}</td><td>${req.points}</td><td>$${req.amount}</td><td><button class="btn btn-sm btn-danger" onclick="deletePayoutRequest(${index})">Delete</button></td></tr>`;
-        });
-        tableHTML += '</tbody></table>';
-        listDiv.innerHTML = tableHTML;
-    }
-    function deletePayoutRequest(index) {
-        if (!confirm('Are you sure you want to delete this request?')) return;
-        let requests = JSON.parse(localStorage.getItem('payoutRequests')) || [];
-        requests.splice(index, 1);
-        localStorage.setItem('payoutRequests', JSON.stringify(requests));
-        loadPayoutRequests();
-    }
-    window.addEventListener('beforeunload', () => clearInterval(adInterval));
-</script>
-<script src='//libtl.com/sdk.js' data-zone='9563904' data-sdk='show_9563904'></script>
+<script src='//libtl.com/sdk.js' data-zone='9563904' data-sdk='show_s' async></script>
 </body>
 </html>
