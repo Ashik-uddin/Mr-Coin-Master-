@@ -3,13 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Orbital Shield - Telegram Edition</title>
+    <title>Orbital Shield v9.0 - The Final Cut</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <!-- Telegram WebApp Script -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
-            /* Telegram Theme Variables */
             --tg-theme-bg-color: var(--tg-color-scheme, 'dark') == 'dark' ? #18222d : #ffffff;
             --tg-theme-text-color: var(--tg-color-scheme, 'dark') == 'dark' ? #ffffff : #000000;
             --tg-theme-hint-color: #708499;
@@ -31,19 +30,8 @@
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
         }
-        #game-container {
-            position: relative;
-            background: var(--tg-theme-bg-color);
-            cursor: none;
-            width: 100%;
-            height: 100%;
-        }
-        canvas { 
-            display: block;
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-        }
+        #game-container { position: relative; background: var(--tg-theme-bg-color); cursor: none; width: 100%; height: 100%; }
+        canvas { display: block; position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
         #ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; display: flex; flex-direction: column; justify-content: space-between; padding: 20px; z-index: 5; }
         #stats { display: flex; justify-content: space-between; font-size: 1.2rem; font-weight: 600; text-shadow: 0 0 5px rgba(0,0,0,0.5); }
         .bar-container { position: absolute; width: 50%; max-width: 250px; height: 10px; background: rgba(0, 0, 0, 0.2); border-radius: 5px; }
@@ -114,7 +102,7 @@
 
 <script>
 // ===================================================================================
-//  Orbital Shield v8.0 - Telegram Mini App Edition
+//  Orbital Shield v9.0 - The Final Cut
 // ===================================================================================
 const tg = window.Telegram.WebApp;
 const canvas = document.getElementById('game-canvas');
@@ -140,40 +128,95 @@ const upgrades = {
 };
 
 let audioCtx; const sounds = {};
+function initAudio() {
+    if (audioCtx) return;
+    try {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const createSound = (freq, type, duration, volume) => () => {
+            if (!audioCtx) return;
+            const oscillator = audioCtx.createOscillator(); const gainNode = audioCtx.createGain();
+            oscillator.connect(gainNode); gainNode.connect(audioCtx.destination);
+            oscillator.type = type; oscillator.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gainNode.gain.setValueAtTime(volume, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+            oscillator.start(audioCtx.currentTime); oscillator.stop(audioCtx.currentTime + duration);
+        };
+        sounds.laser = createSound(440, 'triangle', 0.1, 0.3);
+        sounds.explosion = createSound(110, 'square', 0.3, 0.5);
+        sounds.hit = createSound(880, 'sine', 0.2, 0.4);
+    } catch (e) { console.error("Web Audio API is not supported."); }
+}
 
-function initAudio() { /* ... unchanged ... */ }
 function resizeGame() {
-    canvasSize = Math.min(window.innerWidth, window.innerHeight);
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+    canvasSize = Math.min(canvas.width, canvas.height);
     center = { x: canvas.width / 2, y: canvas.height / 2 };
     if (player) { player.x = center.x; player.y = center.y; }
 }
-function loadData() { totalXp = parseInt(localStorage.getItem('orbitalShieldXP_tg')) || 0; const savedUpgrades = JSON.parse(localStorage.getItem('orbitalShieldUpgrades_tg')); if (savedUpgrades) Object.assign(upgrades, savedUpgrades); totalXpEl.textContent = `XP: ${totalXp}`; }
-function saveData() { localStorage.setItem('orbitalShieldXP_tg', totalXp); localStorage.setItem('orbitalShieldUpgrades_tg', JSON.stringify(upgrades)); }
+
+function loadData() {
+    totalXp = parseInt(localStorage.getItem('orbitalShieldXP_tg')) || 0;
+    const savedUpgrades = JSON.parse(localStorage.getItem('orbitalShieldUpgrades_tg'));
+    if (savedUpgrades) Object.assign(upgrades, savedUpgrades);
+    totalXpEl.textContent = `XP: ${totalXp}`;
+}
+
+function saveData() {
+    localStorage.setItem('orbitalShieldXP_tg', totalXp);
+    localStorage.setItem('orbitalShieldUpgrades_tg', JSON.stringify(upgrades));
+}
 
 class Player {
     constructor(x, y) {
-        this.x = x; this.y = y; this.radius = canvasSize * 0.05; this.color = 'blue';
+        this.x = x; this.y = y; this.radius = canvasSize * 0.05;
         this.shield = { angle: 0, radius: this.radius * 1.5, arc: (Math.PI / 4) * (1 + (upgrades.shieldSize.level - 1) * 0.1), color: 'cyan' };
         this.maxHealth = 100 + (upgrades.planetHealth.level - 1) * 50;
         this.health = this.maxHealth;
     }
     draw() {
         const grd = ctx.createRadialGradient(this.x, this.y, this.radius * 0.5, this.x, this.y, this.radius);
-        grd.addColorStop(0, '#62bcf9');
-        grd.addColorStop(1, '#18222d');
+        grd.addColorStop(0, '#62bcf9'); grd.addColorStop(1, '#18222d');
         ctx.beginPath(); ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2); ctx.fillStyle = grd; ctx.fill();
         ctx.beginPath(); ctx.arc(this.x, this.y, this.shield.radius, this.shield.angle - this.shield.arc, this.shield.angle + this.shield.arc); ctx.strokeStyle = this.shield.color; ctx.lineWidth = 5; ctx.stroke();
     }
     update(mouse) { this.shield.angle = Math.atan2(mouse.y - this.y, mouse.x - this.x); this.draw(); }
-    takeDamage(amount) { this.health -= amount; healthBarEl.style.width = `${Math.max(0, this.health / this.maxHealth) * 100}%`; if (this.health <= 0) endGame(); }
+    takeDamage(amount) {
+        this.health -= amount;
+        healthBarEl.style.width = `${Math.max(0, this.health / this.maxHealth) * 100}%`;
+        if (this.health <= 0) endGame();
+    }
 }
-class Projectile { constructor(x, y, radius, color, velocity) { this.x=x; this.y=y; this.radius=radius; this.color=color; this.velocity=velocity; } draw() { ctx.beginPath(); ctx.arc(this.x, this.y, this.radius, 0, Math.PI*2); ctx.fillStyle=this.color; ctx.fill(); } update() { this.draw(); this.x+=this.velocity.x; this.y+=this.velocity.y; } }
-class Enemy extends Projectile { constructor(x, y, radius, color, velocity) { super(x, y, radius, color, velocity); this.health = this.radius; } takeDamage(amount) { this.health -= amount; return this.health <= 0; } }
-class Particle extends Projectile { constructor(x, y, radius, color, velocity) { super(x, y, radius, color, velocity); this.alpha = 1; } update() { ctx.save(); ctx.globalAlpha = this.alpha; super.update(); ctx.restore(); this.velocity.x *= 0.98; this.velocity.y *= 0.98; this.alpha -= 0.02; } }
+
+class Projectile {
+    constructor(x, y, radius, color, velocity) {
+        this.x = x; this.y = y; this.radius = radius; this.color = color; this.velocity = velocity;
+    }
+    draw() { ctx.beginPath(); ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2); ctx.fillStyle = this.color; ctx.fill(); }
+    update() { this.draw(); this.x += this.velocity.x; this.y += this.velocity.y; }
+}
+
+class Enemy extends Projectile {
+    constructor(x, y, radius, color, velocity) {
+        super(x, y, radius, color, velocity);
+        this.health = this.radius;
+    }
+    takeDamage(amount) { this.health -= amount; return this.health <= 0; }
+}
+
+class Particle extends Projectile {
+    constructor(x, y, radius, color, velocity) {
+        super(x, y, radius, color, velocity);
+        this.alpha = 1;
+    }
+    update() {
+        ctx.save(); ctx.globalAlpha = this.alpha; super.update(); ctx.restore();
+        this.velocity.x *= 0.98; this.velocity.y *= 0.98;
+        this.alpha -= 0.02;
+    }
+}
 
 let enemyInterval;
+
 function init() {
     isGameOver = false;
     score = 0;
@@ -181,14 +224,18 @@ function init() {
     player = new Player(center.x, center.y);
     healthBarEl.style.width = '100%';
     projectiles = []; enemyProjectiles = []; enemies = []; particles = [];
+    
     gameOverScreen.classList.add('hidden');
-    startScreen.classList.add('hidden');
     upgradeScreen.classList.add('hidden');
-    if (enemyInterval) clearInterval(enemyInterval);
+    startScreen.classList.add('hidden');
+    
     if (animationFrameId) cancelAnimationFrame(animationFrameId);
+    if (enemyInterval) clearInterval(enemyInterval);
+
     animate();
     enemyInterval = spawnEnemies();
 }
+
 
 function spawnEnemies() {
     return setInterval(() => {
@@ -204,7 +251,15 @@ function spawnEnemies() {
         enemies.push(new Enemy(x, y, radius, color, velocity));
     }, 1000);
 }
-function createExplosion(obj) { tg.HapticFeedback.notificationOccurred('error'); for(let i=0; i<obj.radius*1.5; i++){ const speed = Math.random()*5; const angle = Math.random()*Math.PI*2; particles.push(new Particle(obj.x, obj.y, Math.random()*2, obj.color, {x:Math.cos(angle)*speed, y:Math.sin(angle)*speed})); } }
+
+function createExplosion(obj) {
+    tg.HapticFeedback.notificationOccurred('error');
+    for (let i = 0; i < obj.radius * 1.5; i++) {
+        const speed = Math.random() * 5;
+        const angle = Math.random() * Math.PI * 2;
+        particles.push(new Particle(obj.x, obj.y, Math.random() * 2, obj.color, { x: Math.cos(angle) * speed, y: Math.sin(angle) * speed }));
+    }
+}
 
 function animate() {
     if (isGameOver) return;
@@ -229,8 +284,7 @@ function animate() {
         let angleDiff = player.shield.angle - angleToEnemy; while(angleDiff < -Math.PI) angleDiff += 2*Math.PI; while(angleDiff > Math.PI) angleDiff -= 2*Math.PI;
         if (distToPlayer - enemy.radius - player.shield.radius < 1 && Math.abs(angleDiff) < player.shield.arc) {
             tg.HapticFeedback.impactOccurred('light');
-            score += 10;
-            scoreEl.textContent = `Score: ${score}`;
+            score += 10; scoreEl.textContent = `Score: ${score}`;
             createExplosion(enemy);
             setTimeout(() => enemies.splice(eIndex, 1), 0);
         }
@@ -267,10 +321,10 @@ const mouse = { x: 0, y: 0 }; let activeTouchId = null;
 gameContainer.addEventListener('mousemove', (e) => { mouse.x = e.clientX; mouse.y = e.clientY; });
 gameContainer.addEventListener('touchmove', (e) => {
     e.preventDefault();
-    if(e.touches.length > 0) {
-        if(activeTouchId === null) activeTouchId = e.touches[0].identifier;
-        for(let i=0; i < e.touches.length; i++){
-            if(e.touches[i].identifier === activeTouchId){
+    if (e.touches.length > 0) {
+        if (activeTouchId === null) activeTouchId = e.touches[0].identifier;
+        for (let i = 0; i < e.touches.length; i++) {
+            if (e.touches[i].identifier === activeTouchId) {
                 mouse.x = e.touches[i].clientX;
                 mouse.y = e.touches[i].clientY;
                 break;
@@ -278,10 +332,10 @@ gameContainer.addEventListener('touchmove', (e) => {
         }
     }
 }, { passive: false });
-gameContainer.addEventListener('touchend', (e) => { if(e.touches.length === 0) activeTouchId = null; });
-gameContainer.addEventListener('click', () => { if(!isGameOver && !startScreen.classList.contains('hidden')) shoot(); });
+gameContainer.addEventListener('touchend', (e) => { if (e.touches.length === 0) activeTouchId = null; });
+gameContainer.addEventListener('click', () => { if (!isGameOver && startScreen.classList.contains('hidden')) shoot(); });
 gameContainer.addEventListener('touchstart', (e) => {
-    if(!isGameOver && !startScreen.classList.contains('hidden')) {
+    if (!isGameOver && startScreen.classList.contains('hidden')) {
         e.preventDefault();
         if (e.touches.length > 1 && e.changedTouches[0].identifier !== activeTouchId || e.touches.length === 1) {
             shoot();
@@ -290,7 +344,7 @@ gameContainer.addEventListener('touchstart', (e) => {
 });
 
 function shoot() {
-    if (isGameOver || startScreen.classList.contains('hidden') === false || !player) return;
+    if (isGameOver || startScreen.classList.contains('hidden') || !player) return;
     const fireRate = 400 - (upgrades.fireRate.level - 1) * 35;
     if (Date.now() - lastShotTime < fireRate) return;
     lastShotTime = Date.now();
@@ -303,13 +357,16 @@ function renderUpgrades() { const grid = document.querySelector('.upgrade-grid')
 function buyUpgrade(key) { const upg = upgrades[key]; const cost = Math.floor(upg.baseCost * Math.pow(upg.costMultiplier, upg.level)); if (totalXp >= cost) { totalXp -= cost; upg.level++; totalXpEl.textContent = `XP: ${totalXp}`; saveData(); renderUpgrades(); } }
 
 // --- Telegram Web App Init ---
-tg.ready();
-tg.expand();
-
-// Set user's name
-const user = tg.initDataUnsafe?.user;
-if (user && user.first_name) {
-    document.getElementById('welcome-message').innerText = `Welcome, ${user.first_name}!`;
+try {
+    tg.ready();
+    tg.expand();
+    const user = tg.initDataUnsafe?.user;
+    if (user && user.first_name) {
+        document.getElementById('welcome-message').innerText = `Welcome, ${user.first_name}!`;
+    }
+} catch (e) {
+    console.warn("Telegram WebApp script not loaded or running outside Telegram.");
+    document.getElementById('welcome-message').innerText = "Orbital Shield";
 }
 
 startButton.addEventListener('click', () => { initAudio(); init(); });
